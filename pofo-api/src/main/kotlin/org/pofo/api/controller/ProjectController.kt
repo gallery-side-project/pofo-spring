@@ -50,6 +50,5 @@ class ProjectController(
         @Argument content: String?,
         @Argument category: ProjectCategory?,
         @AuthenticationPrincipal user: User,
-    ): Project =
-        projectService.updateProject(projectId, title, bio, urls, imageUrls, content, category, user)
+    ): Project = projectService.updateProject(projectId, title, bio, urls, imageUrls, content, category, user)
 }
