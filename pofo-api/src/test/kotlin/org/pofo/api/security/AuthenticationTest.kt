@@ -42,11 +42,12 @@ internal class AuthenticationTest
                 context("이메일과 비밀번호가 제대로 주어졌을 때") {
                     val requestBody = LoginRequest(fakeUser.email, fakeUser.password)
                     val mvcResult =
-                        mockMvc.perform(
-                            post("/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(requestBody)),
-                        ).andReturn()
+                        mockMvc
+                            .perform(
+                                post("/auth/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(requestBody)),
+                            ).andReturn()
                     it("status 200과 유저 객체를 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.OK.value()
                     }
@@ -55,11 +56,12 @@ internal class AuthenticationTest
                 context("이메일이 제대로 주어지지 않았을 때") {
                     val requestBody = LoginRequest("wrong@org.com", "")
                     val mvcResult =
-                        mockMvc.perform(
-                            post("/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(requestBody)),
-                        ).andReturn()
+                        mockMvc
+                            .perform(
+                                post("/auth/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(requestBody)),
+                            ).andReturn()
                     it("status 401을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.UNAUTHORIZED.value()
                     }
@@ -68,11 +70,12 @@ internal class AuthenticationTest
                 context("비밀번호가 제대로 주어지지 않았을 때") {
                     val requestBody = LoginRequest(fakeUser.email, "wrongPassword")
                     val mvcResult =
-                        mockMvc.perform(
-                            post("/auth/login")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(requestBody)),
-                        ).andReturn()
+                        mockMvc
+                            .perform(
+                                post("/auth/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(requestBody)),
+                            ).andReturn()
                     it("status 401을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.UNAUTHORIZED.value()
                     }
