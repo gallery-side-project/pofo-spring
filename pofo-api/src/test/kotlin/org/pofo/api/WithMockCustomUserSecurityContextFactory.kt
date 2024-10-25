@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.context.support.WithSecurityContextFactory
 
-internal class WithMockCustomUserSecurityContextFactory: WithSecurityContextFactory<WithMockCustomUser> {
+internal class WithMockCustomUserSecurityContextFactory : WithSecurityContextFactory<WithMockCustomUser> {
     override fun createSecurityContext(customUser: WithMockCustomUser): SecurityContext {
         val context = SecurityContextHolder.createEmptyContext()
         val principal = User.create(customUser.email, customUser.password)
@@ -17,7 +17,7 @@ internal class WithMockCustomUserSecurityContextFactory: WithSecurityContextFact
                 SimpleGrantedAuthority(principal.role.name),
             )
         val auth: Authentication =
-                CustomAuthenticationToken(principal, "", authorities)
+            CustomAuthenticationToken(principal, "", authorities)
         context.authentication = auth
         return context
     }
