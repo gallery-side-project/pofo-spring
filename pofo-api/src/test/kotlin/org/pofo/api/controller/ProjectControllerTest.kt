@@ -6,7 +6,6 @@ import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
 import org.pofo.domain.project.repository.ProjectRepository
 import org.pofo.domain.user.User
-import org.pofo.domain.user.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,13 +23,14 @@ internal class ProjectControllerTest {
     @Autowired
     private lateinit var projectRepository: ProjectRepository
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
-
     private fun getMockUser(): User {
-        val authentication = SecurityContextHolder.getContext().authentication
+        val authentication =
+            SecurityContextHolder.getContext().authentication
+                ?: throw IllegalStateException(
+                    "Authentication is null." +
+                        "Consider applying the @WithMockCustomUser annotation.",
+                )
         val user = authentication.principal as User
-        userRepository.save(user)
         return user
     }
 
@@ -65,39 +65,40 @@ internal class ProjectControllerTest {
     @Test
     fun getAllProjectsByPagination() {
         // given
-        val savedProjects = projectRepository.saveAll(
-            listOf(
-                Project
-                    .builder()
-                    .title("Luminia Project 1")
-                    .Bio("첫 번째 프로젝트")
-                    .content("프로젝트 내용 1")
-                    .category(ProjectCategory.CATEGORY_A)
-                    .isApproved(true)
-                    .build(),
-                Project
-                    .builder()
-                    .title("Luminia Project 2")
-                    .Bio("두 번째 프로젝트")
-                    .content("프로젝트 내용 2")
-                    .category(ProjectCategory.CATEGORY_B)
-                    .isApproved(true)
-                    .build(),
-                Project
-                    .builder()
-                    .title("Luminia Project 3")
-                    .Bio("세 번째 프로젝트")
-                    .content("프로젝트 내용 3")
-                    .category(ProjectCategory.CATEGORY_C)
-                    .isApproved(true)
-                    .build(),
-            ),
-        )
+        val savedProjects =
+            projectRepository.saveAll(
+                listOf(
+                    Project
+                        .builder()
+                        .title("Luminia Project 1")
+                        .Bio("첫 번째 프로젝트")
+                        .content("프로젝트 내용 1")
+                        .category(ProjectCategory.CATEGORY_A)
+                        .isApproved(true)
+                        .build(),
+                    Project
+                        .builder()
+                        .title("Luminia Project 2")
+                        .Bio("두 번째 프로젝트")
+                        .content("프로젝트 내용 2")
+                        .category(ProjectCategory.CATEGORY_B)
+                        .isApproved(true)
+                        .build(),
+                    Project
+                        .builder()
+                        .title("Luminia Project 3")
+                        .Bio("세 번째 프로젝트")
+                        .content("프로젝트 내용 3")
+                        .category(ProjectCategory.CATEGORY_C)
+                        .isApproved(true)
+                        .build(),
+                ),
+            )
 
         // when & then
         graphQlTester
             .documentName("getAllProjectsByPagination")
-            .variable("cursor", 3)
+            .variable("cursor", savedProjects.last().id)
             .variable("size", 2)
             .execute()
             .path("getAllProjectsByPagination.projectCount")
