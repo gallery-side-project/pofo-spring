@@ -22,6 +22,7 @@ jobs:
         uses: ScaCap/action-ktlint@master
         with:
           github_token: ${{ secrets.pofo_github_token }}
-          reporter: github-pr-review
+          reporter: github-pr-check
+          fail_on_error: 'true'
       - name: Build with Gradle Wrapper
         run: ./gradlew build
