@@ -44,3 +44,5 @@ Lib/
 Scripts/
 .csv
 pyenv.cfg
+.cfg
+data_crawling/pyvenv.cfg

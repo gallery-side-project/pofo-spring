@@ -7,6 +7,14 @@ spring:
   web:
     resources:
       add-mappings: false
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      printer:
+        enabled: true
+      locations:
+        - classpath:graphql/**/
 
 logging:
   level:

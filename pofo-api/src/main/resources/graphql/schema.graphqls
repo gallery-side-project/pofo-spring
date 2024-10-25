@@ -1,0 +1,57 @@
+enum ProjectCategory {
+    CATEGORY_A,
+    CATEGORY_B,
+    CATEGORY_C
+}
+
+type ProjectList {
+    projects: [Project!]!
+    hasNext: Boolean!
+    projectCount: Int!
+}
+
+type Project {
+    id: ID!
+    title: String!
+    bio: String
+    urls: [String]
+    imageUrls: [String]
+    content: String!
+    isApproved: Boolean
+    category: ProjectCategory
+    author: User
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+}
+
+type Query {
+    # 특정 ID로 프로젝트를 조회
+    projectById(projectId: ID!): Project
+    # 프로젝트 리스트 페이지네이션
+    getAllProjectsByPagination(cursor: Int, size: Int!): ProjectList
+}
+
+type Mutation {
+    createProject(
+        title: String!,
+        bio: String,
+        urls: [String],
+        imageUrls: [String],
+        content: String!,
+        category: ProjectCategory
+    ): Project!
+
+    updateProject(
+        projectId: ID!,
+        title: String,
+        bio: String,
+        urls: [String],
+        imageUrls: [String],
+        content: String,
+        category: ProjectCategory
+    ): Project!
+}

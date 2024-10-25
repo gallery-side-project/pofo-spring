@@ -1,0 +1,24 @@
+mutation updateProject(
+    $projectId: ID!,
+    $title: String,
+    $bio: String,
+    $urls: [String],
+    $imageUrls: [String],
+    $content: String,
+    $category: ProjectCategory
+) {
+    updateProject(
+        projectId: $projectId,
+        title: $title,
+        bio: $bio,
+        urls: $urls,
+        imageUrls: $imageUrls,
+        content: $content,
+        category: $category
+    ) {
+        id
+        title
+        bio
+        content
+    }
+}

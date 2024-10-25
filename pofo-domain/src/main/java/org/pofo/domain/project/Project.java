@@ -1,9 +1,8 @@
 package org.pofo.domain.project;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.pofo.domain.converter.StringListConverter;
 import org.pofo.domain.user.User;
 
@@ -12,10 +11,13 @@ import java.util.List;
 @Entity
 @Table(name = "project")
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Project {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -25,9 +27,11 @@ public class Project {
     private String Bio; // 한줄 소개
 
     @Convert(converter = StringListConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<String> urls; // 유저가 설정한 url list ex) github, npm 등등
 
     @Convert(converter = StringListConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<String> imageUrls;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -38,10 +42,32 @@ public class Project {
 
     @Column()
     @Enumerated(EnumType.STRING)
-    private org.pofo.domain.project.ProjectCategory category; // 프로젝트 유형
+    private ProjectCategory category; // 프로젝트 유형
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User author;
 
+    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, String content, ProjectCategory category) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (bio != null) {
+            this.Bio = bio;
+        }
+        if (urls != null) {
+            this.urls = urls;
+        }
+        if (imageUrls != null) {
+            this.imageUrls = imageUrls;
+        }
+        if (content != null) {
+            this.content = content;
+        }
+        if (category != null) {
+            this.category = category;
+        }
+        return this;
+    }
 }

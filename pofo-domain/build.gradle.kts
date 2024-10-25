@@ -13,4 +13,33 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     runtimeOnly("org.postgresql:postgresql:42.7.4")
     runtimeOnly("com.h2database:h2:2.3.232")
+
+    // QueryDSL dependencies
+    api("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 }
+
+// --------------------------------- QueryDSL settings -----------------------------------------------
+val generatedDir =
+    layout.buildDirectory
+        .dir("generated/querydsl")
+        .get()
+        .asFile
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.plusAssign("-s")
+    options.compilerArgs.plusAssign(generatedDir.absolutePath)
+}
+
+tasks.named("clean") {
+    delete(generatedDir)
+}
+
+sourceSets {
+    named("main") {
+        java.srcDir(generatedDir)
+    }
+}
+// --------------------------------------------------------------------------------------

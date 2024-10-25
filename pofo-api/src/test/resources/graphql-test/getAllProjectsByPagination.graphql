@@ -1,0 +1,11 @@
+query getAllProjectsByPagination($cursor: Int!, $size: Int!) {
+    getAllProjectsByPagination(cursor: $cursor, size: $size) {
+        projects {
+            id
+            title
+            bio
+        }
+        hasNext
+        projectCount
+    }
+}

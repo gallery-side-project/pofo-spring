@@ -1,0 +1,13 @@
+query getProjectById($projectId: ID!) {
+    projectById(projectId: $projectId) {
+        id
+        title
+        bio
+        content
+        category
+        author {
+            name
+            email
+        }
+    }
+}
