@@ -1,13 +1,16 @@
 package org.pofo.api.security
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.pofo.api.dto.LoginRequest
 import org.pofo.domain.user.User
 import org.pofo.domain.user.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
@@ -28,6 +31,7 @@ internal class AuthenticationTest
     ) : DescribeSpec({
             extensions(SpringExtension)
 
+            val sessionCookieName = "pofo_sid";
             val objectMapper = jacksonObjectMapper()
             val passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
             val fakeUser = User.create("test@org.com", "test")
@@ -48,8 +52,10 @@ internal class AuthenticationTest
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(requestBody)),
                             ).andReturn()
-                    it("status 200과 유저 객체를 반환해야 한다.") {
+                    it("status 200과 세션 쿠키를 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.OK.value()
+                        mvcResult.response.cookies
+                            .filter { cookie -> cookie.name == sessionCookieName }.shouldNotBeNull()
                     }
                 }
 

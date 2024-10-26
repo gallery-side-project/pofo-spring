@@ -1,5 +1,7 @@
 package org.pofo.api.security
 
+import jakarta.servlet.SessionCookieConfig
+import org.apache.catalina.core.ApplicationSessionCookieConfig
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

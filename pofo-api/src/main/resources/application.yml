@@ -16,6 +16,12 @@ spring:
       locations:
         - classpath:graphql/**/
 
+server:
+  servlet:
+    session:
+      cookie:
+        name: pofo_sid
+
 logging:
   level:
     org.pofo.api: DEBUG
