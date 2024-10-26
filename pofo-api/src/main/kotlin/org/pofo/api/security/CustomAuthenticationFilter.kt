@@ -21,8 +21,8 @@ class CustomAuthenticationFilter(
 
         val authenticationToken =
             CustomAuthenticationToken(
-                principal = loginRequest.email,
-                credentials = loginRequest.password,
+                email = loginRequest.email,
+                password = loginRequest.password,
             )
 
         return this.authenticationManager.authenticate(authenticationToken)

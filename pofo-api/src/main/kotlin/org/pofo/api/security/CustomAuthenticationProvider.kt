@@ -19,6 +19,10 @@ class CustomAuthenticationProvider(
     private val passwordEncoder: PasswordEncoder,
 ) : AuthenticationProvider {
     override fun authenticate(authentication: Authentication): Authentication {
+        if (authentication.isAuthenticated) {
+            return authentication
+        }
+
         val email = authentication.name
         val password = authentication.credentials.toString()
         logger.debug { "login attempt for $email" }
@@ -28,15 +32,12 @@ class CustomAuthenticationProvider(
             if (!passwordEncoder.matches(password, user.password)) {
                 throw CustomError(ErrorType.INVALID_PASSWORD)
             }
-            val authorities =
-                listOf(
-                    SimpleGrantedAuthority(user.role.name),
-                )
             val token =
                 CustomAuthenticationToken(
                     principal = user,
-                    credentials = null,
-                    authorities = authorities,
+                    authorities = listOf(
+                        SimpleGrantedAuthority(user.role.name),
+                    ),
                 )
             return token
         } catch (err: CustomError) {

@@ -29,7 +29,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    protected User(@NonNull String email, @NonNull String password) {
+    private User(@NonNull String email, @NonNull String password) {
         this.email = email;
         this.password = password;
         this.role = UserRole.ROLE_USER;
