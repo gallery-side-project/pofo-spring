@@ -1,8 +1,10 @@
 package org.pofo.api.security
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.kotest.assertions.print.print
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import jakarta.servlet.http.Cookie
@@ -15,10 +17,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -51,14 +55,18 @@ internal class AuthenticationTest
                             .param("remember-me", if (rememberMe) "true" else "false")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(requestBody)),
-                    ).andReturn()
+                    ).andDo(MockMvcResultHandlers.print())
+                    .andReturn()
 
             describe("로그인 시") {
                 context("이메일과 비밀번호가 제대로 주어졌을 때") {
                     val requestBody = LoginRequest(fakeUser.email, fakeUser.password)
                     val mvcResult = login(requestBody)
-                    it("status 200을 반환해야 한다.") {
+                    it("세션과 status 200을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.OK.value()
+                        mvcResult.request.session!!
+                            .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)
+                            .shouldNotBeNull()
                     }
                 }
 
@@ -67,6 +75,9 @@ internal class AuthenticationTest
                     val mvcResult = login(requestBody)
                     it("status 401을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.UNAUTHORIZED.value()
+                        mvcResult.request.session!!
+                            .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)
+                            .shouldBeNull()
                     }
                 }
 
@@ -75,6 +86,9 @@ internal class AuthenticationTest
                     val mvcResult = login(requestBody)
                     it("status 401을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.UNAUTHORIZED.value()
+                        mvcResult.request.session!!
+                            .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)
+                            .shouldBeNull()
                     }
                 }
 
@@ -82,8 +96,11 @@ internal class AuthenticationTest
                     val requestBody = LoginRequest(fakeUser.email, fakeUser.password)
                     val mvcResult = login(requestBody, true)
 
-                    it("리멤버 미 쿠키를 같이 반환해야 한다.") {
+                    it("세션과 리멤버 미 쿠키를 같이 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.OK.value()
+                        mvcResult.request.session!!
+                            .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)
+                            .shouldNotBeNull()
                         mvcResult.response
                             .getHeaders("Set-Cookie")
                             .find { cookie ->
@@ -106,7 +123,7 @@ internal class AuthenticationTest
                         mockMvc
                             .perform(
                                 get("/user/me")
-                                    .cookie(Cookie(rememberMeCookieName, rememberMeCookieValue))
+                                    .cookie(Cookie(rememberMeCookieName, rememberMeCookieValue)),
                             ).andReturn()
 
                     it("리멤버 미 쿠키가 재설정 되어야 한다.") {
