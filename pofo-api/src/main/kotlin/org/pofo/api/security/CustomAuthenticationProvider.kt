@@ -35,9 +35,10 @@ class CustomAuthenticationProvider(
             val token =
                 CustomAuthenticationToken(
                     principal = user,
-                    authorities = listOf(
-                        SimpleGrantedAuthority(user.role.name),
-                    ),
+                    authorities =
+                        listOf(
+                            SimpleGrantedAuthority(user.role.name),
+                        ),
                 )
             return token
         } catch (err: CustomError) {

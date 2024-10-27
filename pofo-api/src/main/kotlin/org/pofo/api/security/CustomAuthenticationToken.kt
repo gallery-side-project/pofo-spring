@@ -9,7 +9,6 @@ class CustomAuthenticationToken private constructor(
     private val credentials: Any,
     authorities: List<GrantedAuthority>,
 ) : AbstractAuthenticationToken(authorities) {
-
     /**
      * 인증되지 않은 Authentication 객체를 생성합니다.
      */
@@ -18,6 +17,7 @@ class CustomAuthenticationToken private constructor(
     constructor(principal: User, authorities: List<GrantedAuthority>) : this(principal, "", authorities) {
         this.isAuthenticated = true
     }
+
     /**
      * 인증된 Authentication 객체를 principal을 User로 설정하여 생성합니다.
      * @see org.springframework.security.core.AuthenticatedPrincipal

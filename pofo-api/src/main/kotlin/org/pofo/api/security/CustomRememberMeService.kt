@@ -174,14 +174,15 @@ class CustomRememberMeService(
         logger.debug { "Refreshing remember-me token for user: ${token.email}, series: ${token.series}" }
         val newToken = token.updateTokenValue(this.generateTokenValue())
 
-        val user = try {
-            this.tokenRepository.updateToken(newToken.series, newToken.tokenValue, newToken.lastUsedAt)
-            this.addRememberMeCookie(listOf(newToken.series, newToken.tokenValue), response)
-            this.userRepository.findByEmail(token.email)
-        } catch (ex: Exception) {
-            logger.error(ex) { "Failed to update remember-me token" }
-            throw RememberMeAuthenticationException("AutoLogin failed due to data access problem")
-        }
+        val user =
+            try {
+                this.tokenRepository.updateToken(newToken.series, newToken.tokenValue, newToken.lastUsedAt)
+                this.addRememberMeCookie(listOf(newToken.series, newToken.tokenValue), response)
+                this.userRepository.findByEmail(token.email)
+            } catch (ex: Exception) {
+                logger.error(ex) { "Failed to update remember-me token" }
+                throw RememberMeAuthenticationException("AutoLogin failed due to data access problem")
+            }
         return user
     }
 

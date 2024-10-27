@@ -14,9 +14,10 @@ internal class WithMockCustomUserSecurityContextFactory : WithSecurityContextFac
         val token =
             CustomAuthenticationToken(
                 principal = user,
-                authorities = listOf(
-                    SimpleGrantedAuthority(user.role.name),
-                )
+                authorities =
+                    listOf(
+                        SimpleGrantedAuthority(user.role.name),
+                    ),
             )
         context.authentication = token
         return context
