@@ -24,14 +24,9 @@ server:
         secure: true
         http-only: true
         path: /
-
-session:
-  remember-me-cookie:
-    name: pofo_rmm
-    secure: true
-    http-only: true
-    path: /
-    token-validity-in-seconds: 604800 # 60 * 60 * 24 * 7
+      remember-me:
+        name: pofo_rmm
+        token-key: development
 
 logging:
   level:

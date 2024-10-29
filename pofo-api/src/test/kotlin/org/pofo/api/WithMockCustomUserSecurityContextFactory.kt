@@ -1,6 +1,6 @@
 package org.pofo.api
 
-import org.pofo.api.security.CustomAuthenticationToken
+import org.pofo.api.security.LocalAuthenticationToken
 import org.pofo.domain.user.User
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext
@@ -12,7 +12,7 @@ internal class WithMockCustomUserSecurityContextFactory : WithSecurityContextFac
         val context = SecurityContextHolder.createEmptyContext()
         val user = User.create(customUser.email, customUser.password)
         val token =
-            CustomAuthenticationToken(
+            LocalAuthenticationToken(
                 principal = user,
                 authorities =
                     listOf(

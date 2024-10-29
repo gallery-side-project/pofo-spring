@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
 
-class CustomAuthenticationFilter(
+class LocalAuthenticationFilter(
     requestMatcher: RequestMatcher,
 ) : AbstractAuthenticationProcessingFilter(requestMatcher) {
     private val objectMapper = jacksonObjectMapper()
@@ -20,7 +20,7 @@ class CustomAuthenticationFilter(
         val loginRequest = objectMapper.readValue(request.reader, LoginRequest::class.java)
 
         val authenticationToken =
-            CustomAuthenticationToken(
+            LocalAuthenticationToken(
                 email = loginRequest.email,
                 password = loginRequest.password,
             )

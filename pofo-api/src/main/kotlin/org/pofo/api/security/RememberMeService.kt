@@ -4,11 +4,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.pofo.domain.security.remember_me.CustomRememberMeToken
-import org.pofo.domain.security.remember_me.CustomRememberMeTokenRepository
+import org.pofo.domain.security.remember_me.RememberMeToken
+import org.pofo.domain.security.remember_me.RememberMeTokenRepository
 import org.pofo.domain.user.User
 import org.pofo.domain.user.UserRepository
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.web.authentication.RememberMeServices
@@ -21,23 +21,23 @@ import java.util.Date
 
 private val logger = KotlinLogging.logger {}
 
-class CustomRememberMeService(
-    private val seriesLength: Int = 32,
-    private val tokenValueLength: Int = 32,
-    private val alwaysRemember: Boolean = false,
-    private val parameter: String = "remember-me",
+class RememberMeService(
+    private val key: String,
+    private val cookieName: String,
+    private val tokenRepository: RememberMeTokenRepository,
+    private val userRepository: UserRepository,
 ) : RememberMeServices {
-    private val delimiter = ":"
     private val secureRandom = SecureRandom()
-
-    @Autowired
-    private lateinit var rememberMeCookieProperties: RememberMeCookieProperties
-
-    @Autowired
-    private lateinit var tokenRepository: CustomRememberMeTokenRepository
-
-    @Autowired
-    private lateinit var userRepository: UserRepository
+    private val cookiePath: String = "/"
+    private val cookieDomain: String? = null
+    private val useSecureCookie: Boolean = true
+    private val useHttpOnlyCookie: Boolean = true
+    private val delimiter: String = ":"
+    private val seriesLength: Int = 32
+    private val tokenValueLength: Int = 32
+    private val alwaysRemember: Boolean = false
+    private val parameter: String = "remember-me"
+    private val tokenValidityInSeconds: Int = 60 * 60 * 24 * 15
 
     /**
      * 유저의 세션이 만료되었을 때 이 함수를 통해 세션을 재발급해줍니다.
@@ -59,9 +59,10 @@ class CustomRememberMeService(
             val tokenValues = this.decodeCookie(cookieValue)
             val user: User = this.processAutoLoginCookie(tokenValues, response)
             logger.debug { "Remember-me cookie accepted: ${user.email}" }
-            return CustomAuthenticationToken(
-                principal = user,
-                authorities = listOf(SimpleGrantedAuthority(user.role.name)),
+            return RememberMeAuthenticationToken(
+                this.key,
+                user,
+                listOf(SimpleGrantedAuthority(user.role.name)),
             )
         } catch (ex: RememberMeAuthenticationException) {
             logger.debug { ex.message }
@@ -90,7 +91,7 @@ class CustomRememberMeService(
 
         val cookieValueAsPlainText = "$series$delimiter$tokenValue"
         return Cookie(
-            this.rememberMeCookieProperties.name,
+            this.cookieName,
             Base64.getEncoder().withoutPadding().encodeToString(cookieValueAsPlainText.toByteArray()),
         )
     }
@@ -104,13 +105,13 @@ class CustomRememberMeService(
     ) {
         val cookie =
             this.encodeCookie(tokenValues).apply {
-                maxAge = rememberMeCookieProperties.tokenValidityInSeconds
-                path = rememberMeCookieProperties.path
-                if (rememberMeCookieProperties.domain != null) {
-                    domain = rememberMeCookieProperties.domain
+                maxAge = this@RememberMeService.tokenValidityInSeconds
+                path = this@RememberMeService.cookiePath
+                if (this@RememberMeService.cookieDomain != null) {
+                    domain = this@RememberMeService.cookieDomain
                 }
-                isHttpOnly = rememberMeCookieProperties.httpOnly
-                secure = rememberMeCookieProperties.secure
+                isHttpOnly = this@RememberMeService.useHttpOnlyCookie
+                secure = this@RememberMeService.useSecureCookie
             }
         response.addCookie(cookie)
     }
@@ -122,7 +123,7 @@ class CustomRememberMeService(
         val cookies = request.cookies
         if (cookies != null && cookies.isNotEmpty()) {
             for (cookie in cookies) {
-                if (cookie.name == this.rememberMeCookieProperties.name) {
+                if (cookie.name == this.cookieName) {
                     return cookie.value
                 }
             }
@@ -135,7 +136,7 @@ class CustomRememberMeService(
      */
     private fun removeRememberMeCookie(response: HttpServletResponse) {
         logger.debug { "Remove remember-me cookie" }
-        val cookie = Cookie(this.rememberMeCookieProperties.name, null)
+        val cookie = Cookie(this.cookieName, null)
         cookie.maxAge = 0
         response.addCookie(cookie)
     }
@@ -152,7 +153,7 @@ class CustomRememberMeService(
         }
         val presentedSeries = tokenValues[0]
         val presentedTokenValue = tokenValues[1]
-        val token: CustomRememberMeToken =
+        val token: RememberMeToken =
             this.tokenRepository.findBySeries(presentedSeries)
                 ?: throw RememberMeAuthenticationException("No remember-me token found for series id: $presentedSeries")
 
@@ -167,7 +168,7 @@ class CustomRememberMeService(
         }
 
         // 토큰 만료 확인
-        if (token.lastUsedAt.time + this.rememberMeCookieProperties.tokenValidityInSeconds.toLong() * 1000L <
+        if (token.lastUsedAt.time + this.tokenValidityInSeconds.toLong() * 1000L <
             System.currentTimeMillis()
         ) {
             throw RememberMeAuthenticationException("Remember-me token has expired")
@@ -215,21 +216,18 @@ class CustomRememberMeService(
         response: HttpServletResponse,
         successfulAuthentication: Authentication,
     ) {
-        if (!this.rememberMeRequested(request, this.parameter)) {
+        if (!this.rememberMeRequested(request)) {
             logger.debug { "Remember-me login not requested." }
         } else {
             this.onLoginSuccess(response, successfulAuthentication)
         }
     }
 
-    private fun rememberMeRequested(
-        request: HttpServletRequest,
-        parameter: String?,
-    ): Boolean {
+    private fun rememberMeRequested(request: HttpServletRequest): Boolean {
         if (this.alwaysRemember) {
             return true
         } else {
-            val paramValue = request.getParameter(parameter)
+            val paramValue = request.getParameter(this.parameter)
             if (paramValue == null ||
                 !paramValue.equals("true", ignoreCase = true) &&
                 !paramValue.equals(
@@ -240,7 +238,7 @@ class CustomRememberMeService(
                 paramValue != "1"
             ) {
                 logger.debug {
-                    "Did not send remember-me cookie (principal did not set parameter: $parameter)"
+                    "Did not send remember-me cookie (principal did not set parameter: ${this.parameter})"
                 }
                 return false
             } else {
@@ -258,13 +256,13 @@ class CustomRememberMeService(
     ) {
         val user = successfulAuthentication.principal as User
         logger.debug { "Creating new remember-me token for user: ${user.email}" }
-        val customRememberMeToken =
-            CustomRememberMeToken.create(this.generateSerie(), user.email, this.generateTokenValue(), Date())
+        val rememberMeToken =
+            RememberMeToken.create(this.generateSerie(), user.email, this.generateTokenValue(), Date())
 
         try {
-            this.tokenRepository.save(customRememberMeToken)
+            this.tokenRepository.save(rememberMeToken)
             this.addRememberMeCookie(
-                listOf(customRememberMeToken.series, customRememberMeToken.tokenValue),
+                listOf(rememberMeToken.series, rememberMeToken.tokenValue),
                 response,
             )
         } catch (ex: Exception) {

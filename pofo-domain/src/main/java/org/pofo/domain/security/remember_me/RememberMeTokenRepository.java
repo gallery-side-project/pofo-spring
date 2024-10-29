@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
-public interface CustomRememberMeTokenRepository extends JpaRepository<CustomRememberMeToken, Long> {
+public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken, Long> {
     @Nullable
-    CustomRememberMeToken findBySeries(String series);
+    RememberMeToken findBySeries(String series);
 
     @Transactional
     void removeByEmail(String email);
@@ -19,7 +19,7 @@ public interface CustomRememberMeTokenRepository extends JpaRepository<CustomRem
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query(
-            "UPDATE CustomRememberMeToken t " +
+            "UPDATE RememberMeToken t " +
                     "SET t.tokenValue = :tokenValue, t.lastUsedAt = :lastUsedAt " +
                     "WHERE t.series = :series"
     )

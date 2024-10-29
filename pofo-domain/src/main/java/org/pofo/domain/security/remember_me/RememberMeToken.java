@@ -15,7 +15,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CustomRememberMeToken {
+public class RememberMeToken {
     @Id
     @EqualsAndHashCode.Include
     private String series;
@@ -32,18 +32,18 @@ public class CustomRememberMeToken {
     @Column(nullable = false)
     private Date lastUsedAt;
 
-    private CustomRememberMeToken(String series, @NotNull String email, @NotNull String tokenValue, @NotNull Date lastUsedAt) {
+    private RememberMeToken(String series, @NotNull String email, @NotNull String tokenValue, @NotNull Date lastUsedAt) {
         this.series = series;
         this.email = email;
         this.tokenValue = tokenValue;
         this.lastUsedAt = lastUsedAt;
     }
 
-    public static CustomRememberMeToken create(String series, String email, String token, Date lastUsedAt) {
-        return new CustomRememberMeToken(series, email, token, lastUsedAt);
+    public static RememberMeToken create(String series, String email, String token, Date lastUsedAt) {
+        return new RememberMeToken(series, email, token, lastUsedAt);
     }
 
-    public CustomRememberMeToken updateTokenValue(String newTokenValue) {
-        return new CustomRememberMeToken(series, email, newTokenValue, new Date());
+    public RememberMeToken updateTokenValue(String newTokenValue) {
+        return new RememberMeToken(series, email, newTokenValue, new Date());
     }
 }
