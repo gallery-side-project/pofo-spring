@@ -24,16 +24,14 @@ private val logger = KotlinLogging.logger {}
 class CustomRememberMeService(
     private val seriesLength: Int = 32,
     private val tokenValueLength: Int = 32,
-    private val tokenValiditySeconds: Int,
-    private val cookiePath: String = "/",
-    private val cookieDomain: String? = null,
-    private val useSecureCookie: Boolean = false,
     private val alwaysRemember: Boolean = false,
     private val parameter: String = "remember-me",
-    private val rememberMeCookieName: String,
 ) : RememberMeServices {
     private val delimiter = ":"
     private val secureRandom = SecureRandom()
+
+    @Autowired
+    private lateinit var rememberMeCookieProperties: RememberMeCookieProperties
 
     @Autowired
     private lateinit var tokenRepository: CustomRememberMeTokenRepository
@@ -92,7 +90,7 @@ class CustomRememberMeService(
 
         val cookieValueAsPlainText = "$series$delimiter$tokenValue"
         return Cookie(
-            this.rememberMeCookieName,
+            this.rememberMeCookieProperties.name,
             Base64.getEncoder().withoutPadding().encodeToString(cookieValueAsPlainText.toByteArray()),
         )
     }
@@ -104,14 +102,16 @@ class CustomRememberMeService(
         tokenValues: List<String>,
         response: HttpServletResponse,
     ) {
-        val cookie = this.encodeCookie(tokenValues)
-        cookie.maxAge = tokenValiditySeconds
-        cookie.path = this.cookiePath
-        if (this.cookieDomain != null) {
-            cookie.domain = cookieDomain
-        }
-        cookie.isHttpOnly = true
-        cookie.secure = this.useSecureCookie
+        val cookie =
+            this.encodeCookie(tokenValues).apply {
+                maxAge = rememberMeCookieProperties.tokenValidityInSeconds
+                path = rememberMeCookieProperties.path
+                if (rememberMeCookieProperties.domain != null) {
+                    domain = rememberMeCookieProperties.domain
+                }
+                isHttpOnly = rememberMeCookieProperties.httpOnly
+                secure = rememberMeCookieProperties.secure
+            }
         response.addCookie(cookie)
     }
 
@@ -122,7 +122,7 @@ class CustomRememberMeService(
         val cookies = request.cookies
         if (cookies != null && cookies.isNotEmpty()) {
             for (cookie in cookies) {
-                if (cookie.name == rememberMeCookieName) {
+                if (cookie.name == this.rememberMeCookieProperties.name) {
                     return cookie.value
                 }
             }
@@ -135,7 +135,7 @@ class CustomRememberMeService(
      */
     private fun removeRememberMeCookie(response: HttpServletResponse) {
         logger.debug { "Remove remember-me cookie" }
-        val cookie = Cookie(rememberMeCookieName, null)
+        val cookie = Cookie(this.rememberMeCookieProperties.name, null)
         cookie.maxAge = 0
         response.addCookie(cookie)
     }
@@ -167,7 +167,9 @@ class CustomRememberMeService(
         }
 
         // 토큰 만료 확인
-        if (token.lastUsedAt.time + tokenValiditySeconds.toLong() * 1000L < System.currentTimeMillis()) {
+        if (token.lastUsedAt.time + this.rememberMeCookieProperties.tokenValidityInSeconds.toLong() * 1000L <
+            System.currentTimeMillis()
+        ) {
             throw RememberMeAuthenticationException("Remember-me token has expired")
         }
 

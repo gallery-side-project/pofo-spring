@@ -21,6 +21,17 @@ server:
     session:
       cookie:
         name: pofo_sid
+        secure: true
+        http-only: true
+        path: /
+
+session:
+  remember-me-cookie:
+    name: pofo_rmm
+    secure: true
+    http-only: true
+    path: /
+    token-validity-in-seconds: 604800 # 60 * 60 * 24 * 7
 
 logging:
   level:

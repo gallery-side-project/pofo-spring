@@ -1,6 +1,7 @@
 package org.pofo.api.security
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -20,11 +21,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(RememberMeCookieProperties::class)
 class SecurityConfig(
     private val authenticationConfiguration: AuthenticationConfiguration,
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
     private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
 ) {
+
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain =
         http
@@ -82,11 +85,7 @@ class SecurityConfig(
     @Bean
     fun customRememberMeService(): CustomRememberMeService {
         val rememberMeService =
-            CustomRememberMeService(
-                rememberMeCookieName = "pofo_rmm",
-                tokenValiditySeconds = 60 * 60 * 24 * 15,
-                useSecureCookie = true,
-            )
+            CustomRememberMeService()
         return rememberMeService
     }
 
@@ -101,4 +100,5 @@ class SecurityConfig(
         source.registerCorsConfiguration("/**", corsConfiguration)
         return source
     }
+
 }
