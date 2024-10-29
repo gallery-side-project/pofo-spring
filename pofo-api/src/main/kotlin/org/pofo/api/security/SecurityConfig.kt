@@ -27,7 +27,6 @@ class SecurityConfig(
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
     private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
 ) {
-
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain =
         http
@@ -100,5 +99,4 @@ class SecurityConfig(
         source.registerCorsConfiguration("/**", corsConfiguration)
         return source
     }
-
 }
