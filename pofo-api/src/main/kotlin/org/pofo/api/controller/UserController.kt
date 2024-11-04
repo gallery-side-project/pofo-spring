@@ -3,6 +3,7 @@ package org.pofo.api.controller
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.pofo.api.dto.RegisterRequest
+import org.pofo.api.security.CurrentUser
 import org.pofo.api.service.UserService
 import org.pofo.domain.user.User
 import org.springframework.http.ResponseEntity
@@ -30,6 +31,6 @@ class UserController(
 
     @GetMapping("/me")
     fun getMe(
-        @AuthenticationPrincipal user: User,
+        @CurrentUser user: User,
     ): ResponseEntity<*> = ResponseEntity.ok(user)
 }

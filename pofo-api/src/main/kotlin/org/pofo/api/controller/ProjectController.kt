@@ -1,5 +1,6 @@
 package org.pofo.api.controller
 
+import org.pofo.api.security.CurrentUser
 import org.pofo.api.service.ProjectService
 import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
@@ -36,7 +37,7 @@ class ProjectController(
         @Argument imageUrls: List<String>?,
         @Argument content: String,
         @Argument category: ProjectCategory,
-        @AuthenticationPrincipal user: User,
+        @CurrentUser user: User,
     ): Project = projectService.createProject(title, bio, urls, imageUrls, content, category, user)
 
     @PreAuthorize("isAuthenticated()")
@@ -49,6 +50,6 @@ class ProjectController(
         @Argument imageUrls: List<String>?,
         @Argument content: String?,
         @Argument category: ProjectCategory?,
-        @AuthenticationPrincipal user: User,
+        @CurrentUser user: User,
     ): Project = projectService.updateProject(projectId, title, bio, urls, imageUrls, content, category, user)
 }

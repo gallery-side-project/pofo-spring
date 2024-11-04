@@ -2,6 +2,7 @@ package org.pofo.api.controller
 
 import org.junit.jupiter.api.Test
 import org.pofo.api.WithMockCustomUser
+import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
 import org.pofo.domain.project.repository.ProjectRepository
@@ -11,6 +12,8 @@ import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureG
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.graphql.test.tester.GraphQlTester
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.context.support.WithUserDetails
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
@@ -30,8 +33,8 @@ internal class ProjectControllerTest {
                     "Authentication is null." +
                         "Consider applying the @WithMockCustomUser annotation.",
                 )
-        val user = authentication.principal as User
-        return user
+        val principal = authentication.principal as PrincipalDetails
+        return principal.user
     }
 
     @Test

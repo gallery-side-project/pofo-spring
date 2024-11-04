@@ -46,3 +46,6 @@ Scripts/
 pyenv.cfg
 .cfg
 data_crawling/pyvenv.cfg
+
+### OAuth ###
+application

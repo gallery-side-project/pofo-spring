@@ -22,7 +22,8 @@ class CustomAuthenticationSuccessHandler : AuthenticationSuccessHandler {
         response: HttpServletResponse,
         authentication: Authentication,
     ) {
-        val user = authentication.principal as User
+        val principal = authentication.principal as PrincipalDetails
+        val user = principal.user
         logger.info { "login success: email: ${user.email}, role: ${user.role}" }
 
         response.apply {

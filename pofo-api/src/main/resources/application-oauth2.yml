@@ -1,0 +1,14 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23lizH4Oso1T19O0Qk
+            client-secret: 4ceabba8f0bf2848dc735a041bcbc697cc145ac9
+            client-authentication-method: post
+            client-name: Github
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - read:user
+              - public_repo
