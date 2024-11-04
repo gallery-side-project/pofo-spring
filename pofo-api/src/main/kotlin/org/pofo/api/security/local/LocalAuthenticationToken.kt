@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.local
 
 import org.pofo.domain.user.User
 import org.springframework.security.authentication.AbstractAuthenticationToken

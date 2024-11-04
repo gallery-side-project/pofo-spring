@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.local
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.servlet.http.HttpServletRequest

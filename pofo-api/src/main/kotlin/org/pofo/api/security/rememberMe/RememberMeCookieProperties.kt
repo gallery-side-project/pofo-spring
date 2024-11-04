@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.rememberMe
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

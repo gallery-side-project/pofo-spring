@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.rememberMe
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.Cookie

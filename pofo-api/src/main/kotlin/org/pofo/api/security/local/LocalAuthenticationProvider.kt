@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.local
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.pofo.domain.user.UserRepository
@@ -26,9 +26,9 @@ class LocalAuthenticationProvider(
             LocalAuthenticationToken(
                 principal = user,
                 authorities =
-                    listOf(
-                        SimpleGrantedAuthority(user.role.name),
-                    ),
+                listOf(
+                    SimpleGrantedAuthority(user.role.name),
+                ),
             )
         return token
     }

@@ -1,6 +1,6 @@
 package org.pofo.api
 
-import org.pofo.api.security.LocalAuthenticationToken
+import org.pofo.api.security.local.LocalAuthenticationToken
 import org.pofo.domain.user.User
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext

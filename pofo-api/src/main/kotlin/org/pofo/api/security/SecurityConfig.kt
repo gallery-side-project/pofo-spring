@@ -1,5 +1,9 @@
 package org.pofo.api.security
 
+import org.pofo.api.security.local.LocalAuthenticationFilter
+import org.pofo.api.security.local.LocalAuthenticationProvider
+import org.pofo.api.security.rememberMe.RememberMeCookieProperties
+import org.pofo.api.security.rememberMe.RememberMeService
 import org.pofo.domain.security.remember_me.RememberMeTokenRepository
 import org.pofo.domain.user.UserRepository
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
