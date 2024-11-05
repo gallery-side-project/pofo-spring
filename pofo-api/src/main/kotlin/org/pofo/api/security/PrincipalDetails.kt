@@ -11,6 +11,8 @@ class PrincipalDetails(
     private val attributes: Map<String, Any>? = null,
 ) : UserDetails,
     OAuth2User {
+    private val authorities: Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority(user.role.name))
+
     override fun getUsername(): String = user.email
 
     override fun getPassword(): String = user.password
@@ -19,5 +21,5 @@ class PrincipalDetails(
 
     override fun getAttributes(): Map<String, Any>? = attributes
 
-    override fun getAuthorities(): List<GrantedAuthority> = listOf(SimpleGrantedAuthority(user.role.name))
+    override fun getAuthorities(): Collection<GrantedAuthority> = authorities
 }
