@@ -48,4 +48,4 @@ pyenv.cfg
 data_crawling/pyvenv.cfg
 
 ### OAuth ###
-application
+application-oauth2.yml
