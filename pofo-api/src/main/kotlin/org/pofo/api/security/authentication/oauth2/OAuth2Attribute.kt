@@ -18,7 +18,6 @@ class OAuth2Attribute private constructor(
                 UserSocialType.GITHUB -> ofGithub(nameAttributeKey, attributes)
             }
 
-
         private fun ofGithub(
             nameAttributeKey: String,
             attributes: Map<String, Any>,

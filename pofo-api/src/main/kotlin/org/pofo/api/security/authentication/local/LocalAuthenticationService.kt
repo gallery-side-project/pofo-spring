@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class LocalAuthenticationService(
     private val userRepository: UserRepository,
-): UserDetailsService {
+) : UserDetailsService {
     override fun loadUserByUsername(email: String): UserDetails? {
         val fetchUser = userRepository.findByEmail(email) ?: return null
         return PrincipalDetails(fetchUser)

@@ -1,7 +1,5 @@
 package org.pofo.api
 
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.user.User
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -10,8 +8,7 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.context.support.WithSecurityContextFactory
 
-internal class WithMockCustomUserSecurityContextFactory(
-) : WithSecurityContextFactory<WithMockCustomUser> {
+internal class WithMockCustomUserSecurityContextFactory() : WithSecurityContextFactory<WithMockCustomUser> {
     override fun createSecurityContext(customUser: WithMockCustomUser): SecurityContext {
         val user = User.create(customUser.email, customUser.password)
         val context = SecurityContextHolder.createEmptyContext()
@@ -22,7 +19,7 @@ internal class WithMockCustomUserSecurityContextFactory(
             UsernamePasswordAuthenticationToken.authenticated(
                 principal,
                 "",
-                authorities
+                authorities,
             )
         context.authentication = token
         return context
