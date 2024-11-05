@@ -1,15 +1,18 @@
 package org.pofo.api.security
 
-import org.pofo.api.security.local.LocalAuthenticationFilter
-import org.pofo.api.security.local.LocalAuthenticationService
-import org.pofo.api.security.rememberMe.RememberMeCookieProperties
+import org.pofo.api.security.authentication.local.LocalAuthenticationFailureHandler
+import org.pofo.api.security.authentication.local.LocalAuthenticationFilter
+import org.pofo.api.security.authentication.local.LocalAuthenticationService
+import org.pofo.api.security.authentication.local.LocalAuthenticationSuccessHandler
+import org.pofo.api.security.authentication.rememberMe.RememberMeAuthenticationService
+import org.pofo.api.security.authentication.rememberMe.RememberMeCookieProperties
+import org.pofo.domain.security.SessionPersistentRepository
+import org.pofo.domain.user.UserRepository
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.queryForObject
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.RememberMeAuthenticationProvider
@@ -21,16 +24,12 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl
-import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import javax.sql.DataSource
 
 @Configuration
 @EnableWebSecurity
@@ -72,9 +71,22 @@ class SecurityConfig(
             ).build()
 
     @Bean
+    fun rememberMeAuthenticationService(
+        cookieProperties: RememberMeCookieProperties,
+        userRepository: UserRepository,
+        sessionPersistentRepository: SessionPersistentRepository,
+    ): RememberMeAuthenticationService =
+        RememberMeAuthenticationService(
+            key = cookieProperties.key,
+            cookieName = cookieProperties.name,
+            userRepository = userRepository,
+            sessionPersistentRepository = sessionPersistentRepository,
+        )
+
+    @Bean
     fun rememberMeAuthenticationFilter(
         authenticationManager: AuthenticationManager,
-        rememberMeAuthenticationService: PersistentTokenBasedRememberMeServices,
+        rememberMeAuthenticationService: RememberMeAuthenticationService,
     ): RememberMeAuthenticationFilter {
         val rememberMeAuthenticationFilter =
             RememberMeAuthenticationFilter(
@@ -85,41 +97,11 @@ class SecurityConfig(
     }
 
     @Bean
-    fun rememberMeAuthenticationService(
-        userDetailsService: LocalAuthenticationService,
-        persistentTokenRepository: PersistentTokenRepository,
-    ): PersistentTokenBasedRememberMeServices {
-        val rememberMeAuthenticationService =
-            PersistentTokenBasedRememberMeServices(
-                rememberMeCookieProperties.tokenKey,
-                userDetailsService,
-                persistentTokenRepository,
-            )
-        rememberMeAuthenticationService.setCookieName(rememberMeCookieProperties.name)
-        rememberMeAuthenticationService.setTokenValiditySeconds(60 * 60 * 24 * 15)
-        return rememberMeAuthenticationService
-    }
-
-    @Bean
-    fun persistentTokenRepository(dataSource: DataSource): PersistentTokenRepository {
-        val tokenRepository = JdbcTokenRepositoryImpl()
-        tokenRepository.dataSource = dataSource
-
-        val jdbcTemplate = JdbcTemplate(dataSource)
-        val tableExistsQuery = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'persistent_logins'"
-        val tableExists = jdbcTemplate.queryForObject<Int>(tableExistsQuery) > 0
-        if (!tableExists) {
-            tokenRepository.setCreateTableOnStartup(true)
-        }
-        return tokenRepository
-    }
-
-    @Bean
     fun localAuthenticationFilter(
         authenticationManager: AuthenticationManager,
-        authenticationSuccessHandler: CustomAuthenticationSuccessHandler,
-        authenticationFailureHandler: CustomAuthenticationFailureHandler,
-        rememberMeAuthenticationService: PersistentTokenBasedRememberMeServices,
+        authenticationSuccessHandler: LocalAuthenticationSuccessHandler,
+        authenticationFailureHandler: LocalAuthenticationFailureHandler,
+        rememberMeAuthenticationService: RememberMeAuthenticationService,
     ): LocalAuthenticationFilter {
         val filter =
             LocalAuthenticationFilter(AntPathRequestMatcher("/auth/local", HttpMethod.POST.name()))
@@ -140,7 +122,7 @@ class SecurityConfig(
         localAuthenticationProvider.setUserDetailsService(userDetailsService)
         localAuthenticationProvider.setPasswordEncoder(passwordEncoder)
 
-        val rememberMeAuthenticationProvider = RememberMeAuthenticationProvider(rememberMeCookieProperties.tokenKey)
+        val rememberMeAuthenticationProvider = RememberMeAuthenticationProvider(rememberMeCookieProperties.key)
 
         return ProviderManager(localAuthenticationProvider, rememberMeAuthenticationProvider)
     }

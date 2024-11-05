@@ -3,11 +3,10 @@ package org.pofo.api.controller
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.pofo.api.dto.RegisterRequest
-import org.pofo.api.security.CurrentUser
+import org.pofo.api.security.annotation.CurrentUser
 import org.pofo.api.service.UserService
 import org.pofo.domain.user.User
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

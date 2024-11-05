@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.annotation
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 

@@ -1,4 +1,4 @@
-package org.pofo.api.security.local
+package org.pofo.api.security.authentication.local
 
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.user.UserRepository

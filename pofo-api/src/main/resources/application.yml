@@ -27,7 +27,7 @@ server:
         path: /
       remember-me:
         name: pofo_rmm
-        token-key: development
+        key: development
 
 logging:
   level:

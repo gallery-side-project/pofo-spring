@@ -1,10 +1,10 @@
-package org.pofo.api.security
+package org.pofo.api.security.authentication.local
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.pofo.domain.user.User
+import org.pofo.api.security.PrincipalDetails
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 private val logger = KotlinLogging.logger {}
 
 @Component
-class CustomAuthenticationSuccessHandler : AuthenticationSuccessHandler {
+class LocalAuthenticationSuccessHandler : AuthenticationSuccessHandler {
     private val objectMapper = jacksonObjectMapper()
 
     override fun onAuthenticationSuccess(

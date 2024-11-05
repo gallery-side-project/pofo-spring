@@ -1,4 +1,4 @@
-package org.pofo.api.security
+package org.pofo.api.security.authentication.local
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 private val logger = KotlinLogging.logger {}
 
 @Component
-class CustomAuthenticationFailureHandler : AuthenticationFailureHandler {
+class LocalAuthenticationFailureHandler : AuthenticationFailureHandler {
     private val objectMapper = jacksonObjectMapper()
 
     override fun onAuthenticationFailure(
@@ -21,7 +21,7 @@ class CustomAuthenticationFailureHandler : AuthenticationFailureHandler {
         response: HttpServletResponse,
         exception: AuthenticationException,
     ) {
-        logger.error { "login failed: ${exception.message}" }
+        logger.info { "login failed: ${exception.message}" }
 
         response.apply {
             this.status = HttpStatus.UNAUTHORIZED.value()
