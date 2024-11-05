@@ -2,19 +2,20 @@ package org.pofo.api.security.authentication.oauth2
 
 import org.pofo.api.security.authentication.oauth2.userProperties.GithubOAuth2UserProperties
 import org.pofo.api.security.authentication.oauth2.userProperties.OAuth2UserProperties
+import org.pofo.domain.user.UserSocialType
 
-data class OAuth2Attribute private constructor(
+class OAuth2Attribute private constructor(
     val nameAttributeKey: String,
-    val oAuth2UserProperties: OAuth2UserProperties,
+    val userProperties: OAuth2UserProperties,
 ) {
     companion object {
         fun of(
-            clientType: OAuth2ClientType,
+            socialType: UserSocialType,
             nameAttributeKey: String,
             attributes: Map<String, Any>,
         ): OAuth2Attribute =
-            when (clientType) {
-                OAuth2ClientType.GITHUB -> ofGithub(nameAttributeKey, attributes)
+            when (socialType) {
+                UserSocialType.GITHUB -> ofGithub(nameAttributeKey, attributes)
             }
 
 
