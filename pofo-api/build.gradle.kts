@@ -19,3 +19,15 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
 }
+
+tasks.register<Copy>("copyYmlInSubmodule") {
+    copy {
+        from("$rootDir/pofo-spring-submodule")
+        include("*.yml")
+        into("src/main/resources")
+    }
+}
+
+tasks.named("build") {
+    dependsOn("copyYmlInSubmodule")
+}
