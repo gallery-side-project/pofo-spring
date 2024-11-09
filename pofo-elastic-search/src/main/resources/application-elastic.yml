@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+#opensearch:
+#  uris: https://localhost:9200
+#  username: admin
+#  password: MyStrongcur3P@ssw0rd!

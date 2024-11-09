@@ -1,6 +1,7 @@
 dependencies {
     implementation(project(":pofo-domain"))
     implementation(project(":pofo-common"))
+    implementation(project(":pofo-elastic-search"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-graphql")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -18,4 +19,12 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
+
+    implementation("org.opensearch.client:spring-data-opensearch-starter:1.5.3") {
+        exclude("org.opensearch.client", "opensearch-rest-high-level-client")
+    }
+    implementation("org.opensearch.client:opensearch-java:2.11.1")
+
+    implementation("com.opencsv:opencsv:5.6")
+    implementation("jakarta.json:jakarta.json-api")
 }

@@ -4,6 +4,7 @@ spring:
   config:
     import:
       - application-db.yml
+      - application-elastic.yml
   web:
     resources:
       add-mappings: false
@@ -32,3 +33,8 @@ logging:
   level:
     org.pofo.api: DEBUG
     org.springframework.security: DEBUG
+
+opensearch:
+  uris: ${OPENSEARCH_URI}
+  username: ${OPENSEARCH_USERNAME}
+  password: ${OPENSEARCH_PASSWORD}
