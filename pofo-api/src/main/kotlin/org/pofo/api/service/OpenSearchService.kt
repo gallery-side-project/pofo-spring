@@ -55,7 +55,8 @@ class OpenSearchService(
     }
 
     private fun generateAllCombinations(input: String): List<String> {
-        val words = input.split(" ")
+        val cleanedInput = input.replace(Regex("[^A-Za-z0-9 ]"), "")
+        val words = cleanedInput.split(" ")
         val combinations = mutableSetOf<String>()
 
         for (i in words.indices) {
