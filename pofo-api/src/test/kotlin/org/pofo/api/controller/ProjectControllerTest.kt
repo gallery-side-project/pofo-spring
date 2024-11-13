@@ -2,6 +2,7 @@ package org.pofo.api.controller
 
 import org.junit.jupiter.api.Test
 import org.pofo.api.WithMockCustomUser
+import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
 import org.pofo.domain.project.repository.ProjectRepository
@@ -30,8 +31,8 @@ internal class ProjectControllerTest {
                     "Authentication is null." +
                         "Consider applying the @WithMockCustomUser annotation.",
                 )
-        val user = authentication.principal as User
-        return user
+        val principal = authentication.principal as PrincipalDetails
+        return principal.user
     }
 
     @Test

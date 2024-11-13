@@ -1,30 +1,28 @@
-package org.pofo.api.security
+package org.pofo.api.security.authentication.rememberMe
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.pofo.domain.security.remember_me.RememberMeToken
-import org.pofo.domain.security.remember_me.RememberMeTokenRepository
-import org.pofo.domain.user.User
+import org.pofo.api.security.PrincipalDetails
+import org.pofo.domain.security.SessionPersistent
+import org.pofo.domain.security.SessionPersistentRepository
 import org.pofo.domain.user.UserRepository
 import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.rememberme.CookieTheftException
 import org.springframework.security.web.authentication.rememberme.InvalidCookieException
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException
 import java.security.SecureRandom
 import java.util.Base64
-import java.util.Date
 
 private val logger = KotlinLogging.logger {}
 
-class RememberMeService(
+class RememberMeAuthenticationService(
     private val key: String,
     private val cookieName: String,
-    private val tokenRepository: RememberMeTokenRepository,
+    private val sessionPersistentRepository: SessionPersistentRepository,
     private val userRepository: UserRepository,
 ) : RememberMeServices {
     private val secureRandom = SecureRandom()
@@ -34,7 +32,7 @@ class RememberMeService(
     private val useHttpOnlyCookie: Boolean = true
     private val delimiter: String = ":"
     private val seriesLength: Int = 32
-    private val tokenValueLength: Int = 32
+    private val secretLength: Int = 32
     private val alwaysRemember: Boolean = false
     private val parameter: String = "remember-me"
     private val tokenValidityInSeconds: Int = 60 * 60 * 24 * 15
@@ -56,13 +54,13 @@ class RememberMeService(
         }
 
         try {
-            val tokenValues = this.decodeCookie(cookieValue)
-            val user: User = this.processAutoLoginCookie(tokenValues, response)
-            logger.debug { "Remember-me cookie accepted: ${user.email}" }
+            val persistentData = this.decodeCookie(cookieValue)
+            val principal = this.processAutoLoginCookie(persistentData, response)
+            logger.debug { "Remember-me cookie accepted: ${principal.user.email}" }
             return RememberMeAuthenticationToken(
                 this.key,
-                user,
-                listOf(SimpleGrantedAuthority(user.role.name)),
+                principal,
+                principal.authorities,
             )
         } catch (ex: RememberMeAuthenticationException) {
             logger.debug { ex.message }
@@ -81,15 +79,15 @@ class RememberMeService(
                     "Remember-me cookie's values was not Base64 encoded; value was '$cookieValue'",
                 )
             }
-        val tokenValues = cookieAsPlainText.split(delimiter)
-        return tokenValues
+        val persistentData = cookieAsPlainText.split(delimiter)
+        return persistentData
     }
 
-    private fun encodeCookie(tokenValues: List<String>): Cookie {
-        val series = tokenValues[0]
-        val tokenValue = tokenValues[1]
+    private fun encodeCookie(persistentData: List<String>): Cookie {
+        val series = persistentData[0]
+        val secret = persistentData[1]
 
-        val cookieValueAsPlainText = "$series$delimiter$tokenValue"
+        val cookieValueAsPlainText = "$series$delimiter$secret"
         return Cookie(
             this.cookieName,
             Base64.getEncoder().withoutPadding().encodeToString(cookieValueAsPlainText.toByteArray()),
@@ -100,24 +98,24 @@ class RememberMeService(
      * remember-me 쿠키를 추가합니다.
      */
     private fun addRememberMeCookie(
-        tokenValues: List<String>,
+        persistentData: List<String>,
         response: HttpServletResponse,
     ) {
         val cookie =
-            this.encodeCookie(tokenValues).apply {
-                maxAge = this@RememberMeService.tokenValidityInSeconds
-                path = this@RememberMeService.cookiePath
-                if (this@RememberMeService.cookieDomain != null) {
-                    domain = this@RememberMeService.cookieDomain
+            this.encodeCookie(persistentData).apply {
+                maxAge = this@RememberMeAuthenticationService.tokenValidityInSeconds
+                path = this@RememberMeAuthenticationService.cookiePath
+                if (this@RememberMeAuthenticationService.cookieDomain != null) {
+                    domain = this@RememberMeAuthenticationService.cookieDomain
                 }
-                isHttpOnly = this@RememberMeService.useHttpOnlyCookie
-                secure = this@RememberMeService.useSecureCookie
+                isHttpOnly = this@RememberMeAuthenticationService.useHttpOnlyCookie
+                secure = this@RememberMeAuthenticationService.useSecureCookie
             }
         response.addCookie(cookie)
     }
 
     /**
-     * remember-me 쿠키의 value를 가져옵니다.
+     * remember-me 쿠키의 값을 가져옵니다.
      */
     private fun extractRememberMeCookie(request: HttpServletRequest): String? {
         val cookies = request.cookies
@@ -145,23 +143,23 @@ class RememberMeService(
      * 쿠키의 값을 검증하고, 데이터베이스에 저장한 뒤 유저를 가져옵니다.
      */
     private fun processAutoLoginCookie(
-        tokenValues: List<String>,
+        persistentData: List<String>,
         response: HttpServletResponse,
-    ): User {
-        if (tokenValues.size != 2) {
+    ): PrincipalDetails {
+        if (persistentData.size != 2) {
             throw InvalidCookieException("Remember-me cookie does not have 2 values")
         }
-        val presentedSeries = tokenValues[0]
-        val presentedTokenValue = tokenValues[1]
-        val token: RememberMeToken =
-            this.tokenRepository.findBySeries(presentedSeries)
+        val presentedSeries = persistentData[0]
+        val presentedValue = persistentData[1]
+        val token =
+            this.sessionPersistentRepository.findBySeries(presentedSeries)
                 ?: throw RememberMeAuthenticationException("No remember-me token found for series id: $presentedSeries")
 
         /**
          * 토큰 값 체크
          */
-        if (presentedTokenValue != token.tokenValue) {
-            this.tokenRepository.removeByEmail(token.email)
+        if (presentedValue != token.secret) {
+            this.sessionPersistentRepository.removeByEmail(token.email)
             throw CookieTheftException(
                 "Invalid remember-me token (Series/token) mismatch. Implies previous cookie theft attack.",
             )
@@ -175,18 +173,22 @@ class RememberMeService(
         }
 
         logger.debug { "Refreshing remember-me token for user: ${token.email}, series: ${token.series}" }
-        val newToken = token.updateTokenValue(this.generateTokenValue())
+        val newToken = token.updateValue(this.generateSecret())
 
         val user =
             try {
-                this.tokenRepository.updateToken(newToken.series, newToken.tokenValue, newToken.lastUsedAt)
-                this.addRememberMeCookie(listOf(newToken.series, newToken.tokenValue), response)
+                this.sessionPersistentRepository.updateValueBySeries(
+                    newToken.series,
+                    newToken.secret,
+                    newToken.lastUsedAt,
+                )
+                this.addRememberMeCookie(listOf(newToken.series, newToken.secret), response)
                 this.userRepository.findByEmail(token.email)
             } catch (ex: Exception) {
                 logger.error(ex) { "Failed to update remember-me token" }
                 throw RememberMeAuthenticationException("AutoLogin failed due to data access problem")
             }
-        return user
+        return PrincipalDetails(user)
     }
 
     private fun generateSerie(): String {
@@ -195,8 +197,8 @@ class RememberMeService(
         return Base64.getEncoder().withoutPadding().encodeToString(randomBytes)
     }
 
-    private fun generateTokenValue(): String {
-        val randomBytes = ByteArray(tokenValueLength)
+    private fun generateSecret(): String {
+        val randomBytes = ByteArray(secretLength)
         secureRandom.nextBytes(randomBytes)
         return Base64.getEncoder().withoutPadding().encodeToString(randomBytes)
     }
@@ -254,15 +256,16 @@ class RememberMeService(
         response: HttpServletResponse,
         successfulAuthentication: Authentication,
     ) {
-        val user = successfulAuthentication.principal as User
+        val principal = successfulAuthentication.principal as PrincipalDetails
+        val user = principal.user
         logger.debug { "Creating new remember-me token for user: ${user.email}" }
-        val rememberMeToken =
-            RememberMeToken.create(this.generateSerie(), user.email, this.generateTokenValue(), Date())
+        val sessionPersistent =
+            SessionPersistent.create(user.email, this.generateSerie(), this.generateSecret())
 
         try {
-            this.tokenRepository.save(rememberMeToken)
+            this.sessionPersistentRepository.save(sessionPersistent)
             this.addRememberMeCookie(
-                listOf(rememberMeToken.series, rememberMeToken.tokenValue),
+                listOf(sessionPersistent.series, sessionPersistent.secret),
                 response,
             )
         } catch (ex: Exception) {

@@ -3,6 +3,7 @@ spring.profiles.active: local
 spring:
   config:
     import:
+      - application-oauth2.yml
       - application-db.yml
   web:
     resources:
@@ -26,7 +27,7 @@ server:
         path: /
       remember-me:
         name: pofo_rmm
-        token-key: development
+        key: development
 
 logging:
   level:

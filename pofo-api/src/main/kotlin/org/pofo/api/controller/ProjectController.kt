@@ -1,5 +1,6 @@
 package org.pofo.api.controller
 
+import org.pofo.api.security.annotation.CurrentUser
 import org.pofo.api.service.ProjectService
 import org.pofo.domain.project.Project
 import org.pofo.domain.project.ProjectCategory
@@ -9,7 +10,6 @@ import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Controller
 
 @Controller
@@ -36,7 +36,7 @@ class ProjectController(
         @Argument imageUrls: List<String>?,
         @Argument content: String,
         @Argument category: ProjectCategory,
-        @AuthenticationPrincipal user: User,
+        @CurrentUser user: User,
     ): Project = projectService.createProject(title, bio, urls, imageUrls, content, category, user)
 
     @PreAuthorize("isAuthenticated()")
@@ -49,6 +49,6 @@ class ProjectController(
         @Argument imageUrls: List<String>?,
         @Argument content: String?,
         @Argument category: ProjectCategory?,
-        @AuthenticationPrincipal user: User,
+        @CurrentUser user: User,
     ): Project = projectService.updateProject(projectId, title, bio, urls, imageUrls, content, category, user)
 }

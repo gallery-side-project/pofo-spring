@@ -1,6 +1,13 @@
 package org.pofo.api.security
 
-import org.pofo.domain.security.remember_me.RememberMeTokenRepository
+import org.pofo.api.security.authentication.CommonAuthenticationFailureHandler
+import org.pofo.api.security.authentication.CommonAuthenticationSuccessHandler
+import org.pofo.api.security.authentication.local.LocalAuthenticationFilter
+import org.pofo.api.security.authentication.local.LocalAuthenticationService
+import org.pofo.api.security.authentication.oauth2.OAuth2AuthenticationService
+import org.pofo.api.security.authentication.rememberMe.RememberMeAuthenticationService
+import org.pofo.api.security.authentication.rememberMe.RememberMeCookieProperties
+import org.pofo.domain.security.SessionPersistentRepository
 import org.pofo.domain.user.UserRepository
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -10,10 +17,17 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.RememberMeAuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
@@ -27,14 +41,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @EnableConfigurationProperties(RememberMeCookieProperties::class)
 class SecurityConfig(
-    private val authenticationSuccessHandler: CustomAuthenticationSuccessHandler,
-    private val authenticationFailureHandler: CustomAuthenticationFailureHandler,
-    private val userRepository: UserRepository,
-    private val tokenRepository: RememberMeTokenRepository,
     private val rememberMeCookieProperties: RememberMeCookieProperties,
 ) {
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain =
+    fun filterChain(
+        http: HttpSecurity,
+        localAuthenticationFilter: LocalAuthenticationFilter,
+        oAuth2AuthorizationRequestRedirectFilter: OAuth2AuthorizationRequestRedirectFilter,
+        oAuth2LoginAuthenticationFilter: OAuth2LoginAuthenticationFilter,
+        rememberMeAuthenticationFilter: RememberMeAuthenticationFilter,
+    ): SecurityFilterChain =
         http
             .cors { httpSecurityCorsConfigurer ->
                 httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource())
@@ -55,63 +71,116 @@ class SecurityConfig(
                     .anyRequest()
                     .permitAll()
             }.addFilterAfter(
-                localAuthenticationFilter(),
+                localAuthenticationFilter,
                 LogoutFilter::class.java,
             ).addFilterAfter(
-                rememberMeAuthenticationFilter(),
+                oAuth2AuthorizationRequestRedirectFilter,
                 LocalAuthenticationFilter::class.java,
+            ).addFilterAfter(
+                oAuth2LoginAuthenticationFilter,
+                OAuth2AuthorizationRequestRedirectFilter::class.java,
+            ).addFilterAfter(
+                rememberMeAuthenticationFilter,
+                OAuth2LoginAuthenticationFilter::class.java,
             ).build()
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    fun oAuth2AuthorizationRequestRedirectFilter(
+        inMemoryClientRegistrationRepository: InMemoryClientRegistrationRepository,
+    ): OAuth2AuthorizationRequestRedirectFilter =
+        OAuth2AuthorizationRequestRedirectFilter(inMemoryClientRegistrationRepository, "/auth/oauth2")
 
     @Bean
-    fun authenticationManager(): AuthenticationManager =
-        ProviderManager(
-            listOf(localAuthenticationProvider(), rememberMeAuthenticationProvider()),
-        )
-
-    @Bean
-    fun localAuthenticationProvider(): LocalAuthenticationProvider =
-        LocalAuthenticationProvider(
-            userRepository = userRepository,
-            passwordEncoder = passwordEncoder(),
-        )
-
-    @Bean
-    fun localAuthenticationFilter(): LocalAuthenticationFilter {
-        val requestMatcher = AntPathRequestMatcher("/auth/login", HttpMethod.POST.name())
-        val filter = LocalAuthenticationFilter(requestMatcher)
-        filter.setAuthenticationManager(authenticationManager())
+    fun oAuth2LoginAuthenticationFilter(
+        authenticationManager: AuthenticationManager,
+        authenticationSuccessHandler: CommonAuthenticationSuccessHandler,
+        authenticationFailureHandler: CommonAuthenticationFailureHandler,
+        inMemoryClientRegistrationRepository: InMemoryClientRegistrationRepository,
+        rememberMeAuthenticationService: RememberMeAuthenticationService,
+    ): OAuth2LoginAuthenticationFilter {
+        val filter =
+            OAuth2LoginAuthenticationFilter(
+                inMemoryClientRegistrationRepository,
+                HttpSessionOAuth2AuthorizedClientRepository(),
+                "/auth/oauth2/callback/*",
+            )
+        filter.setAuthenticationManager(authenticationManager)
         filter.setAuthenticationSuccessHandler(authenticationSuccessHandler)
         filter.setAuthenticationFailureHandler(authenticationFailureHandler)
-        filter.setSecurityContextRepository(HttpSessionSecurityContextRepository())
-        filter.rememberMeServices = rememberMeService()
+        filter.rememberMeServices = rememberMeAuthenticationService
         return filter
     }
 
     @Bean
-    fun rememberMeAuthenticationProvider(): RememberMeAuthenticationProvider =
-        RememberMeAuthenticationProvider(rememberMeCookieProperties.tokenKey)
-
-    @Bean
-    fun rememberMeService(): RememberMeService =
-        RememberMeService(
-            key = rememberMeCookieProperties.tokenKey,
-            cookieName = rememberMeCookieProperties.name,
-            userRepository = userRepository,
-            tokenRepository = tokenRepository,
-        )
-
-    @Bean
-    fun rememberMeAuthenticationFilter(): RememberMeAuthenticationFilter {
+    fun rememberMeAuthenticationFilter(
+        authenticationManager: AuthenticationManager,
+        rememberMeAuthenticationService: RememberMeAuthenticationService,
+    ): RememberMeAuthenticationFilter {
         val rememberMeAuthenticationFilter =
             RememberMeAuthenticationFilter(
-                authenticationManager(),
-                rememberMeService(),
+                authenticationManager,
+                rememberMeAuthenticationService,
             )
         return rememberMeAuthenticationFilter
     }
+
+    @Bean
+    fun rememberMeAuthenticationService(
+        cookieProperties: RememberMeCookieProperties,
+        userRepository: UserRepository,
+        sessionPersistentRepository: SessionPersistentRepository,
+    ): RememberMeAuthenticationService =
+        RememberMeAuthenticationService(
+            key = cookieProperties.key,
+            cookieName = cookieProperties.name,
+            userRepository = userRepository,
+            sessionPersistentRepository = sessionPersistentRepository,
+        )
+
+    @Bean
+    fun localAuthenticationFilter(
+        authenticationManager: AuthenticationManager,
+        authenticationSuccessHandler: CommonAuthenticationSuccessHandler,
+        authenticationFailureHandler: CommonAuthenticationFailureHandler,
+        rememberMeAuthenticationService: RememberMeAuthenticationService,
+    ): LocalAuthenticationFilter {
+        val filter =
+            LocalAuthenticationFilter(AntPathRequestMatcher("/auth/local", HttpMethod.POST.name()))
+        filter.setAuthenticationManager(authenticationManager)
+        filter.setAuthenticationSuccessHandler(authenticationSuccessHandler)
+        filter.setAuthenticationFailureHandler(authenticationFailureHandler)
+        filter.setSecurityContextRepository(HttpSessionSecurityContextRepository())
+        filter.rememberMeServices = rememberMeAuthenticationService
+        return filter
+    }
+
+    @Bean
+    fun authenticationManager(
+        userDetailsService: LocalAuthenticationService,
+        oAuth2AuthenticationService: OAuth2AuthenticationService,
+        passwordEncoder: PasswordEncoder,
+    ): AuthenticationManager {
+        val localAuthenticationProvider = DaoAuthenticationProvider()
+        localAuthenticationProvider.setUserDetailsService(userDetailsService)
+        localAuthenticationProvider.setPasswordEncoder(passwordEncoder)
+
+        val oAuth2LoginAuthenticationProvider =
+            OAuth2LoginAuthenticationProvider(
+                DefaultAuthorizationCodeTokenResponseClient(),
+                oAuth2AuthenticationService,
+            )
+
+        val rememberMeAuthenticationProvider = RememberMeAuthenticationProvider(rememberMeCookieProperties.key)
+
+        return ProviderManager(
+            localAuthenticationProvider,
+            oAuth2LoginAuthenticationProvider,
+            rememberMeAuthenticationProvider,
+        )
+    }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
