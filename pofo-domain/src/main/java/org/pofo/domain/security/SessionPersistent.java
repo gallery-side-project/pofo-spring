@@ -1,28 +1,30 @@
-package org.pofo.domain.security.remember_me;
+package org.pofo.domain.security;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.*;
-import org.jetbrains.annotations.NotNull;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import java.util.Date;
 
 @Entity
-@Table(name = "remember_me_token")
+@Table(name = "session_persistent")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class RememberMeToken {
+public class SessionPersistent {
     @Id
     @EqualsAndHashCode.Include
     private String series;
 
     @NonNull
     @Column(nullable = false)
-    private String tokenValue;
+    private String secret;
 
     @NonNull
     @Column(nullable = false)
@@ -32,18 +34,18 @@ public class RememberMeToken {
     @Column(nullable = false)
     private Date lastUsedAt;
 
-    private RememberMeToken(String series, @NotNull String email, @NotNull String tokenValue, @NotNull Date lastUsedAt) {
+    private SessionPersistent(String series, @NonNull String email, @NonNull String secret, @NonNull Date lastUsedAt) {
         this.series = series;
         this.email = email;
-        this.tokenValue = tokenValue;
+        this.secret = secret;
         this.lastUsedAt = lastUsedAt;
     }
 
-    public static RememberMeToken create(String series, String email, String token, Date lastUsedAt) {
-        return new RememberMeToken(series, email, token, lastUsedAt);
+    public static SessionPersistent create(String email, String series, String token) {
+        return new SessionPersistent(series, email, token, new Date());
     }
 
-    public RememberMeToken updateTokenValue(String newTokenValue) {
-        return new RememberMeToken(series, email, newTokenValue, new Date());
+    public SessionPersistent updateValue(String value) {
+        return new SessionPersistent(series, email, value, new Date());
     }
 }

@@ -5,7 +5,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-graphql")
     implementation("org.springframework.boot:spring-boot-starter-security")
-
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -27,4 +27,16 @@ dependencies {
 
     implementation("com.opencsv:opencsv:5.6")
     implementation("jakarta.json:jakarta.json-api")
+}
+
+tasks.register<Copy>("copyYmlInSubmodule") {
+    copy {
+        from("$rootDir/pofo-spring-submodule")
+        include("*.yml")
+        into("src/main/resources")
+    }
+}
+
+tasks.named("build") {
+    dependsOn("copyYmlInSubmodule")
 }

@@ -1,7 +1,6 @@
 package org.pofo.api.security
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.kotest.assertions.print.print
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.nulls.shouldBeNull
@@ -28,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
-internal class AuthenticationTest
+internal class LocalAuthenticationTest
     @Autowired
     constructor(
         private val mockMvc: MockMvc,
@@ -45,13 +44,13 @@ internal class AuthenticationTest
                 userService.createUser(registerRequest)
             }
 
-            fun login(
+            fun localLogin(
                 requestBody: LoginRequest,
                 rememberMe: Boolean = false,
             ): MvcResult =
                 mockMvc
                     .perform(
-                        post("/auth/login")
+                        post("/auth/local")
                             .param("remember-me", if (rememberMe) "true" else "false")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(requestBody)),
@@ -61,7 +60,7 @@ internal class AuthenticationTest
             describe("로그인 시") {
                 context("이메일과 비밀번호가 제대로 주어졌을 때") {
                     val requestBody = LoginRequest(fakeUser.email, fakeUser.password)
-                    val mvcResult = login(requestBody)
+                    val mvcResult = localLogin(requestBody)
                     it("세션과 status 200을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.OK.value()
                         mvcResult.request.session!!
@@ -72,7 +71,7 @@ internal class AuthenticationTest
 
                 context("이메일이 제대로 주어지지 않았을 때") {
                     val requestBody = LoginRequest("wrong@org.com", "")
-                    val mvcResult = login(requestBody)
+                    val mvcResult = localLogin(requestBody)
                     it("status 401을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.UNAUTHORIZED.value()
                         mvcResult.request.session!!
@@ -83,7 +82,7 @@ internal class AuthenticationTest
 
                 context("비밀번호가 제대로 주어지지 않았을 때") {
                     val requestBody = LoginRequest(fakeUser.email, "wrongPassword")
-                    val mvcResult = login(requestBody)
+                    val mvcResult = localLogin(requestBody)
                     it("status 401을 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.UNAUTHORIZED.value()
                         mvcResult.request.session!!
@@ -94,7 +93,7 @@ internal class AuthenticationTest
 
                 context("리멤버 미 파라미터가 주어졌을 때") {
                     val requestBody = LoginRequest(fakeUser.email, fakeUser.password)
-                    val mvcResult = login(requestBody, true)
+                    val mvcResult = localLogin(requestBody, true)
 
                     it("세션과 리멤버 미 쿠키를 같이 반환해야 한다.") {
                         mvcResult.response.status shouldBe HttpStatus.OK.value()
@@ -113,7 +112,7 @@ internal class AuthenticationTest
             describe("인증이 필요한 요청 시") {
                 context("세션 쿠키가 없고, 리멤버 미 쿠키가 주어졌을 때") {
                     val requestBody = LoginRequest(fakeUser.email, fakeUser.password)
-                    val loginMvcResult = login(requestBody, true)
+                    val loginMvcResult = localLogin(requestBody, true)
 
                     val rememberMeCookieValue =
                         loginMvcResult.response
