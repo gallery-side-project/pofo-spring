@@ -75,7 +75,7 @@ class OpenSearchService(
         return try {
             val map = HashMap<String, FieldSuggester>()
             map["tech-suggestion"] =
-                FieldSuggester.of { fs -> fs.completion { cs -> cs.skipDuplicates(true).size(6).field("suggest") } }
+                FieldSuggester.of { fs -> fs.completion { cs -> cs.skipDuplicates(true).size(20).field("suggest") } }
 
             val suggester = Suggester.of { s -> s.suggesters(map).text(sanitizedQuery) }
 
