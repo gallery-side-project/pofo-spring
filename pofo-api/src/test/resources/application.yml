@@ -2,3 +2,19 @@ opensearch:
   uris: 34234
   username: 234324234
   password: 234234324
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: pofo_sid
+        secure: true
+        http-only: true
+        path: /
+      remember-me:
+        name: pofo_rmm
+        key: development
+
+spring:
+  profiles:
+    active: test

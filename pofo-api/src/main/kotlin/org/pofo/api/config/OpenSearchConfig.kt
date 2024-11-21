@@ -9,6 +9,7 @@ import org.opensearch.spring.boot.autoconfigure.RestClientBuilderCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories
 import java.security.KeyManagementException
 import java.security.KeyStoreException
@@ -17,6 +18,7 @@ import java.security.NoSuchAlgorithmException
 @Configuration
 @EnableElasticsearchRepositories(basePackageClasses = [TechStackAutoCompleteRepository::class])
 @ComponentScan(basePackageClasses = [OpenSearchConfig::class])
+@Profile("prod", "local")
 class OpenSearchConfig {
     @Bean
     fun customizer(): RestClientBuilderCustomizer =
