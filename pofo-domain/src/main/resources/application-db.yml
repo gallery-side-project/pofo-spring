@@ -1,16 +1,16 @@
 spring:
   jpa:
     open-in-view: false
-    hibernate:
-      ddl-auto: none
     properties:
       hibernate.default_batch_fetch_size: 100
 
 ---
 
-spring.config.activate.on-profile: local
-
 spring:
+  config:
+    activate:
+      on-profile: local
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -21,9 +21,26 @@ spring:
 
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testDB?MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    url: jdbc:h2:mem:pofoTestDB?MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     username: sa
 
   h2:
     console:
       enabled: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_DATASOURCE_URL}
+    username: ${POSTGRES_DATASOURCE_USERNAME}
+    password: ${POSTGRES_DATASOURCE_PASSWORD}

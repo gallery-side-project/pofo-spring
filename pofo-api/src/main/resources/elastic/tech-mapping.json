@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "suggest": {
+      "type": "completion",
+      "preserve_separators": true,
+      "preserve_position_increments": true,
+      "max_input_length": 100
+    },
+    "name": {
+      "type": "text"
+    }
+  }
+}

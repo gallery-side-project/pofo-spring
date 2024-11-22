@@ -12,11 +12,13 @@ import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureG
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.graphql.test.tester.GraphQlTester
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
 @AutoConfigureGraphQlTester
 @Transactional
+@ActiveProfiles("test")
 internal class ProjectControllerTest {
     @Autowired
     private lateinit var graphQlTester: GraphQlTester
