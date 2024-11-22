@@ -7,8 +7,8 @@ import org.pofo.api.security.authentication.local.LocalAuthenticationService
 import org.pofo.api.security.authentication.oauth2.OAuth2AuthenticationService
 import org.pofo.api.security.authentication.rememberMe.RememberMeAuthenticationService
 import org.pofo.api.security.authentication.rememberMe.RememberMeCookieProperties
-import org.pofo.domain.security.SessionPersistentRepository
-import org.pofo.domain.user.UserRepository
+import org.pofo.domain.domain.security.SessionPersistentRepository
+import org.pofo.domain.domain.user.UserRepository
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean

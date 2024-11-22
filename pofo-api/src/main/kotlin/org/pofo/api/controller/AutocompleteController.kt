@@ -1,7 +1,7 @@
 package org.pofo.api.controller
 
-import com.pofo.elasticsearch.document.TechStackAutoComplete
 import org.pofo.api.service.OpenSearchService
+import org.pofo.infra.elasticsearch.document.TechStackAutoComplete
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping

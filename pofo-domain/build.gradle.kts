@@ -19,6 +19,8 @@ dependencies {
     annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
 }
 
 // --------------------------------- QueryDSL settings -----------------------------------------------
@@ -27,6 +29,12 @@ val generatedDir =
         .dir("generated/querydsl")
         .get()
         .asFile
+
+sourceSets {
+    named("main") {
+        java.srcDir(generatedDir)
+    }
+}
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.plusAssign("-s")
@@ -37,9 +45,4 @@ tasks.named("clean") {
     delete(generatedDir)
 }
 
-sourceSets {
-    named("main") {
-        java.srcDir(generatedDir)
-    }
-}
 // --------------------------------------------------------------------------------------

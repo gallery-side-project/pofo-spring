@@ -3,8 +3,8 @@ package org.pofo.api.service
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.common.error.CustomError
 import org.pofo.common.error.ErrorType
-import org.pofo.domain.user.User
-import org.pofo.domain.user.UserRepository
+import org.pofo.domain.domain.user.User
+import org.pofo.domain.domain.user.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

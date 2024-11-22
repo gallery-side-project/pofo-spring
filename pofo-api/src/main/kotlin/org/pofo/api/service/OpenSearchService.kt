@@ -1,7 +1,6 @@
 package org.pofo.api.service
 
 import com.opencsv.CSVReader
-import com.pofo.elasticsearch.document.TechStackAutoComplete
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.opensearch._types.FieldValue
 import org.opensearch.client.opensearch.core.BulkRequest
@@ -13,6 +12,7 @@ import org.opensearch.client.opensearch.core.bulk.CreateOperation
 import org.opensearch.client.opensearch.core.search.FieldSuggester
 import org.opensearch.client.opensearch.core.search.SourceConfig
 import org.opensearch.client.opensearch.core.search.Suggester
+import org.pofo.infra.elasticsearch.document.TechStackAutoComplete
 import org.springframework.data.elasticsearch.core.suggest.Completion
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile

@@ -10,7 +10,7 @@ import jakarta.servlet.http.Cookie
 import org.pofo.api.dto.LoginRequest
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.service.UserService
-import org.pofo.domain.user.User
+import org.pofo.domain.domain.user.User
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
