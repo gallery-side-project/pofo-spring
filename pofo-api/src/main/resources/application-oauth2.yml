@@ -1,0 +1,29 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: invalid_client_id
+            client-secret: invalid_secret
+            redirect-uri: invalid_redirect_uri
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${OAUTH2_GITHUB_CLIENT_ID}
+            client-secret: ${OAUTH2_GITHUB_CLIENT_SECRET}
+            redirect-uri: ${OAUTH2_GITHUB_REDIRECT_URI}

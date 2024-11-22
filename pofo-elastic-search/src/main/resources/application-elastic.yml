@@ -1,9 +1,9 @@
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: prod
 
-#opensearch:
-#  uris: https://localhost:9200
-#  username: admin
-#  password: MyStrongcur3P@ssw0rd!
+opensearch:
+  uris: ${OPENSEARCH_URIS}
+  username: ${OPENSEARCH_USERNAME}
+  password: ${OPENSEARCH_PASSWORD}

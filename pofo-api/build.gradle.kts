@@ -22,18 +22,6 @@ dependencies {
 
     implementation("org.opensearch.client:opensearch-java:2.11.1")
 
-    implementation("com.opencsv:opencsv:5.6")
+    implementation("com.opencsv:opencsv:5.9")
     implementation("jakarta.json:jakarta.json-api")
-}
-
-tasks.register<Copy>("copyYmlInSubmodule") {
-    copy {
-        from("$rootDir/pofo-spring-submodule")
-        include("*.yml")
-        into("src/main/resources")
-    }
-}
-
-tasks.named("build") {
-    dependsOn("copyYmlInSubmodule")
 }

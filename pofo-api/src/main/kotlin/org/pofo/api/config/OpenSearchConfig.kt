@@ -18,7 +18,7 @@ import java.security.NoSuchAlgorithmException
 @Configuration
 @EnableElasticsearchRepositories(basePackageClasses = [TechStackAutoCompleteRepository::class])
 @ComponentScan(basePackageClasses = [OpenSearchConfig::class])
-@Profile("prod", "local")
+@Profile("prod")
 class OpenSearchConfig {
     @Bean
     fun customizer(): RestClientBuilderCustomizer =

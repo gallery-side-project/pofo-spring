@@ -1,6 +1,9 @@
-spring.profiles.active: local
-
 spring:
+  profiles:
+    group:
+      test: local
+      dev: prod
+
   config:
     import:
       - application-oauth2.yml
@@ -10,11 +13,7 @@ spring:
     resources:
       add-mappings: false
   graphql:
-    graphiql:
-      enabled: true
     schema:
-      printer:
-        enabled: true
       locations:
         - classpath:graphql/**/
 
@@ -28,14 +27,34 @@ server:
         path: /
       remember-me:
         name: pofo_rmm
-        key: development
+        key: ${SESSION_REMEMBER_ME_KEY:not_secured_key}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      printer:
+        enabled: true
 
 logging:
   level:
     org.pofo.api: DEBUG
     org.springframework.security: DEBUG
 
-opensearch:
-  uris: ${OPENSEARCH_URI}
-  username: ${OPENSEARCH_USERNAME}
-  password: ${OPENSEARCH_PASSWORD}
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: INFO
