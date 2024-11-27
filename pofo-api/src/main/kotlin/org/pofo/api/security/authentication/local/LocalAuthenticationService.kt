@@ -1,7 +1,7 @@
 package org.pofo.api.security.authentication.local
 
 import org.pofo.api.security.PrincipalDetails
-import org.pofo.domain.user.UserRepository
+import org.pofo.domain.domain.user.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service

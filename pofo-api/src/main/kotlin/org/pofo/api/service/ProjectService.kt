@@ -3,11 +3,11 @@ package org.pofo.api.service
 import lombok.extern.slf4j.Slf4j
 import org.pofo.common.error.CustomError
 import org.pofo.common.error.ErrorType
-import org.pofo.domain.project.Project
-import org.pofo.domain.project.ProjectCategory
-import org.pofo.domain.project.ProjectList
-import org.pofo.domain.project.repository.ProjectRepository
-import org.pofo.domain.user.User
+import org.pofo.domain.domain.project.Project
+import org.pofo.domain.domain.project.ProjectCategory
+import org.pofo.domain.domain.project.ProjectList
+import org.pofo.domain.domain.project.repository.ProjectRepository
+import org.pofo.domain.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

@@ -5,9 +5,9 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.pofo.api.security.PrincipalDetails
-import org.pofo.domain.security.SessionPersistent
-import org.pofo.domain.security.SessionPersistentRepository
-import org.pofo.domain.user.UserRepository
+import org.pofo.domain.domain.security.SessionPersistent
+import org.pofo.domain.domain.security.SessionPersistentRepository
+import org.pofo.domain.domain.user.UserRepository
 import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.RememberMeServices

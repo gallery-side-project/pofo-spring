@@ -1,7 +1,8 @@
 dependencies {
     implementation(project(":pofo-domain"))
     implementation(project(":pofo-common"))
-    implementation(project(":pofo-elastic-search"))
+    implementation(project(":pofo-infra"))
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-graphql")
     implementation("org.springframework.boot:spring-boot-starter-security")

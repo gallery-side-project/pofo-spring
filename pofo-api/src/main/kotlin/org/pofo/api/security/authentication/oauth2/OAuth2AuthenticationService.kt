@@ -2,11 +2,11 @@ package org.pofo.api.security.authentication.oauth2
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.pofo.api.security.PrincipalDetails
-import org.pofo.domain.user.User
-import org.pofo.domain.user.UserRepository
-import org.pofo.domain.user.UserSocialAccount
-import org.pofo.domain.user.UserSocialAccountRepository
-import org.pofo.domain.user.UserSocialType
+import org.pofo.domain.domain.user.User
+import org.pofo.domain.domain.user.UserRepository
+import org.pofo.domain.domain.user.UserSocialAccount
+import org.pofo.domain.domain.user.UserSocialAccountRepository
+import org.pofo.domain.domain.user.UserSocialType
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService
@@ -33,7 +33,12 @@ class OAuth2AuthenticationService(
         val accessToken = userRequest.accessToken.tokenValue
         logger.debug { attributes }
 
-        val oAuth2Attribute = OAuth2Attribute.of(socialType, userNameAttributeName, attributes)
+        val oAuth2Attribute =
+            OAuth2Attribute.of(
+                socialType,
+                userNameAttributeName,
+                attributes,
+            )
         val user = getUserElseCreate(oAuth2Attribute, socialType, accessToken)
         return PrincipalDetails(
             user = user,
@@ -61,7 +66,13 @@ class OAuth2AuthenticationService(
                 "OAuth2-${UUID.randomUUID()}",
             )
         userRepository.save(createdUser)
-        val socialAccount = UserSocialAccount(oAuth2Attribute.userProperties.id, createdUser, socialType, accessToken)
+        val socialAccount =
+            UserSocialAccount(
+                oAuth2Attribute.userProperties.id,
+                createdUser,
+                socialType,
+                accessToken,
+            )
         userSocialAccountRepository.save(socialAccount)
         return createdUser
     }
