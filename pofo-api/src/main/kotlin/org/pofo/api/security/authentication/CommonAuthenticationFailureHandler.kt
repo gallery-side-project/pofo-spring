@@ -4,6 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.pofo.api.common.response.ApiResponse
+import org.pofo.common.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
@@ -30,7 +32,7 @@ class CommonAuthenticationFailureHandler : AuthenticationFailureHandler {
 
         objectMapper.writeValue(
             response.writer,
-            false,
+            ApiResponse.fail(ErrorCode.UNAUTHORIZED),
         )
     }
 }

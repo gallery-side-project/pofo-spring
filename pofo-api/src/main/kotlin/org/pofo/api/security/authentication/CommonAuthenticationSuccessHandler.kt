@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.pofo.api.common.response.ApiResponse
 import org.pofo.api.security.PrincipalDetails
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -33,7 +34,7 @@ class CommonAuthenticationSuccessHandler : AuthenticationSuccessHandler {
 
         objectMapper.writeValue(
             response.writer,
-            user,
+            ApiResponse.success(user),
         )
     }
 }

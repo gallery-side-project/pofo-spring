@@ -2,11 +2,11 @@ package org.pofo.api.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.pofo.api.common.response.ApiResponse
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.security.annotation.CurrentUser
 import org.pofo.api.service.UserService
 import org.pofo.domain.domain.user.User
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -23,13 +23,13 @@ class UserController(
         request: HttpServletRequest,
         response: HttpServletResponse,
         @RequestBody registerRequest: RegisterRequest,
-    ): ResponseEntity<*> {
+    ): ApiResponse<User> {
         val user = userService.createUser(registerRequest)
-        return ResponseEntity.ok(user)
+        return ApiResponse.success(user)
     }
 
     @GetMapping("/me")
     fun getMe(
         @CurrentUser user: User,
-    ): ResponseEntity<*> = ResponseEntity.ok(user)
+    ): ApiResponse<User> = ApiResponse.success(user)
 }
