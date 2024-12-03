@@ -1,0 +1,23 @@
+version: '3'
+services:
+  spring:
+    container_name: spring
+    restart: always
+    image: mclub4/pofo-spring
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+
+  nextjs:
+    container_name: nextjs
+    image: mclub4/pofo-front
+    expose:
+      - 3000
+
+  nginx:
+    container_name: nginx
+    image: mclub4/pofo-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
