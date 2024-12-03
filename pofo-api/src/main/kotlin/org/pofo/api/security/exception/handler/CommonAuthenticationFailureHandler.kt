@@ -25,11 +25,8 @@ class CommonAuthenticationFailureHandler : AuthenticationFailureHandler {
     ) {
         logger.info { "login failed: ${exception.message}" }
 
-        response.apply {
-            this.status = HttpStatus.UNAUTHORIZED.value()
-            this.contentType = MediaType.APPLICATION_JSON_VALUE
-        }
-
+        response.status = HttpStatus.UNAUTHORIZED.value()
+        response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
             ApiResponse.failure(ErrorCode.UNAUTHORIZED),

@@ -27,11 +27,8 @@ class CommonAuthenticationSuccessHandler : AuthenticationSuccessHandler {
         val user = principal.user
         logger.info { "login success: email: ${user.email}, role: ${user.role}" }
 
-        response.apply {
-            this.status = HttpStatus.OK.value()
-            this.contentType = MediaType.APPLICATION_JSON_VALUE
-        }
-
+        response.status = HttpStatus.OK.value()
+        response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
             ApiResponse.success(user),
