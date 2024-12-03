@@ -31,5 +31,7 @@ class UserController(
     @GetMapping("/me")
     fun getMe(
         @CurrentUser user: User,
-    ): ApiResponse<User> = ApiResponse.success(user)
+    ): ApiResponse<User> {
+        return ApiResponse.success(user)
+    }
 }

@@ -1,12 +1,14 @@
 package org.pofo.api.security
 
-import org.pofo.api.security.authentication.CommonAuthenticationFailureHandler
-import org.pofo.api.security.authentication.CommonAuthenticationSuccessHandler
+import org.pofo.api.security.exception.handler.CommonAuthenticationFailureHandler
+import org.pofo.api.security.exception.handler.CommonAuthenticationSuccessHandler
 import org.pofo.api.security.authentication.local.LocalAuthenticationFilter
 import org.pofo.api.security.authentication.local.LocalAuthenticationService
 import org.pofo.api.security.authentication.oauth2.OAuth2AuthenticationService
 import org.pofo.api.security.authentication.rememberMe.RememberMeAuthenticationService
 import org.pofo.api.security.authentication.rememberMe.RememberMeCookieProperties
+import org.pofo.api.security.exception.handler.CommonAccessDeniedHandler
+import org.pofo.api.security.exception.handler.CommonAuthenticationEntryPoint
 import org.pofo.domain.domain.security.SessionPersistentRepository
 import org.pofo.domain.domain.user.UserRepository
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
@@ -18,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.RememberMeAuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
@@ -39,6 +42,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @EnableConfigurationProperties(RememberMeCookieProperties::class)
 class SecurityConfig(
     private val rememberMeCookieProperties: RememberMeCookieProperties,
@@ -55,21 +59,19 @@ class SecurityConfig(
             .cors { httpSecurityCorsConfigurer ->
                 httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource())
             }.csrf { it.disable() }
+            .headers { headerConfigs -> headerConfigs.frameOptions { it.disable() } }
             .formLogin { it.disable() }
             .httpBasic { it.disable() }
-            .headers { headerConfigs -> headerConfigs.frameOptions { it.disable() } }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers(PathRequest.toH2Console())
-                    .permitAll()
-                    .requestMatchers("/user")
-                    .permitAll()
-                    .requestMatchers("/graphql")
-                    .permitAll()
-                    .requestMatchers("/graphiql")
-                    .permitAll()
-                    .anyRequest()
-                    .permitAll()
+                    .requestMatchers(PathRequest.toH2Console()).hasRole("ADMIN")
+                    .requestMatchers("/user/register").permitAll()
+                    .requestMatchers("/tech-stack/**").permitAll()
+                    .requestMatchers("/graphql", "/graphiql").permitAll()
+                    .anyRequest().authenticated()
+            }.exceptionHandling {
+                it.authenticationEntryPoint(CommonAuthenticationEntryPoint())
+                it.accessDeniedHandler(CommonAccessDeniedHandler())
             }.addFilterAfter(
                 localAuthenticationFilter,
                 LogoutFilter::class.java,
