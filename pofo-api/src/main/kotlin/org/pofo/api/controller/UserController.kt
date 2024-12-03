@@ -6,8 +6,6 @@ import org.pofo.api.common.response.ApiResponse
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.security.annotation.CurrentUser
 import org.pofo.api.service.UserService
-import org.pofo.common.exception.CustomException
-import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.domain.user.User
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
