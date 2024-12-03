@@ -10,19 +10,19 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 
-class CommonAuthenticationEntryPoint: AuthenticationEntryPoint{
+class CommonAuthenticationEntryPoint : AuthenticationEntryPoint {
     private val objectMapper = jacksonObjectMapper()
 
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authException: AuthenticationException
+        authException: AuthenticationException,
     ) {
         response.status = HttpStatus.UNAUTHORIZED.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
-            ApiResponse.failure(ErrorCode.UNAUTHORIZED)
+            ApiResponse.failure(ErrorCode.UNAUTHORIZED),
         )
     }
 }

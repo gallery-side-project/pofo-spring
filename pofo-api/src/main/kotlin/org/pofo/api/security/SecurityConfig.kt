@@ -1,7 +1,5 @@
 package org.pofo.api.security
 
-import org.pofo.api.security.exception.handler.CommonAuthenticationFailureHandler
-import org.pofo.api.security.exception.handler.CommonAuthenticationSuccessHandler
 import org.pofo.api.security.authentication.local.LocalAuthenticationFilter
 import org.pofo.api.security.authentication.local.LocalAuthenticationService
 import org.pofo.api.security.authentication.oauth2.OAuth2AuthenticationService
@@ -9,6 +7,8 @@ import org.pofo.api.security.authentication.rememberMe.RememberMeAuthenticationS
 import org.pofo.api.security.authentication.rememberMe.RememberMeCookieProperties
 import org.pofo.api.security.exception.handler.CommonAccessDeniedHandler
 import org.pofo.api.security.exception.handler.CommonAuthenticationEntryPoint
+import org.pofo.api.security.exception.handler.CommonAuthenticationFailureHandler
+import org.pofo.api.security.exception.handler.CommonAuthenticationSuccessHandler
 import org.pofo.domain.domain.security.SessionPersistentRepository
 import org.pofo.domain.domain.user.UserRepository
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest

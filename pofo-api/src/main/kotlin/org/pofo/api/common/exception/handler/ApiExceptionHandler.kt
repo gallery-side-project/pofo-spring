@@ -46,7 +46,10 @@ class ApiExceptionHandler {
      * 서비스 로직의 오류를 검출합니다.
      */
     @ExceptionHandler(CustomException::class)
-    fun handleCustomException(exception: CustomException, response: HttpServletResponse) {
+    fun handleCustomException(
+        exception: CustomException,
+        response: HttpServletResponse,
+    ) {
         val errorCode = exception.errorCode
         logger.debug { "의도된 에러: ${errorCode.code} -> ${exception.message}" }
         response.status = errorCode.status

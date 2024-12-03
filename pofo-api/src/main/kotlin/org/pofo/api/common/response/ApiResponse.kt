@@ -7,8 +7,10 @@ import org.pofo.common.exception.ErrorCode
 class ApiResponse<T> {
     @JsonProperty
     private val success: Boolean
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val code: String?
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val data: T?
 

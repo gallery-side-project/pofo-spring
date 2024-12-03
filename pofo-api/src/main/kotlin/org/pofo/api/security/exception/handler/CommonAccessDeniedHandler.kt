@@ -10,20 +10,19 @@ import org.springframework.http.MediaType
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler
 
-
-class CommonAccessDeniedHandler: AccessDeniedHandler {
+class CommonAccessDeniedHandler : AccessDeniedHandler {
     private val objectMapper = jacksonObjectMapper()
 
     override fun handle(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        accessDeniedException: AccessDeniedException
+        accessDeniedException: AccessDeniedException,
     ) {
         response.status = HttpStatus.UNAUTHORIZED.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
-            ApiResponse.failure(ErrorCode.UNAUTHORIZED)
+            ApiResponse.failure(ErrorCode.UNAUTHORIZED),
         )
     }
 }

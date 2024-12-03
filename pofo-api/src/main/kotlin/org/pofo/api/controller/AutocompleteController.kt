@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RequestMapping("/tech-stack")
 @RestController
-class   AutocompleteController(
+class AutocompleteController(
     private val openSearchService: OpenSearchService,
 ) {
 //    @PostMapping("/")
