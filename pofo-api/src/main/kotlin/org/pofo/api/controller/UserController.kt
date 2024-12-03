@@ -36,9 +36,4 @@ class UserController(
     ): ApiResponse<User> {
         return ApiResponse.success(user)
     }
-
-    @GetMapping("/error")
-    fun getErrors() {
-        throw CustomException(ErrorCode.USER_NOT_FOUND)
-    }
 }

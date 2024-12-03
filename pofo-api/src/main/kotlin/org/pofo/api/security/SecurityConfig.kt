@@ -65,7 +65,7 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it
                     .requestMatchers(PathRequest.toH2Console()).hasRole("ADMIN")
-                    .requestMatchers("/user/register", "/user/error").permitAll()
+                    .requestMatchers("/user/register").permitAll()
                     .requestMatchers("/tech-stack/**").permitAll()
                     .requestMatchers("/graphql", "/graphiql").permitAll()
                     .anyRequest().authenticated()
