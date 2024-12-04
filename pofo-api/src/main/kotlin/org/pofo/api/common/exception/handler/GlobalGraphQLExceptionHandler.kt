@@ -1,8 +1,8 @@
-package org.pofo.api.config
+package org.pofo.api.common.exception.handler
 
 import graphql.GraphQLError
 import graphql.schema.DataFetchingEnvironment
-import org.pofo.common.error.CustomError
+import org.pofo.common.exception.CustomException
 import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter
 import org.springframework.stereotype.Component
 
@@ -12,7 +12,7 @@ class GlobalGraphQLExceptionHandler : DataFetcherExceptionResolverAdapter() {
         ex: Throwable,
         env: DataFetchingEnvironment,
     ): GraphQLError? {
-        if (ex is CustomError) {
+        if (ex is CustomException) {
             return GraphQLError
                 .newError()
                 .message(ex.message)

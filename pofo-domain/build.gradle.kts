@@ -7,6 +7,8 @@ bootJar.enabled = false
 jar.enabled = true
 
 dependencies {
+    implementation(project(":pofo-common"))
+
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.fasterxml.jackson.core:jackson-core:2.18.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.0")
