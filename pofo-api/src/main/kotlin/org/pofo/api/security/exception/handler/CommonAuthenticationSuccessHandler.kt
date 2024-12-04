@@ -1,9 +1,10 @@
-package org.pofo.api.security.authentication
+package org.pofo.api.security.exception.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.pofo.api.common.response.ApiResponse
 import org.pofo.api.security.PrincipalDetails
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -26,14 +27,11 @@ class CommonAuthenticationSuccessHandler : AuthenticationSuccessHandler {
         val user = principal.user
         logger.info { "login success: email: ${user.email}, role: ${user.role}" }
 
-        response.apply {
-            this.status = HttpStatus.OK.value()
-            this.contentType = MediaType.APPLICATION_JSON_VALUE
-        }
-
+        response.status = HttpStatus.OK.value()
+        response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
-            user,
+            ApiResponse.success(user),
         )
     }
 }

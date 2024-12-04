@@ -1,9 +1,11 @@
-package org.pofo.api.security.authentication
+package org.pofo.api.security.exception.handler
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.pofo.api.common.response.ApiResponse
+import org.pofo.common.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
@@ -23,14 +25,11 @@ class CommonAuthenticationFailureHandler : AuthenticationFailureHandler {
     ) {
         logger.info { "login failed: ${exception.message}" }
 
-        response.apply {
-            this.status = HttpStatus.UNAUTHORIZED.value()
-            this.contentType = MediaType.APPLICATION_JSON_VALUE
-        }
-
+        response.status = HttpStatus.UNAUTHORIZED.value()
+        response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
-            false,
+            ApiResponse.failure(ErrorCode.UNAUTHORIZED),
         )
     }
 }
