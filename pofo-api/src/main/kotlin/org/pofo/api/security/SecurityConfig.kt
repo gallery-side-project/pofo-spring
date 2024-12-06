@@ -11,7 +11,6 @@ import org.pofo.api.security.exception.handler.CommonAuthenticationFailureHandle
 import org.pofo.api.security.exception.handler.CommonAuthenticationSuccessHandler
 import org.pofo.domain.domain.security.SessionPersistentRepository
 import org.pofo.domain.domain.user.UserRepository
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -64,7 +63,7 @@ class SecurityConfig(
             .httpBasic { it.disable() }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers(PathRequest.toH2Console()).hasRole("ADMIN")
+                    .requestMatchers("/h2-console/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/user").permitAll()
                     .requestMatchers("/tech-stack/**").permitAll()
                     .requestMatchers("/graphql", "/graphiql").permitAll()
