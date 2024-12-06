@@ -1,8 +1,18 @@
-version: '3'
 services:
+  postgresql:
+    image: postgres:17.2-alpine3.20
+    container_name: pofo_postgresql
+    hostname: postgresql
+    environment:
+      - POSTGRES_PASSWORD=MyStrongcur3P@ssw0rd!
+      - POSTGRES_DB=pofo
+    ports:
+      - "5432:5432"
+
   opensearch:
     image: opensearchproject/opensearch:2.15.0
-    container_name: opensearch
+    container_name: pofo_opensearch
+    hostname: opensearch
     environment:
       - discovery.type=single-node
       - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
@@ -19,7 +29,8 @@ services:
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.15.0
-    container_name: opensearch-dashboards
+    container_name: pofo_opensearch-dashboards
+    hostname: opensearch-dashboards
     ports:
       - "5601:5601"
     environment:

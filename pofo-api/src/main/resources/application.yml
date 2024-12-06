@@ -2,7 +2,6 @@ spring:
   profiles:
     group:
       test: local
-      dev: prod
 
   config:
     import:
@@ -53,8 +52,26 @@ logging:
 spring:
   config:
     activate:
+      on-profile: dev
+
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      printer:
+        enabled: true
+
+logging:
+  level:
+    org.pofo.api: INFO
+
+---
+
+spring:
+  config:
+    activate:
       on-profile: prod
 
 logging:
   level:
-    root: INFO
+    root: ERROR
