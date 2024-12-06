@@ -8,6 +8,7 @@ import org.opensearch.spring.boot.autoconfigure.RestClientBuilderCustomizer;
 import org.pofo.infra.importer.PofoInfraConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import java.security.KeyManagementException;
@@ -16,12 +17,14 @@ import java.security.NoSuchAlgorithmException;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.pofo.infra.elasticsearch.repository")
+@Profile(value = {"dev", "prod"})
 public class OpenSearchConfig implements PofoInfraConfig {
     @Bean
     public RestClientBuilderCustomizer clientConfiguration() {
         return new RestClientBuilderCustomizer() {
             @Override
-            public void customize(RestClientBuilder builder) {}
+            public void customize(RestClientBuilder builder) {
+            }
 
             @Override
             public void customize(HttpAsyncClientBuilder builder) {
