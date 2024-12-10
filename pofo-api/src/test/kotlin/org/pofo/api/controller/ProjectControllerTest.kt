@@ -34,7 +34,7 @@ internal class ProjectControllerTest {
                         "Consider applying the @WithMockCustomUser annotation.",
                 )
         val principal = authentication.principal as PrincipalDetails
-        return principal.user
+        return User()
     }
 
     @Test

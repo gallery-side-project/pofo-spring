@@ -8,6 +8,7 @@ enum class ErrorCode(val status: Int, val message: String, val code: String) {
     // USER
     USER_NOT_FOUND(404, "유저를 찾을 수 없습니다.", "USER-001"),
     USER_EXISTS(400, "유저가 이미 존재합니다.", "USER-002"),
+    USER_LOGIN_FAILED(401, "아이디 또는 비밀번호가 잘못되었습니다.", "USER-003"),
 
     // PROJECT
     PROJECT_NOT_FOUND(404, "프로젝트를 찾을 수 없습니다.", "PROJ-004"),

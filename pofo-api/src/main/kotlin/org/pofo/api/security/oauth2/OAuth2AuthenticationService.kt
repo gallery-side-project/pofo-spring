@@ -1,7 +1,8 @@
-package org.pofo.api.security.authentication.oauth2
+package org.pofo.api.security.oauth2
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.pofo.api.security.PrincipalDetails
+import org.pofo.api.security.jwt.JwtTokenData
 import org.pofo.domain.domain.user.User
 import org.pofo.domain.domain.user.UserRepository
 import org.pofo.domain.domain.user.UserSocialAccount
@@ -41,8 +42,12 @@ class OAuth2AuthenticationService(
             )
         val user = getUserElseCreate(oAuth2Attribute, socialType, accessToken)
         return PrincipalDetails(
-            user = user,
-            attributes = attributes,
+            JwtTokenData(
+                userId = user.id,
+                email = user.email,
+                name = "some name",
+                role = user.role
+            )
         )
     }
 

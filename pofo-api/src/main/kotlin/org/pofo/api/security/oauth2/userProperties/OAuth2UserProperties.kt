@@ -1,4 +1,4 @@
-package org.pofo.api.security.authentication.oauth2.userProperties
+package org.pofo.api.security.oauth2.userProperties
 
 abstract class OAuth2UserProperties(
     protected val attributes: Map<String, Any>,

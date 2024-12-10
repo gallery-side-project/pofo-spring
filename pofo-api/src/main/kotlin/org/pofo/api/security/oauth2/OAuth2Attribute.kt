@@ -1,7 +1,7 @@
-package org.pofo.api.security.authentication.oauth2
+package org.pofo.api.security.oauth2
 
-import org.pofo.api.security.authentication.oauth2.userProperties.GithubOAuth2UserProperties
-import org.pofo.api.security.authentication.oauth2.userProperties.OAuth2UserProperties
+import org.pofo.api.security.oauth2.userProperties.GithubOAuth2UserProperties
+import org.pofo.api.security.oauth2.userProperties.OAuth2UserProperties
 import org.pofo.domain.domain.user.UserSocialType
 
 class OAuth2Attribute private constructor(

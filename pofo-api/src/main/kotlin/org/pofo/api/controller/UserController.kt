@@ -1,9 +1,9 @@
 package org.pofo.api.controller
 
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.pofo.api.common.response.ApiResponse
+import org.pofo.api.dto.LoginRequest
 import org.pofo.api.dto.RegisterRequest
+import org.pofo.api.dto.TokenResponse
 import org.pofo.api.security.annotation.CurrentUser
 import org.pofo.api.service.UserService
 import org.pofo.domain.domain.user.User
@@ -20,8 +20,6 @@ class UserController(
 ) {
     @PostMapping("")
     fun register(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
         @RequestBody registerRequest: RegisterRequest,
     ): ApiResponse<User> {
         val user = userService.createUser(registerRequest)
@@ -33,5 +31,11 @@ class UserController(
         @CurrentUser user: User,
     ): ApiResponse<User> {
         return ApiResponse.success(user)
+    }
+
+    @PostMapping("/login")
+    fun login(@RequestBody loginRequest: LoginRequest): ApiResponse<TokenResponse> {
+        val tokenResponse = userService.login(loginRequest)
+        return ApiResponse.success(tokenResponse)
     }
 }
