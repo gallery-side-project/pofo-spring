@@ -48,7 +48,10 @@ class UserController(
     }
 
     @PostMapping("/login")
-    fun login(response: HttpServletResponse, @RequestBody loginRequest: LoginRequest): ApiResponse<TokenResponse> {
+    fun login(
+        response: HttpServletResponse,
+        @RequestBody loginRequest: LoginRequest,
+    ): ApiResponse<TokenResponse> {
         val tokenResponse = userService.login(loginRequest)
 
         createRefreshTokenCookie(response, tokenResponse)
@@ -56,7 +59,10 @@ class UserController(
     }
 
     @PostMapping("/re-issue")
-    fun reIssue(request: HttpServletRequest, response: HttpServletResponse): ApiResponse<*> {
+    fun reIssue(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): ApiResponse<*> {
         val refreshTokenCookie = cookieUtil.getCookieFromRequest(request, cookieName = REFRESH_COOKIE_NAME)
         if (refreshTokenCookie == null) {
             response.status = HttpStatus.BAD_REQUEST.value()
@@ -69,12 +75,16 @@ class UserController(
         return ApiResponse.success(tokenResponse)
     }
 
-    private fun createRefreshTokenCookie(response: HttpServletResponse, tokenResponse: TokenResponse) {
-        val cookie = cookieUtil.createCookie(
-            cookieName = REFRESH_COOKIE_NAME,
-            maxAge = JwtService.REFRESH_TOKEN_EXPIRATION,
-            value = tokenResponse.refreshToken
-        )
+    private fun createRefreshTokenCookie(
+        response: HttpServletResponse,
+        tokenResponse: TokenResponse,
+    ) {
+        val cookie =
+            cookieUtil.createCookie(
+                cookieName = REFRESH_COOKIE_NAME,
+                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION,
+                value = tokenResponse.refreshToken,
+            )
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
@@ -83,7 +93,7 @@ class UserController(
     fun logout(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        @AuthenticationPrincipal principalDetails: PrincipalDetails
+        @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): ApiResponse<Unit> {
         val accessToken = getAccessToken(request)
         userService.logout(principalDetails.jwtTokenData.userId, accessToken)
@@ -93,7 +103,6 @@ class UserController(
         return ApiResponse.success(Unit)
     }
 
-    private fun getAccessToken(request: HttpServletRequest): String {
-        return request.getHeader(HttpHeaders.AUTHORIZATION)!!
-    }
+    private fun getAccessToken(request: HttpServletRequest): String =
+        request.getHeader(HttpHeaders.AUTHORIZATION)!!.removePrefix("Bearer ")
 }

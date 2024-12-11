@@ -37,10 +37,11 @@ class UserService(
         return userRepository.save(user)
     }
 
-    fun getUserById(userId: Long): User {
-        val user = userRepository.findById(userId) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
-        return user
-    }
+    fun getUserById(userId: Long): User =
+        userRepository.findById(userId) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+
+    fun getUserByEmail(email: String): User =
+        userRepository.findByEmail(email) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
 
     fun login(loginRequest: LoginRequest): TokenResponse {
         val email = loginRequest.email
@@ -52,7 +53,8 @@ class UserService(
         }
 
         val tokenResponse = createTokenResponse(findUser)
-        val refreshTokenEntity = RefreshToken(findUser.id, tokenResponse.refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
+        val refreshTokenEntity =
+            RefreshToken(findUser.id, tokenResponse.refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
         refreshTokenRepository.save(refreshTokenEntity)
         return tokenResponse
     }
@@ -61,30 +63,36 @@ class UserService(
         val userId = jwtService.extractUserId(refreshToken)
 
         val refreshTokenEntity = refreshTokenRepository.findById(userId)
-        if (refreshTokenEntity.isEmpty || refreshToken != refreshTokenEntity.get().value)
+        if (refreshTokenEntity.isEmpty || refreshToken != refreshTokenEntity.get().value) {
             throw CustomException(ErrorCode.USER_LOGIN_FAILED)
+        }
 
         val findUser = userRepository.findById(userId) ?: throw CustomException(ErrorCode.USER_LOGIN_FAILED)
         val tokenResponse = createTokenResponse(findUser)
-        val newRefreshTokenEntity = RefreshToken(findUser.id, tokenResponse.refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
+        val newRefreshTokenEntity =
+            RefreshToken(findUser.id, tokenResponse.refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
         refreshTokenRepository.save(newRefreshTokenEntity)
         return tokenResponse
     }
 
     private fun createTokenResponse(user: User): TokenResponse {
-        val accessToken = jwtService.generateAccessToken(
-            JwtTokenData(
-                userId = user.id,
-                email = user.email,
-                name = "some name",
-                role = user.role,
+        val accessToken =
+            jwtService.generateAccessToken(
+                JwtTokenData(
+                    userId = user.id,
+                    email = user.email,
+                    name = "some name",
+                    role = user.role,
+                ),
             )
-        )
         val refreshToken = jwtService.generateRefreshToken(user.id)
         return TokenResponse(accessToken, refreshToken)
     }
 
-    fun logout(userId: Long, accessToken: String) {
+    fun logout(
+        userId: Long,
+        accessToken: String,
+    ) {
         val bannedAccessToken = BannedAccessToken(userId, accessToken, JwtService.ACCESS_TOKEN_EXPIRATION / 1000)
         bannedAccessTokenRepository.save(bannedAccessToken)
         refreshTokenRepository.deleteById(userId)

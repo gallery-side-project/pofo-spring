@@ -21,9 +21,7 @@ class JwtService {
         const val REFRESH_TOKEN_EXPIRATION: Long = 1000 * 60 * 60 * 24 * 15 // 15d
     }
 
-    fun generateAccessToken(
-        jwtTokenData: JwtTokenData
-    ): String {
+    fun generateAccessToken(jwtTokenData: JwtTokenData): String {
         val claimsMap = jwtTokenData.toMap()
         val now = System.currentTimeMillis()
         return Jwts
@@ -74,7 +72,7 @@ class JwtService {
                 email = claims[JwtTokenData.KEY_EMAIL] as String,
                 name = claims[JwtTokenData.KEY_NAME] as String,
                 role = UserRole.valueOf(claims[JwtTokenData.KEY_ROLE] as String),
-                imageUrl = claims[JwtTokenData.KEY_IMAGE_URL] as String?
+                imageUrl = claims[JwtTokenData.KEY_IMAGE_URL] as String?,
             )
         }
     }

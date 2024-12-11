@@ -20,7 +20,7 @@ class JwtAuthenticationFilter(
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val accessTokenInHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
         if (accessTokenInHeader != null && accessTokenInHeader.startsWith("Bearer ")) {

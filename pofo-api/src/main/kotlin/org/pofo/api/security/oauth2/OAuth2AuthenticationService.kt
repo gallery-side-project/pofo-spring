@@ -46,8 +46,8 @@ class OAuth2AuthenticationService(
                 userId = user.id,
                 email = user.email,
                 name = "some name",
-                role = user.role
-            )
+                role = user.role,
+            ),
         )
     }
 

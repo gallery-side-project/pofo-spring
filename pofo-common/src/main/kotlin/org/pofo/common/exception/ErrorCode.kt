@@ -1,6 +1,10 @@
 package org.pofo.common.exception
 
-enum class ErrorCode(val status: Int, val message: String, val code: String) {
+enum class ErrorCode(
+    val status: Int,
+    val message: String,
+    val code: String,
+) {
     INTERNAL_SERVER_ERROR(500, "서버 오류", "COMMON-001"),
     UNAUTHORIZED(401, "인증 오류", "COMMON-002"),
     FORBIDDEN(403, "인가 오류", "COMMON-003"),

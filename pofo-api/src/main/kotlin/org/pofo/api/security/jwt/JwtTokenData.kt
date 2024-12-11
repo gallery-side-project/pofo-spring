@@ -1,5 +1,6 @@
 package org.pofo.api.security.jwt
 
+import org.pofo.domain.rds.domain.user.User
 import org.pofo.domain.rds.domain.user.UserRole
 
 data class JwtTokenData(
@@ -16,12 +17,15 @@ data class JwtTokenData(
         const val KEY_IMAGE_URL = "username"
     }
 
+    constructor(user: User) : this(user.id, user.email, "name", user.role)
+
     fun toMap(): Map<String, String> {
-        val map = mutableMapOf(
-            KEY_EMAIL to email,
-            KEY_NAME to name,
-            KEY_ROLE to role.name
-        )
+        val map =
+            mutableMapOf(
+                KEY_EMAIL to email,
+                KEY_NAME to name,
+                KEY_ROLE to role.name,
+            )
         imageUrl?.let { map[KEY_IMAGE_URL] = it }
         return map
     }

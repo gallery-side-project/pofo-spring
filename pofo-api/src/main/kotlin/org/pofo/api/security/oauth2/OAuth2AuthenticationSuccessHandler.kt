@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 class OAuth2AuthenticationSuccessHandler(
     private val jwtService: JwtService,
     private val refreshTokenRepository: RefreshTokenRepository,
-    private val cookieUtil: CookieUtil
+    private val cookieUtil: CookieUtil,
 ) : SimpleUrlAuthenticationSuccessHandler() {
     @Value("\${oauth2.target-url}")
     private lateinit var redirectUrl: String
@@ -26,20 +26,22 @@ class OAuth2AuthenticationSuccessHandler(
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authentication: Authentication
+        authentication: Authentication,
     ) {
         val principalDetails = authentication.principal as PrincipalDetails
         val jwtTokenData = principalDetails.jwtTokenData
         val accessToken = jwtService.generateAccessToken(jwtTokenData)
         val refreshToken = jwtService.generateRefreshToken(jwtTokenData.userId)
-        val refreshTokenEntity = RefreshToken(jwtTokenData.userId, refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
+        val refreshTokenEntity =
+            RefreshToken(jwtTokenData.userId, refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
         refreshTokenRepository.save(refreshTokenEntity)
 
-        val refreshTokenCookie = cookieUtil.createCookie(
-            UserController.REFRESH_COOKIE_NAME,
-            refreshToken,
-            JwtService.REFRESH_TOKEN_EXPIRATION
-        )
+        val refreshTokenCookie =
+            cookieUtil.createCookie(
+                UserController.REFRESH_COOKIE_NAME,
+                refreshToken,
+                JwtService.REFRESH_TOKEN_EXPIRATION,
+            )
         response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
         redirectStrategy.sendRedirect(request, response, "$redirectUrl?access_token=$accessToken")
     }

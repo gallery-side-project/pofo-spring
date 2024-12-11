@@ -8,9 +8,7 @@ import org.springframework.data.redis.core.TimeToLive
 class BannedAccessToken(
     @Id
     val userId: Long,
-
     val value: String,
-
     @TimeToLive
-    val expiration: Long
+    val expiration: Long,
 )

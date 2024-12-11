@@ -23,7 +23,6 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -34,7 +33,7 @@ class SecurityConfig {
         jwtAuthenticationFilter: JwtAuthenticationFilter,
         oAuth2AuthenticationService: OAuth2AuthenticationService,
         oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
-        oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
+        oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler,
     ): SecurityFilterChain {
         http {
             cors {

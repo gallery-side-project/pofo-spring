@@ -15,7 +15,7 @@ class OAuth2AuthenticationFailureHandler : SimpleUrlAuthenticationFailureHandler
     override fun onAuthenticationFailure(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        exception: AuthenticationException
+        exception: AuthenticationException,
     ) {
         redirectStrategy.sendRedirect(request, response, "$redirectUrl?error=1")
     }
