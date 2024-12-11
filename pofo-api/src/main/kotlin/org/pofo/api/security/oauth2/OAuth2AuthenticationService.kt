@@ -3,11 +3,11 @@ package org.pofo.api.security.oauth2
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.api.security.jwt.JwtTokenData
-import org.pofo.domain.domain.user.User
-import org.pofo.domain.domain.user.UserRepository
-import org.pofo.domain.domain.user.UserSocialAccount
-import org.pofo.domain.domain.user.UserSocialAccountRepository
-import org.pofo.domain.domain.user.UserSocialType
+import org.pofo.domain.rds.domain.user.User
+import org.pofo.domain.rds.domain.user.UserRepository
+import org.pofo.domain.rds.domain.user.UserSocialAccount
+import org.pofo.domain.rds.domain.user.UserSocialAccountRepository
+import org.pofo.domain.rds.domain.user.UserSocialType
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService

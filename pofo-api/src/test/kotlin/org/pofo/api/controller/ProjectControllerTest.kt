@@ -3,10 +3,10 @@ package org.pofo.api.controller
 import org.junit.jupiter.api.Test
 import org.pofo.api.WithMockCustomUser
 import org.pofo.api.security.PrincipalDetails
-import org.pofo.domain.domain.project.Project
-import org.pofo.domain.domain.project.ProjectCategory
-import org.pofo.domain.domain.project.repository.ProjectRepository
-import org.pofo.domain.domain.user.User
+import org.pofo.domain.rds.domain.project.Project
+import org.pofo.domain.rds.domain.project.ProjectCategory
+import org.pofo.domain.rds.domain.project.repository.ProjectRepository
+import org.pofo.domain.rds.domain.user.User
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureGraphQlTester
 import org.springframework.boot.test.context.SpringBootTest

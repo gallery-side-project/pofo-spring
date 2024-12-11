@@ -1,10 +1,10 @@
-package org.pofo.domain.domain.project;
+package org.pofo.domain.rds.domain.project;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.pofo.domain.converter.StringListConverter;
-import org.pofo.domain.domain.user.User;
+import org.pofo.domain.rds.converter.StringListConverter;
+import org.pofo.domain.rds.domain.user.User;
 
 import java.util.List;
 

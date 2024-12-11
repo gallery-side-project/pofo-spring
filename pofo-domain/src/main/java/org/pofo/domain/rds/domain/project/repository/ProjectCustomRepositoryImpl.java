@@ -1,11 +1,11 @@
-package org.pofo.domain.domain.project.repository;
+package org.pofo.domain.rds.domain.project.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.pofo.domain.domain.project.Project;
-import org.pofo.domain.domain.project.ProjectList;
-import org.pofo.domain.domain.project.QProject;
+import org.pofo.domain.rds.domain.project.Project;
+import org.pofo.domain.rds.domain.project.ProjectList;
+import org.pofo.domain.rds.domain.project.QProject;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

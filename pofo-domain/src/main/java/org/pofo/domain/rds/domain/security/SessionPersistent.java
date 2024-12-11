@@ -1,4 +1,4 @@
-package org.pofo.domain.domain.security;
+package org.pofo.domain.rds.domain.security;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

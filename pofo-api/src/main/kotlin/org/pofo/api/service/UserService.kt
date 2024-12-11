@@ -7,8 +7,10 @@ import org.pofo.api.security.jwt.JwtService
 import org.pofo.api.security.jwt.JwtTokenData
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
-import org.pofo.domain.domain.user.User
-import org.pofo.domain.domain.user.UserRepository
+import org.pofo.domain.redis.domain.refreshToken.RefreshToken
+import org.pofo.domain.redis.domain.refreshToken.RefreshTokenRepository
+import org.pofo.domain.rds.domain.user.User
+import org.pofo.domain.rds.domain.user.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class UserService(
     private val userRepository: UserRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
 ) {
@@ -36,9 +39,17 @@ class UserService(
         return user
     }
 
-    fun getUserByEmail(email: String): User {
-        val user = userRepository.findByEmail(email) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
-        return user
+    private fun createTokenResponse(user: User): TokenResponse {
+        val accessToken = jwtService.generateAccessToken(
+            JwtTokenData(
+                userId = user.id,
+                email = user.email,
+                name = "some name",
+                role = user.role,
+            )
+        )
+        val refreshToken = jwtService.generateRefreshToken(user.id)
+        return TokenResponse(accessToken, refreshToken)
     }
 
     fun login(loginRequest: LoginRequest): TokenResponse {
@@ -50,21 +61,25 @@ class UserService(
             throw CustomException(ErrorCode.USER_LOGIN_FAILED)
         }
 
-        val accessToken = jwtService.generateAccessToken(
-            JwtTokenData(
-                userId = findUser.id,
-                email = findUser.email,
-                name = "some name",
-                role = findUser.role,
-            )
-        )
-        val refreshToken = jwtService.generateRefreshToken(findUser.id)
-
-        // TODO: refreshToken 저장
-        return TokenResponse(accessToken, refreshToken)
+        val tokenResponse = createTokenResponse(findUser)
+        val refreshTokenEntity = RefreshToken(findUser.id, tokenResponse.refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
+        refreshTokenRepository.save(refreshTokenEntity)
+        return tokenResponse
     }
 
-//    fun reIssueToken(): TokenResponse {}
+    fun reIssueToken(refreshToken: String): TokenResponse {
+        val userId = jwtService.extractUserId(refreshToken)
+
+        val refreshTokenEntity = refreshTokenRepository.findById(userId)
+        if (refreshTokenEntity.isEmpty || refreshToken != refreshTokenEntity.get().value)
+            throw CustomException(ErrorCode.USER_LOGIN_FAILED)
+
+        val findUser = userRepository.findById(userId) ?: throw CustomException(ErrorCode.USER_LOGIN_FAILED)
+        val tokenResponse = createTokenResponse(findUser)
+        val newRefreshTokenEntity = RefreshToken(findUser.id, tokenResponse.refreshToken, JwtService.REFRESH_TOKEN_EXPIRATION / 1000)
+        refreshTokenRepository.save(newRefreshTokenEntity)
+        return tokenResponse
+    }
 
 //    fun logout() {}
 }

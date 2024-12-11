@@ -2,7 +2,7 @@ package org.pofo.api
 
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.api.security.jwt.JwtTokenData
-import org.pofo.domain.domain.user.User
+import org.pofo.domain.rds.domain.user.User
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext

@@ -1,4 +1,4 @@
-package org.pofo.domain.domain.project;
+package org.pofo.domain.rds.domain.project;
 
 /**
  * 프로젝트 유형

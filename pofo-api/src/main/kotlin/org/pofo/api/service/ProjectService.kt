@@ -4,11 +4,11 @@ import jakarta.persistence.EntityManager
 import lombok.extern.slf4j.Slf4j
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
-import org.pofo.domain.domain.project.Project
-import org.pofo.domain.domain.project.ProjectCategory
-import org.pofo.domain.domain.project.ProjectList
-import org.pofo.domain.domain.project.repository.ProjectRepository
-import org.pofo.domain.domain.user.User
+import org.pofo.domain.rds.domain.project.Project
+import org.pofo.domain.rds.domain.project.ProjectCategory
+import org.pofo.domain.rds.domain.project.ProjectList
+import org.pofo.domain.rds.domain.project.repository.ProjectRepository
+import org.pofo.domain.rds.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

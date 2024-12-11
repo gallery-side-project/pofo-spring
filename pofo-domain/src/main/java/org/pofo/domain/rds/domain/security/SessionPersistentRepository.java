@@ -1,4 +1,4 @@
-package org.pofo.domain.domain.security;
+package org.pofo.domain.rds.domain.security;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

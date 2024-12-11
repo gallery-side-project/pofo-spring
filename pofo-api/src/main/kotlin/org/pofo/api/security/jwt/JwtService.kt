@@ -3,7 +3,7 @@ package org.pofo.api.security.jwt
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.pofo.domain.domain.user.UserRole
+import org.pofo.domain.rds.domain.user.UserRole
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.Date
@@ -59,6 +59,12 @@ class JwtService {
                 .parseSignedClaims(token)
                 .payload
         return claimResolver(claims)
+    }
+
+    fun extractUserId(token: String): Long {
+        return extractClaim(token) { claims ->
+            claims.subject.toLong()
+        }
     }
 
     fun extractTokenData(token: String): JwtTokenData {

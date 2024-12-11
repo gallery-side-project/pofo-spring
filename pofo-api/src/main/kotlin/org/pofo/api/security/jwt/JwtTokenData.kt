@@ -1,6 +1,6 @@
 package org.pofo.api.security.jwt
 
-import org.pofo.domain.domain.user.UserRole
+import org.pofo.domain.rds.domain.user.UserRole
 
 data class JwtTokenData(
     val userId: Long,

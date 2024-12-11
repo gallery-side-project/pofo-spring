@@ -1,4 +1,4 @@
-package org.pofo.domain.config;
+package org.pofo.domain.rds.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

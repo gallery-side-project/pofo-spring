@@ -1,4 +1,4 @@
-package org.pofo.domain.domain.user;
+package org.pofo.domain.rds.domain.user;
 
 public enum UserSocialType {
     GITHUB;

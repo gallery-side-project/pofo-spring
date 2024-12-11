@@ -2,7 +2,7 @@ package org.pofo.api.security.oauth2
 
 import org.pofo.api.security.oauth2.userProperties.GithubOAuth2UserProperties
 import org.pofo.api.security.oauth2.userProperties.OAuth2UserProperties
-import org.pofo.domain.domain.user.UserSocialType
+import org.pofo.domain.rds.domain.user.UserSocialType
 
 class OAuth2Attribute private constructor(
     val nameAttributeKey: String,

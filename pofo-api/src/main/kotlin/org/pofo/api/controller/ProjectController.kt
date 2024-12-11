@@ -1,9 +1,9 @@
 package org.pofo.api.controller
 
 import org.pofo.api.security.PrincipalDetails
-import org.pofo.domain.domain.project.Project
-import org.pofo.domain.domain.project.ProjectCategory
-import org.pofo.domain.domain.project.ProjectList
+import org.pofo.domain.rds.domain.project.Project
+import org.pofo.domain.rds.domain.project.ProjectCategory
+import org.pofo.domain.rds.domain.project.ProjectList
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping

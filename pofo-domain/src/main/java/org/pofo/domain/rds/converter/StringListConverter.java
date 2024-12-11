@@ -1,4 +1,4 @@
-package org.pofo.domain.converter;
+package org.pofo.domain.rds.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
