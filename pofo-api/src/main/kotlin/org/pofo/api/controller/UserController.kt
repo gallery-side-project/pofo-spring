@@ -4,9 +4,10 @@ import org.pofo.api.common.response.ApiResponse
 import org.pofo.api.dto.LoginRequest
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.dto.TokenResponse
-import org.pofo.api.security.annotation.CurrentUser
+import org.pofo.api.security.PrincipalDetails
 import org.pofo.api.service.UserService
 import org.pofo.domain.domain.user.User
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -28,8 +29,9 @@ class UserController(
 
     @GetMapping("/me")
     fun getMe(
-        @CurrentUser user: User,
+        @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): ApiResponse<User> {
+        val user = userService.getUserById(principalDetails.userId)
         return ApiResponse.success(user)
     }
 

@@ -15,9 +15,11 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+
 
 @Configuration
 @EnableWebSecurity
@@ -38,13 +40,13 @@ class SecurityConfig {
             formLogin { disable() }
             httpBasic { disable() }
             authorizeHttpRequests {
-                authorize("/h2-console/**", hasRole("ADMIN"))
-                authorize("/graphiql", hasRole("ADMIN"))
+                authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
+                authorize(AntPathRequestMatcher("/graphql"), permitAll)
+                authorize("/graphiql", permitAll)
                 authorize(HttpMethod.POST, "/user", permitAll)
                 authorize(HttpMethod.POST, "/user/login", permitAll)
                 authorize(HttpMethod.POST, "/user/logout", permitAll)
                 authorize("/tech-stack/**", permitAll)
-                authorize("/graphql", permitAll)
                 authorize(anyRequest, authenticated)
             }
             exceptionHandling {

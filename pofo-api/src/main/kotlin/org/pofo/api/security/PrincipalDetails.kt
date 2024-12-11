@@ -10,6 +10,9 @@ class PrincipalDetails(
     private val jwtTokenData: JwtTokenData,
 ) : UserDetails,
     OAuth2User {
+    val userId: Long = jwtTokenData.userId
+    val email: String = jwtTokenData.email
+
     override fun getUsername(): String = jwtTokenData.email
 
     override fun getPassword(): String = ""

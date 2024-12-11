@@ -31,7 +31,12 @@ class UserService(
         return userRepository.save(user)
     }
 
-    fun fetchUserByEmail(email: String): User {
+    fun getUserById(userId: Long): User {
+        val user = userRepository.findById(userId) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+        return user
+    }
+
+    fun getUserByEmail(email: String): User {
         val user = userRepository.findByEmail(email) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
         return user
     }

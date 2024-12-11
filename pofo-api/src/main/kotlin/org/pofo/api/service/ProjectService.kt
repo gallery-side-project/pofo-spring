@@ -1,5 +1,6 @@
 package org.pofo.api.service
 
+import jakarta.persistence.EntityManager
 import lombok.extern.slf4j.Slf4j
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class ProjectService(
+    private val entityManager: EntityManager,
     private val projectRepository: ProjectRepository,
 ) {
     fun findProjectById(projectId: Long): Project =
@@ -33,8 +35,9 @@ class ProjectService(
         imageUrls: List<String>?,
         content: String,
         category: ProjectCategory,
-        author: User,
+        authorId: Long,
     ): Project {
+        val author = entityManager.getReference(User::class.java, authorId)
         val project =
             Project
                 .builder()
@@ -46,7 +49,6 @@ class ProjectService(
                 .category(category)
                 .author(author)
                 .build()
-
         return projectRepository.save(project)
     }
 
@@ -59,7 +61,7 @@ class ProjectService(
         imageUrls: List<String>?,
         content: String?,
         category: ProjectCategory?,
-        author: User,
+        authorId: Long,
     ): Project {
         // TODO: 유저 Author가 여러명 있는데 수정 권한을 다 주는게 맞는지 여부 확인 후 소유자 체크 옵션 추가
         var project = projectRepository.findById(projectId) ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
