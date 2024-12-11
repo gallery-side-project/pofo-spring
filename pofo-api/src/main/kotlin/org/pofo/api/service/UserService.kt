@@ -7,10 +7,12 @@ import org.pofo.api.security.jwt.JwtService
 import org.pofo.api.security.jwt.JwtTokenData
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
-import org.pofo.domain.redis.domain.refreshToken.RefreshToken
-import org.pofo.domain.redis.domain.refreshToken.RefreshTokenRepository
 import org.pofo.domain.rds.domain.user.User
 import org.pofo.domain.rds.domain.user.UserRepository
+import org.pofo.domain.redis.domain.accessToken.BannedAccessToken
+import org.pofo.domain.redis.domain.accessToken.BannedAccessTokenRepository
+import org.pofo.domain.redis.domain.refreshToken.RefreshToken
+import org.pofo.domain.redis.domain.refreshToken.RefreshTokenRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,6 +24,7 @@ class UserService(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
+    private val bannedAccessTokenRepository: BannedAccessTokenRepository,
 ) {
     @Transactional
     fun createUser(registerRequest: RegisterRequest): User {
@@ -37,19 +40,6 @@ class UserService(
     fun getUserById(userId: Long): User {
         val user = userRepository.findById(userId) ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
         return user
-    }
-
-    private fun createTokenResponse(user: User): TokenResponse {
-        val accessToken = jwtService.generateAccessToken(
-            JwtTokenData(
-                userId = user.id,
-                email = user.email,
-                name = "some name",
-                role = user.role,
-            )
-        )
-        val refreshToken = jwtService.generateRefreshToken(user.id)
-        return TokenResponse(accessToken, refreshToken)
     }
 
     fun login(loginRequest: LoginRequest): TokenResponse {
@@ -81,5 +71,22 @@ class UserService(
         return tokenResponse
     }
 
-//    fun logout() {}
+    private fun createTokenResponse(user: User): TokenResponse {
+        val accessToken = jwtService.generateAccessToken(
+            JwtTokenData(
+                userId = user.id,
+                email = user.email,
+                name = "some name",
+                role = user.role,
+            )
+        )
+        val refreshToken = jwtService.generateRefreshToken(user.id)
+        return TokenResponse(accessToken, refreshToken)
+    }
+
+    fun logout(userId: Long, accessToken: String) {
+        val bannedAccessToken = BannedAccessToken(userId, accessToken, JwtService.ACCESS_TOKEN_EXPIRATION / 1000)
+        bannedAccessTokenRepository.save(bannedAccessToken)
+        refreshTokenRepository.deleteById(userId)
+    }
 }

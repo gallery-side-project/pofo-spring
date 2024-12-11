@@ -73,8 +73,27 @@ class UserController(
         val cookie = cookieUtil.createCookie(
             cookieName = REFRESH_COOKIE_NAME,
             maxAge = JwtService.REFRESH_TOKEN_EXPIRATION,
-            value = tokenResponse.refreshToken)
+            value = tokenResponse.refreshToken
+        )
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())
+    }
+
+    @PostMapping("/logout")
+    fun logout(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        @AuthenticationPrincipal principalDetails: PrincipalDetails
+    ): ApiResponse<Unit> {
+        val accessToken = getAccessToken(request)
+        userService.logout(principalDetails.userId, accessToken)
+        val deletingRefreshTokenCookie = cookieUtil.createDeletingCookie(REFRESH_COOKIE_NAME)
+
+        response.setHeader(HttpHeaders.SET_COOKIE, deletingRefreshTokenCookie.toString())
+        return ApiResponse.success(Unit)
+    }
+
+    private fun getAccessToken(request: HttpServletRequest): String {
+        return request.getHeader(HttpHeaders.AUTHORIZATION)!!
     }
 }
