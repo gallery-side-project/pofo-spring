@@ -7,12 +7,9 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.core.user.OAuth2User
 
 class PrincipalDetails(
-    private val jwtTokenData: JwtTokenData,
+    val jwtTokenData: JwtTokenData,
 ) : UserDetails,
     OAuth2User {
-    val userId: Long = jwtTokenData.userId
-    val email: String = jwtTokenData.email
-
     override fun getUsername(): String = jwtTokenData.email
 
     override fun getPassword(): String = ""

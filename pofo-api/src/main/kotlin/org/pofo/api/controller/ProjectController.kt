@@ -36,7 +36,7 @@ class ProjectController(
         @Argument content: String,
         @Argument category: ProjectCategory,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
-    ): Project = projectService.createProject(title, bio, urls, imageUrls, content, category, principalDetails.userId)
+    ): Project = projectService.createProject(title, bio, urls, imageUrls, content, category, principalDetails.jwtTokenData.userId)
 
     @PreAuthorize("isAuthenticated()")
     @MutationMapping
@@ -49,5 +49,5 @@ class ProjectController(
         @Argument content: String?,
         @Argument category: ProjectCategory?,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
-        ): Project = projectService.updateProject(projectId, title, bio, urls, imageUrls, content, category, principalDetails.userId)
+        ): Project = projectService.updateProject(projectId, title, bio, urls, imageUrls, content, category, principalDetails.jwtTokenData.userId)
 }

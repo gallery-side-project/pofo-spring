@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-internal class LocalAuthenticationTest
+internal class EmailAuthenticationTest
     @Autowired
     constructor(
         private val mockMvc: MockMvc,

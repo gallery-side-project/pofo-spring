@@ -43,7 +43,7 @@ class UserController(
     fun getMe(
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): ApiResponse<User> {
-        val user = userService.getUserById(principalDetails.userId)
+        val user = userService.getUserById(principalDetails.jwtTokenData.userId)
         return ApiResponse.success(user)
     }
 
@@ -86,7 +86,7 @@ class UserController(
         @AuthenticationPrincipal principalDetails: PrincipalDetails
     ): ApiResponse<Unit> {
         val accessToken = getAccessToken(request)
-        userService.logout(principalDetails.userId, accessToken)
+        userService.logout(principalDetails.jwtTokenData.userId, accessToken)
         val deletingRefreshTokenCookie = cookieUtil.createDeletingCookie(REFRESH_COOKIE_NAME)
 
         response.setHeader(HttpHeaders.SET_COOKIE, deletingRefreshTokenCookie.toString())

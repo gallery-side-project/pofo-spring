@@ -3,6 +3,9 @@ package org.pofo.api.security
 import org.pofo.api.security.exception.handler.CommonAccessDeniedHandler
 import org.pofo.api.security.exception.handler.CommonAuthenticationEntryPoint
 import org.pofo.api.security.jwt.JwtAuthenticationFilter
+import org.pofo.api.security.oauth2.OAuth2AuthenticationFailureHandler
+import org.pofo.api.security.oauth2.OAuth2AuthenticationService
+import org.pofo.api.security.oauth2.OAuth2AuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -29,6 +32,9 @@ class SecurityConfig {
     fun filterChain(
         http: HttpSecurity,
         jwtAuthenticationFilter: JwtAuthenticationFilter,
+        oAuth2AuthenticationService: OAuth2AuthenticationService,
+        oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
+        oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
     ): SecurityFilterChain {
         http {
             cors {
@@ -54,6 +60,14 @@ class SecurityConfig {
                 accessDeniedHandler = CommonAccessDeniedHandler()
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthenticationFilter)
+            oauth2Login {
+                authorizationEndpoint { baseUri = "/user/oauth2-login" }
+                redirectionEndpoint { baseUri = "/user/oauth2-login/callback/**" }
+                userInfoEndpoint { userService = oAuth2AuthenticationService }
+                authenticationSuccessHandler = oAuth2AuthenticationSuccessHandler
+                authenticationFailureHandler = oAuth2AuthenticationFailureHandler
+                permitAll = true
+            }
         }
         return http.build()
     }
