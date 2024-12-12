@@ -33,6 +33,26 @@ spring:
 spring:
   config:
     activate:
+      on-profile: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_DATASOURCE_URL}
+    username: ${POSTGRES_DATASOURCE_USERNAME}
+    password: ${POSTGRES_DATASOURCE_PASSWORD}
+
+---
+
+spring:
+  config:
+    activate:
       on-profile: prod
 
   jpa:

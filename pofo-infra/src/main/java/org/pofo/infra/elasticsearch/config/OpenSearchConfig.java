@@ -17,13 +17,14 @@ import java.security.NoSuchAlgorithmException;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.pofo.infra.elasticsearch.repository")
-@Profile(value = "prod")
+@Profile(value = {"dev", "prod"})
 public class OpenSearchConfig implements PofoInfraConfig {
     @Bean
     public RestClientBuilderCustomizer clientConfiguration() {
         return new RestClientBuilderCustomizer() {
             @Override
-            public void customize(RestClientBuilder builder) {}
+            public void customize(RestClientBuilder builder) {
+            }
 
             @Override
             public void customize(HttpAsyncClientBuilder builder) {

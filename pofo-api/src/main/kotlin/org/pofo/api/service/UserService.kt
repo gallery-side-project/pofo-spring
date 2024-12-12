@@ -15,6 +15,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
 ) {
+    @Transactional
     fun createUser(registerRequest: RegisterRequest): User {
         val email = registerRequest.email
         if (userRepository.existsByEmail(email)) {
