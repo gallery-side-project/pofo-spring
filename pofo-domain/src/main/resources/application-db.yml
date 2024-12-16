@@ -4,6 +4,11 @@ spring:
     properties:
       hibernate.default_batch_fetch_size: 100
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 ---
 
 spring:
