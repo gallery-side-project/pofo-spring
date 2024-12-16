@@ -23,6 +23,8 @@ dependencies {
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
     implementation("com.google.code.findbugs:jsr305:3.0.2")
+
+    api("org.springframework.boot:spring-boot-starter-data-redis")
 }
 
 // --------------------------------- QueryDSL settings -----------------------------------------------
