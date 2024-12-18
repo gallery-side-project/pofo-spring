@@ -50,11 +50,8 @@ class SecurityConfig {
             httpBasic { disable() }
             authorizeHttpRequests {
                 authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
-                authorize(AntPathRequestMatcher("/graphql"), permitAll)
-                authorize("/graphiql", permitAll)
-                authorize(HttpMethod.POST, "/user", permitAll)
-                authorize(HttpMethod.POST, "/user/login", permitAll)
-                authorize(HttpMethod.POST, "/user/logout", permitAll)
+                listOf("/graphql", "/graphiql").forEach { authorize(it, permitAll) }
+                listOf("/user", "/user/login", "/user/re-issue").forEach { authorize(HttpMethod.POST, it, permitAll) }
                 authorize("/tech-stack/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
