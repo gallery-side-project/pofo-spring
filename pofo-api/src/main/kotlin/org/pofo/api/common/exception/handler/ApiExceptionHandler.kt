@@ -9,9 +9,12 @@ import org.pofo.common.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
+import org.springframework.web.HttpMediaTypeNotSupportedException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.NoHandlerFoundException
 
 private val logger = KotlinLogging.logger {}
 
@@ -29,18 +32,16 @@ class ApiExceptionHandler {
      */
     @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleAuthenticationException(exception: AuthenticationException): ApiResponse<Nothing> {
-        return ApiResponse.failure(ErrorCode.UNAUTHORIZED)
-    }
+    fun handleAuthenticationException(exception: AuthenticationException): ApiResponse<Nothing> =
+        ApiResponse.failure(ErrorCode.UNAUTHORIZED)
 
     /**
      * 인가 오류를 검출합니다.
      */
     @ExceptionHandler(AccessDeniedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    fun handleAccessDeniedException(exception: AccessDeniedException): ApiResponse<Nothing> {
-        return ApiResponse.failure(ErrorCode.FORBIDDEN)
-    }
+    fun handleAccessDeniedException(exception: AccessDeniedException): ApiResponse<Nothing> =
+        ApiResponse.failure(ErrorCode.FORBIDDEN)
 
     /**
      * 서비스 로직의 오류를 검출합니다.
@@ -56,6 +57,31 @@ class ApiExceptionHandler {
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(response.writer, ApiResponse.failure(errorCode))
     }
+
+    /**
+     * 잘못된 URL 호출을 검출합니다.
+     */
+    @ExceptionHandler(NoHandlerFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleNoHandlerFoundException(exception: NoHandlerFoundException): ApiResponse<Nothing> =
+        ApiResponse.failure(ErrorCode.NOT_FOUND)
+
+    /**
+     * 지원하지 않는 Content-Type을 검출합니다.
+     */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    fun handleHttpMediaTypeNotSupportedException(exception: HttpMediaTypeNotSupportedException): ApiResponse<Nothing> =
+        ApiResponse.failure(ErrorCode.UNSUPPORTED_MEDIA_TYPE)
+
+    /**
+     * 허용되지 않은 Method 호출을 검출합니다.
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    fun handleHttpRequestMethodNotSupportedException(
+        exception: HttpRequestMethodNotSupportedException,
+    ): ApiResponse<Nothing> = ApiResponse.failure(ErrorCode.METHOD_NOT_ALLOWED)
 
     /**
      * 처리되지 않은 오류를 검출합니다.
