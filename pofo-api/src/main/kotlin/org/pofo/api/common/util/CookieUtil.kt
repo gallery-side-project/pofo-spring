@@ -35,6 +35,7 @@ class CookieUtil {
         cookieName: String,
         value: String,
         maxAge: Long,
+        sameSite: String = "Strict",
     ): ResponseCookie =
         ResponseCookie
             .from(cookieName, value)
@@ -42,6 +43,7 @@ class CookieUtil {
             .httpOnly(true)
             .secure(true)
             .maxAge(maxAge)
+            .sameSite(sameSite)
             .build()
 
     /**

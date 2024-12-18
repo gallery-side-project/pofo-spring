@@ -12,6 +12,7 @@ import org.pofo.api.security.jwt.JwtService
 import org.pofo.api.service.UserService
 import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.rds.domain.user.User
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val userService: UserService,
     private val cookieUtil: CookieUtil,
+    private val environment: Environment,
 ) {
     companion object {
         const val REFRESH_COOKIE_NAME = "POFO_RTN"
@@ -79,11 +81,13 @@ class UserController(
         response: HttpServletResponse,
         tokenResponse: TokenResponse,
     ) {
+        val sameSite = if (environment.activeProfiles.contains("prod")) "Strict" else "None"
         val cookie =
             cookieUtil.createCookie(
                 cookieName = REFRESH_COOKIE_NAME,
-                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION,
+                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION / 1000,
                 value = tokenResponse.refreshToken,
+                sameSite = sameSite,
             )
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())
