@@ -19,6 +19,9 @@ spring:
 jwt:
   secretKey: ${JWT_SECRET_KEY:not_secured_secretnot_secured_secretnot_secured_secretnot_secured_secretnot_secured_secret}
 
+pofo:
+  domain: ${POFO_DOMAIN:http://localhost:3000}
+
 ---
 
 spring:
