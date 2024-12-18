@@ -26,28 +26,44 @@ class CookieUtil {
     /**
      * cookieName에 해당하는 쿠키를 생성합니다.
      *
-     * @param cookieName String 생성할 쿠키의 이름
-     * @param value      String 생성할 쿠키의 값
-     * @param maxAge     Long   생성할 쿠키의 만료 시간
+     * @param cookieName    String  생성할 쿠키의 이름
+     * @param value         String  생성할 쿠키의 값
+     * @param maxAge        Long    생성할 쿠키의 만료 시간
+     * @param domain        String? 생성할 쿠키의 타겟 도메인
+     * @param path          String  생성할 쿠키의 타겟 경로
      * @return ResponseCookie   생성된 쿠키
      */
     fun createCookie(
         cookieName: String,
         value: String,
         maxAge: Long,
-    ): ResponseCookie =
-        ResponseCookie
-            .from(cookieName, value)
-            .path("/")
-            .httpOnly(true)
-            .secure(true)
-            .maxAge(maxAge)
-            .build()
+        domain: String? = null,
+        path: String = "/",
+    ): ResponseCookie {
+        val cookieBuilder =
+            ResponseCookie
+                .from(cookieName, value)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(maxAge)
+                .path(path)
+
+        if (domain != null) {
+            cookieBuilder.domain(domain)
+        }
+
+        return cookieBuilder.build()
+    }
 
     /**
      * cookieName에 해당하는 쿠키를 제거합니다.
      *
      * @return ResponseCookie   쿠키의 maxAge가 0인 쿠키
      */
-    fun createDeletingCookie(cookieName: String): ResponseCookie = createCookie(cookieName, "", 0)
+    fun createDeletingCookie(
+        cookieName: String,
+        domain: String? = null,
+        path: String = "/",
+    ): ResponseCookie = createCookie(cookieName = cookieName, value = "", maxAge = 0, domain = domain, path = path)
 }

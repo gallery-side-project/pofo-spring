@@ -12,6 +12,7 @@ import org.pofo.api.security.jwt.JwtService
 import org.pofo.api.service.UserService
 import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.rds.domain.user.User
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 
 @RestController
 @RequestMapping("/user")
@@ -27,6 +29,9 @@ class UserController(
     private val userService: UserService,
     private val cookieUtil: CookieUtil,
 ) {
+    @Value("\${pofo.domain}")
+    private lateinit var domain: String
+
     companion object {
         const val REFRESH_COOKIE_NAME = "POFO_RTN"
     }
@@ -82,8 +87,9 @@ class UserController(
         val cookie =
             cookieUtil.createCookie(
                 cookieName = REFRESH_COOKIE_NAME,
-                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION,
+                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION / 1000,
                 value = tokenResponse.refreshToken,
+                domain = URI(domain).host,
             )
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -97,7 +103,11 @@ class UserController(
     ): ApiResponse<Unit> {
         val accessToken = getAccessToken(request)
         userService.logout(principalDetails.jwtTokenData.userId, accessToken)
-        val deletingRefreshTokenCookie = cookieUtil.createDeletingCookie(REFRESH_COOKIE_NAME)
+        val deletingRefreshTokenCookie =
+            cookieUtil.createDeletingCookie(
+                cookieName = REFRESH_COOKIE_NAME,
+                domain = URI(domain).host,
+            )
 
         response.setHeader(HttpHeaders.SET_COOKIE, deletingRefreshTokenCookie.toString())
         return ApiResponse.success(Unit)

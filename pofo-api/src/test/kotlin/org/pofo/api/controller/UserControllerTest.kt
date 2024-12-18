@@ -98,6 +98,11 @@ internal class UserControllerTest
                             status { isOk() }
                             cookie {
                                 exists(UserController.REFRESH_COOKIE_NAME)
+                                domain(UserController.REFRESH_COOKIE_NAME, "localhost")
+                                maxAge(
+                                    UserController.REFRESH_COOKIE_NAME,
+                                    (JwtService.REFRESH_TOKEN_EXPIRATION / 1000).toInt(),
+                                )
                             }
                             jsonPath("$.data.accessToken") { exists() }
                         }
@@ -140,6 +145,7 @@ internal class UserControllerTest
                             status { isOk() }
                             cookie {
                                 exists(UserController.REFRESH_COOKIE_NAME)
+                                domain(UserController.REFRESH_COOKIE_NAME, "localhost")
                                 maxAge(UserController.REFRESH_COOKIE_NAME, 0)
                                 value(UserController.REFRESH_COOKIE_NAME, "")
                             }
