@@ -82,7 +82,7 @@ class UserController(
         val cookie =
             cookieUtil.createCookie(
                 cookieName = REFRESH_COOKIE_NAME,
-                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION,
+                maxAge = JwtService.REFRESH_TOKEN_EXPIRATION / 1000,
                 value = tokenResponse.refreshToken,
             )
 
