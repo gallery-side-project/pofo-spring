@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class OAuth2AuthenticationFailureHandler : SimpleUrlAuthenticationFailureHandler() {
-    @Value("\${oauth2.target-url}")
-    private lateinit var redirectUrl: String
+    @Value("\${pofo.domain}")
+    private lateinit var domain: String
 
     override fun onAuthenticationFailure(
         request: HttpServletRequest,
         response: HttpServletResponse,
         exception: AuthenticationException,
     ) {
-        redirectStrategy.sendRedirect(request, response, "$redirectUrl?error=1")
+        redirectStrategy.sendRedirect(request, response, "$domain/login/callback?error=1")
     }
 }

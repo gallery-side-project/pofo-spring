@@ -6,6 +6,7 @@ import org.pofo.api.security.jwt.JwtAuthenticationFilter
 import org.pofo.api.security.oauth2.OAuth2AuthenticationFailureHandler
 import org.pofo.api.security.oauth2.OAuth2AuthenticationService
 import org.pofo.api.security.oauth2.OAuth2AuthenticationSuccessHandler
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -27,6 +28,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig {
+    @Value("\${pofo.domain}")
+    private lateinit var domain: String
+
     @Bean
     fun filterChain(
         http: HttpSecurity,
@@ -76,7 +80,7 @@ class SecurityConfig {
 
     fun corsConfigurationSource(): CorsConfigurationSource {
         val corsConfiguration = CorsConfiguration()
-        corsConfiguration.allowedOrigins = listOf("*")
+        corsConfiguration.allowedOrigins = listOf(domain)
         corsConfiguration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
         corsConfiguration.allowedHeaders = listOf("*")
         corsConfiguration.allowCredentials = true

@@ -20,8 +20,8 @@ class OAuth2AuthenticationSuccessHandler(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val cookieUtil: CookieUtil,
 ) : SimpleUrlAuthenticationSuccessHandler() {
-    @Value("\${oauth2.target-url}")
-    private lateinit var redirectUrl: String
+    @Value("\${pofo.domain}")
+    private lateinit var domain: String
 
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
@@ -43,6 +43,6 @@ class OAuth2AuthenticationSuccessHandler(
                 JwtService.REFRESH_TOKEN_EXPIRATION,
             )
         response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-        redirectStrategy.sendRedirect(request, response, "$redirectUrl?access_token=$accessToken")
+        redirectStrategy.sendRedirect(request, response, "$domain/login/callback?access_token=$accessToken")
     }
 }
