@@ -9,6 +9,7 @@ import org.pofo.api.security.oauth2.OAuth2AuthenticationSuccessHandler
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -27,7 +28,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-class SecurityConfig {
+class SecurityConfig(
+    private val environment: Environment,
+) {
     @Value("\${pofo.domain}")
     private lateinit var domain: String
 
@@ -39,6 +42,8 @@ class SecurityConfig {
         oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
         oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler,
     ): SecurityFilterChain {
+        val isDevOrLocal = environment.activeProfiles.contains("local") || environment.activeProfiles.contains("dev")
+
         http {
             cors {
                 configurationSource = corsConfigurationSource()
@@ -49,9 +54,13 @@ class SecurityConfig {
             formLogin { disable() }
             httpBasic { disable() }
             authorizeHttpRequests {
-                authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
+                if (isDevOrLocal) {
+                    authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
+                    authorize("/swagger-ui/**", permitAll)
+                    authorize("/v3/api-docs/**", permitAll)
+                    authorize("/graphiql", permitAll)
+                }
                 authorize(AntPathRequestMatcher("/graphql"), permitAll)
-                authorize("/graphiql", permitAll)
                 authorize(HttpMethod.POST, "/user", permitAll)
                 authorize(HttpMethod.POST, "/user/login", permitAll)
                 authorize(HttpMethod.POST, "/user/logout", permitAll)

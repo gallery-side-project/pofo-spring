@@ -12,7 +12,8 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
@@ -24,6 +25,7 @@ public class User {
     @NonNull
     private String password;
 
+    @JsonIgnore
     @Column
     @NonNull
     @Enumerated(EnumType.STRING)
