@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping(Version.V1 + "/user")
+@RequestMapping("/user")
 class UserController(
     private val userService: UserService,
     private val cookieUtil: CookieUtil,

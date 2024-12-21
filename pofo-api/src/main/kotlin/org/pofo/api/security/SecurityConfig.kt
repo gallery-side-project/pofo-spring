@@ -6,6 +6,7 @@ import org.pofo.api.security.jwt.JwtAuthenticationFilter
 import org.pofo.api.security.oauth2.OAuth2AuthenticationFailureHandler
 import org.pofo.api.security.oauth2.OAuth2AuthenticationService
 import org.pofo.api.security.oauth2.OAuth2AuthenticationSuccessHandler
+import org.pofo.common.response.Version
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -61,10 +62,10 @@ class SecurityConfig(
                     authorize("/graphiql", permitAll)
                 }
                 authorize(AntPathRequestMatcher("/graphql"), permitAll)
-                authorize(HttpMethod.POST, "/user", permitAll)
-                authorize(HttpMethod.POST, "/user/login", permitAll)
-                authorize(HttpMethod.POST, "/user/logout", permitAll)
-                authorize("/tech-stack/**", permitAll)
+                authorize(HttpMethod.POST, Version.V1 + "/user", permitAll)
+                authorize(HttpMethod.POST, Version.V1 + "/user/login", permitAll)
+                authorize(HttpMethod.POST, Version.V1 + "/user/logout", permitAll)
+                authorize(Version.V1 + "/tech-stack/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
             exceptionHandling {
