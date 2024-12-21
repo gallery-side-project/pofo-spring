@@ -143,6 +143,7 @@ interface UserApiDocs {
         @Parameter(hidden = true) response: HttpServletResponse,
     ): ApiResponse<*>
 
+    // TODO : 여기 예시좀 적어주세요. Unit 타입이 뭔지 모르겠어요.
     @Operation(summary = "로그아웃", description = "현재 로그인된 사용자를 로그아웃하고 리프레시 토큰 쿠키를 제거합니다.")
     @ApiResponses(
         value = [

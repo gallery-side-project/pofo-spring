@@ -34,8 +34,13 @@ class AutocompleteController(
     @GetMapping(Version.V1 + "/autocomplete")
     override fun autoComplete(
         @RequestParam query: String,
-    ): ApiResponse<List<String>> = ApiResponse.success(openSearchService.getSuggestions(query))
+    ): ApiResponse<Map<String, List<String>>> {
+        val suggestions = openSearchService.getSuggestions(query)
+        val responseData = mapOf("autocomplete" to suggestions)
+        return ApiResponse.success(responseData)
+    }
 
+    @Deprecated(message = "제거될 예정인 API 입니다")
     @GetMapping(Version.V1 + "/field")
     override fun searchSingleField(
         @RequestParam field: String,
