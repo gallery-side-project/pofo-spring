@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping(Version.V1 + "/user")
 class UserController(
     private val userService: UserService,
     private val cookieUtil: CookieUtil,
@@ -33,7 +33,7 @@ class UserController(
         const val REFRESH_COOKIE_NAME = "POFO_RTN"
     }
 
-    @PostMapping(Version.V1 + "")
+    @PostMapping("")
     override fun register(
         @RequestBody registerRequest: RegisterRequest,
     ): ApiResponse<User> {
@@ -41,7 +41,7 @@ class UserController(
         return ApiResponse.success(user)
     }
 
-    @GetMapping(Version.V1 + "/me")
+    @GetMapping("/me")
     override fun getMe(
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): ApiResponse<User> {
@@ -49,7 +49,7 @@ class UserController(
         return ApiResponse.success(user)
     }
 
-    @PostMapping(Version.V1 + "/login")
+    @PostMapping("/login")
     override fun login(
         response: HttpServletResponse,
         @RequestBody loginRequest: LoginRequest,
@@ -60,7 +60,7 @@ class UserController(
         return ApiResponse.success(tokenResponse)
     }
 
-    @PostMapping(Version.V1 + "/re-issue")
+    @PostMapping("/re-issue")
     override fun reIssue(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -91,7 +91,7 @@ class UserController(
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
 
-    @PostMapping(Version.V1 + "/logout")
+    @PostMapping("/logout")
     override fun logout(
         request: HttpServletRequest,
         response: HttpServletResponse,

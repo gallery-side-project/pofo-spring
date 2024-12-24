@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping(Version.V1 + "/image")
 class ImageController : ImageApiDocs {
-    @PostMapping(Version.V1 + "")
+    @PostMapping("")
     override fun uploadImage(): ApiResponse<Map<String, String>> {
         // TODO: Image Upload 로직 작성
         val tmp = "tmp"

@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/tech-stack")
+@RequestMapping(Version.V1 + "/tech-stack")
 class AutocompleteController(
     private val openSearchService: OpenSearchService,
 ) : AutocompleteApiDocs {
-    @PostMapping(Version.V1 + "/")
+    @PostMapping("/")
     override fun insertTechStack(
         @RequestBody techStack: TechStackAutoComplete,
     ): ApiResponse<String> {
@@ -23,7 +23,7 @@ class AutocompleteController(
         return ApiResponse.success("단일 데이터 삽입 성공")
     }
 
-    @PostMapping(Version.V1 + "/upload-csv")
+    @PostMapping("/upload-csv")
     override fun uploadCSV(
         @RequestParam("file") file: MultipartFile,
     ): ApiResponse<String> {
@@ -31,7 +31,7 @@ class AutocompleteController(
         return ApiResponse.success("CSV 데이터 삽입 성공")
     }
 
-    @GetMapping(Version.V1 + "/autocomplete")
+    @GetMapping("/autocomplete")
     override fun autoComplete(
         @RequestParam query: String,
     ): ApiResponse<Map<String, List<String>>> {
@@ -41,7 +41,7 @@ class AutocompleteController(
     }
 
     @Deprecated(message = "제거될 예정인 API 입니다")
-    @GetMapping(Version.V1 + "/field")
+    @GetMapping("/field")
     override fun searchSingleField(
         @RequestParam field: String,
         @RequestParam keyword: String,
