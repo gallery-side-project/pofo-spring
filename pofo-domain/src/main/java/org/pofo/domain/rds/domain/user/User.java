@@ -24,8 +24,7 @@ public class User {
     @Column
     @NonNull
     private String password;
-
-    @JsonIgnore
+    
     @Column
     @NonNull
     @Enumerated(EnumType.STRING)
