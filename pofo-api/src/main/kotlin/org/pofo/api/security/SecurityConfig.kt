@@ -6,6 +6,7 @@ import org.pofo.api.security.jwt.JwtAuthenticationFilter
 import org.pofo.api.security.oauth2.OAuth2AuthenticationFailureHandler
 import org.pofo.api.security.oauth2.OAuth2AuthenticationService
 import org.pofo.api.security.oauth2.OAuth2AuthenticationSuccessHandler
+import org.pofo.common.response.Version
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -20,7 +21,6 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -54,23 +54,17 @@ class SecurityConfig(
             formLogin { disable() }
             httpBasic { disable() }
             authorizeHttpRequests {
-                authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
-                listOf("/graphql", "graphiql").forEach {
-                    authorize(it, permitAll)
-                }
-                listOf("/user", "/user/login", "/user/logout", "/user/re-issue").forEach {
-                    authorize(HttpMethod.POST, it, permitAll)
-                }
-                authorize("/tech-stack/**", permitAll)
                 if (isDevOrLocal) {
                     listOf("/graphql", "/graphiql", "/h2-console/**", "/v3/api-docs/**", "/swagger-ui/**").forEach {
                         authorize(it, permitAll)
                     }
                 }
-                listOf("/user", "/user/login", "/user/logout", "/user/re-issue").forEach {
-                    authorize(HttpMethod.POST, it, permitAll)
-                }
-                authorize("/tech-stack/**", permitAll)
+                listOf("/user", "/user/login", "/user/logout", "/user/re-issue")
+                    .map { "${Version.V1}$it" }
+                    .forEach {
+                        authorize(HttpMethod.POST, it, permitAll)
+                    }
+                authorize(Version.V1 + "/tech-stack/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
             exceptionHandling {
