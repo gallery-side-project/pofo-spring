@@ -6,7 +6,6 @@ import org.pofo.api.security.jwt.JwtAuthenticationFilter
 import org.pofo.api.security.oauth2.OAuth2AuthenticationFailureHandler
 import org.pofo.api.security.oauth2.OAuth2AuthenticationService
 import org.pofo.api.security.oauth2.OAuth2AuthenticationSuccessHandler
-import org.pofo.common.response.Version
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -55,17 +54,23 @@ class SecurityConfig(
             formLogin { disable() }
             httpBasic { disable() }
             authorizeHttpRequests {
-                if (isDevOrLocal) {
-                    authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
-                    authorize("/swagger-ui/**", permitAll)
-                    authorize("/v3/api-docs/**", permitAll)
-                    authorize("/graphiql", permitAll)
+                authorize(AntPathRequestMatcher("/h2-console/**"), permitAll)
+                listOf("/graphql", "graphiql").forEach {
+                    authorize(it, permitAll)
                 }
-                authorize(AntPathRequestMatcher("/graphql"), permitAll)
-                authorize(HttpMethod.POST, Version.V1 + "/user", permitAll)
-                authorize(HttpMethod.POST, Version.V1 + "/user/login", permitAll)
-                authorize(HttpMethod.POST, Version.V1 + "/user/logout", permitAll)
-                authorize(Version.V1 + "/tech-stack/**", permitAll)
+                listOf("/user", "/user/login", "/user/logout", "/user/re-issue").forEach {
+                    authorize(HttpMethod.POST, it, permitAll)
+                }
+                authorize("/tech-stack/**", permitAll)
+                if (isDevOrLocal) {
+                    listOf("/graphql", "/graphiql", "/h2-console/**", "/v3/api-docs/**", "/swagger-ui/**").forEach {
+                        authorize(it, permitAll)
+                    }
+                }
+                listOf("/user", "/user/login", "/user/logout", "/user/re-issue").forEach {
+                    authorize(HttpMethod.POST, it, permitAll)
+                }
+                authorize("/tech-stack/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
             exceptionHandling {
