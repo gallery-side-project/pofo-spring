@@ -12,6 +12,7 @@ import org.pofo.api.security.jwt.JwtService
 import org.pofo.api.security.jwt.JwtTokenData
 import org.pofo.api.service.UserService
 import org.pofo.common.exception.ErrorCode
+import org.pofo.common.response.Version
 import org.pofo.domain.rds.domain.user.User
 import org.pofo.domain.redis.domain.accessToken.BannedAccessTokenRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,7 +49,7 @@ internal class UserControllerTest
 
                 it("유저 생성에 성공하고, 유저 조회에 성공해야 한다.") {
                     val resultActions =
-                        mockMvc.post("/user") {
+                        mockMvc.post(Version.V1 + "/user") {
                             contentType = MediaType.APPLICATION_JSON
                             content = objectMapper.writeValueAsString(requestBody)
                         }
@@ -68,7 +69,7 @@ internal class UserControllerTest
 
                     it("유저 생성이 실패해야 한다.") {
                         mockMvc
-                            .post("/user") {
+                            .post(Version.V1 + "/user") {
                                 contentType = MediaType.APPLICATION_JSON
                                 content = objectMapper.writeValueAsString(requestBody)
                             }.andExpect {
@@ -81,7 +82,7 @@ internal class UserControllerTest
 
             describe("로그인 시") {
                 fun jwtLogin(requestBody: LoginRequest): ResultActionsDsl =
-                    mockMvc.post("/user/login") {
+                    mockMvc.post(Version.V1 + "/user/login") {
                         contentType = MediaType.APPLICATION_JSON
                         content = objectMapper.writeValueAsString(requestBody)
                     }
@@ -131,7 +132,7 @@ internal class UserControllerTest
                     val accessToken = jwtService.generateAccessToken(JwtTokenData(savedUser))
 
                     mockMvc
-                        .post("/user/logout") {
+                        .post(Version.V1 + "/user/logout") {
                             contentType = MediaType.APPLICATION_JSON
                             headers {
                                 set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
@@ -160,7 +161,7 @@ internal class UserControllerTest
 
                 it("내 정보가 반환된다.") {
                     mockMvc
-                        .get("/user/me") {
+                        .get(Version.V1 + "/user/me") {
                             headers {
                                 set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                             }
