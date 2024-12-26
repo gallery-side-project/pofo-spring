@@ -1,6 +1,10 @@
 import re
 import pandas as pd
 
+def get_stack_name(file_path: str) -> str:
+    data = pd.read_csv(file_path)
+    return data['stack_name'].dropna().unique()
+
 def format_enum_entry(name):
     name = re.sub(r"\(.*?\)", "", name)
 
@@ -21,21 +25,14 @@ def format_enum_entry(name):
     )
 
 def generate_java_enum(file_path, package_name, class_name):
-    # Load the CSV file
-    data = pd.read_csv(file_path)
+    unique_stack_names = get_stack_name(file_path)
 
-    # Extract unique stack names
-    unique_stack_names = data['stack_name'].dropna().unique()
-
-    # Format the stack names for Java enum
     formatted_enum_entries = [
         f'{format_enum_entry(name)}("{name}")' for name in unique_stack_names
     ]
 
-    # Join all entries with commas for the enum definition
     enum_body = ",\n\t".join(formatted_enum_entries)
 
-    # Create the full enum class
     java_enum = f"""package {package_name};
 
 public enum {class_name} {{
@@ -54,17 +51,37 @@ public enum {class_name} {{
 
     return java_enum
 
+def generate_graphql_enum(file_path: str, type_name: str) -> str:
+    unique_stack_names = get_stack_name(file_path)
+
+    formatted_enum_entries = [
+        f'{format_enum_entry(name)}' for name in unique_stack_names
+    ]
+
+    enum_body = "\n\t".join(formatted_enum_entries)
+
+    graphql_enum = f"""enum {type_name} {{
+    {enum_body}
+}}"""
+
+    return graphql_enum
+
 if __name__ == "__main__":
-    class_name = "ProjectStack"
-    package_name = "org.pofo.domain.rds.domain.project"
     file_path = 'stack_dataset.csv'
 
+    class_name = "ProjectStack"
+    package_name = "org.pofo.domain.rds.domain.project"
     java_enum_code = generate_java_enum(file_path, package_name, class_name)
 
-    # Save the generated Java enum code to a file
-    output_file_path = f'{class_name}.java'  # 원하는 파일 이름과 경로
+    output_file_path = f'{class_name}.java'
     with open(output_file_path, 'w', encoding='utf-8') as file:
         file.write(java_enum_code)
-
     print(f"Java enum class saved to {output_file_path}")
 
+    type_name = "ProjectStack"
+    graphql_enum_code = generate_graphql_enum(file_path, type_name)
+
+    output_file_path = f'project.stack.graphqls'
+    with open(output_file_path, 'w', encoding='utf-8') as file:
+        file.write(graphql_enum_code)
+    print(f"graphql enum type saved to {output_file_path}")

@@ -1,15 +1,3 @@
-enum ProjectCategory {
-    CATEGORY_A,
-    CATEGORY_B,
-    CATEGORY_C
-}
-
-type ProjectList {
-    projects: [Project!]!
-    hasNext: Boolean!
-    projectCount: Int!
-}
-
 type Project {
     id: ID!
     title: String!
@@ -19,13 +7,20 @@ type Project {
     content: String!
     isApproved: Boolean
     category: ProjectCategory
+    stacks: [ProjectStack]
     author: User
 }
 
-type User {
-    id: ID!
-    name: String!
-    email: String!
+type ProjectList {
+    projects: [Project]!
+    hasNext: Boolean!
+    projectCount: Int!
+}
+
+enum ProjectCategory {
+    CATEGORY_A,
+    CATEGORY_B,
+    CATEGORY_C
 }
 
 type Query {
@@ -43,6 +38,7 @@ type Mutation {
         imageUrls: [String],
         content: String!,
         category: ProjectCategory
+        stacks: [ProjectStack]
     ): Project!
 
     updateProject(

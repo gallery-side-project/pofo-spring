@@ -46,5 +46,7 @@ Scripts/
 pyenv.cfg
 .cfg
 data_crawling/pyvenv.cfg
+data_crawling/ProjectStack.java
+data_crawling/project.stack.graphqls
 
 .env
