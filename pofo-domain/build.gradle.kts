@@ -41,8 +41,7 @@ sourceSets {
 }
 
 tasks.withType<JavaCompile> {
-    options.compilerArgs.plusAssign("-s")
-    options.compilerArgs.plusAssign(generatedDir.absolutePath)
+    options.generatedSourceOutputDirectory.set(file(generatedDir))
 }
 
 tasks.named("clean") {
