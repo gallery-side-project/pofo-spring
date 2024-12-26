@@ -44,8 +44,11 @@ tasks.withType<JavaCompile> {
     options.generatedSourceOutputDirectory.set(file(generatedDir))
 }
 
+tasks.named("runKtlintCheckOverMainSourceSet") {
+    dependsOn(tasks.named("compileJava"))
+}
+
 tasks.named("clean") {
     delete(generatedDir)
 }
-
 // --------------------------------------------------------------------------------------

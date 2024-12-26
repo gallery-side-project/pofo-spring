@@ -17,7 +17,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public ProjectList searchProjecWithCursor(int size, Long cursor) {
+    public ProjectList searchProjectWithCursor(int size, Long cursor) {
         QProject project = QProject.project;
         BooleanExpression predicate = null;
 
