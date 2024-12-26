@@ -1,9 +1,11 @@
 package org.pofo.api.controller
 
+import org.pofo.api.dto.CreateProjectRequest
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.ProjectCategory
 import org.pofo.domain.rds.domain.project.ProjectList
+import org.pofo.domain.rds.domain.project.ProjectStack
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
@@ -35,16 +37,20 @@ class ProjectController(
         @Argument imageUrls: List<String>?,
         @Argument content: String,
         @Argument category: ProjectCategory,
+        @Argument stacks: List<ProjectStack>?,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): Project =
         projectService.createProject(
-            title,
-            bio,
-            urls,
-            imageUrls,
-            content,
-            category,
-            principalDetails.jwtTokenData.userId,
+            CreateProjectRequest(
+                title,
+                bio,
+                urls,
+                imageUrls,
+                content,
+                category,
+                stacks,
+                principalDetails.jwtTokenData.userId,
+            ),
         )
 
     @PreAuthorize("isAuthenticated()")

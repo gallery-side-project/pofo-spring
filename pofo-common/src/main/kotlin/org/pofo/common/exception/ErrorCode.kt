@@ -19,4 +19,5 @@ enum class ErrorCode(
 
     // PROJECT
     PROJECT_NOT_FOUND(404, "프로젝트를 찾을 수 없습니다.", "PROJ-001"),
+    PROJECT_STACK_NOT_FOUND(400, "프로젝트 스택을 찾을 수 없습니다.", "PROJ-002"),
 }

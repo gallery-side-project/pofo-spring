@@ -23,7 +23,7 @@ public class Project {
     @Column(nullable = false)
     private String title;
 
-    @Column()
+    @Column
     private String Bio; // 한줄 소개
 
     @Convert(converter = StringListConverter.class)
@@ -37,12 +37,16 @@ public class Project {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column()
+    @Column
     private Boolean isApproved; // 모음팀 측에서 인증됬는지 (타 앱 연동을 통해)
 
-    @Column()
+    @Column
     @Enumerated(EnumType.STRING)
     private ProjectCategory category; // 프로젝트 유형
+
+    @Column
+    @Convert(converter = ProjectStackListConverter.class)
+    private List<ProjectStack> stacks;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

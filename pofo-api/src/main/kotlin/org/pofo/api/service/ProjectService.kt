@@ -2,6 +2,7 @@ package org.pofo.api.service
 
 import jakarta.persistence.EntityManager
 import lombok.extern.slf4j.Slf4j
+import org.pofo.api.dto.CreateProjectRequest
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.rds.domain.project.Project
@@ -25,28 +26,21 @@ class ProjectService(
     fun getAllProjectsByPagination(
         size: Int,
         cursor: Long,
-    ): ProjectList = projectRepository.searchProjecWithCursor(size, cursor)
+    ): ProjectList = projectRepository.searchProjectWithCursor(size, cursor)
 
     @Transactional
-    fun createProject(
-        title: String,
-        bio: String?,
-        urls: List<String>?,
-        imageUrls: List<String>?,
-        content: String,
-        category: ProjectCategory,
-        authorId: Long,
-    ): Project {
-        val author = entityManager.getReference(User::class.java, authorId)
+    fun createProject(createProjectRequest: CreateProjectRequest): Project {
+        val author = entityManager.getReference(User::class.java, createProjectRequest.authorId)
         val project =
             Project
                 .builder()
-                .title(title)
-                .Bio(bio)
-                .urls(urls)
-                .imageUrls(imageUrls)
-                .content(content)
-                .category(category)
+                .title(createProjectRequest.title)
+                .Bio(createProjectRequest.bio)
+                .urls(createProjectRequest.urls)
+                .imageUrls(createProjectRequest.imageUrls)
+                .content(createProjectRequest.content)
+                .category(createProjectRequest.category)
+                .stacks(createProjectRequest.stacks)
                 .author(author)
                 .build()
         return projectRepository.save(project)
