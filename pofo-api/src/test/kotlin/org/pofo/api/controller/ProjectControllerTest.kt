@@ -2,6 +2,7 @@ package org.pofo.api.controller
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.pofo.api.dto.CreateProjectRequest
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.fixture.ProjectFixture.Companion.createProject
 import org.pofo.api.fixture.UserFixture
@@ -29,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional
 internal class ProjectControllerTest
     @Autowired
     constructor(
-        private val mockMvc: MockMvc,
+        mockMvc: MockMvc,
         private val userService: UserService,
         private val projectService: ProjectService,
         private val jwtService: JwtService,
@@ -69,6 +70,7 @@ internal class ProjectControllerTest
                 .variable("imageUrls", project.imageUrls)
                 .variable("content", project.content)
                 .variable("category", project.category)
+                .variable("stacks", project.stacks)
                 .variable("authorId", savedUser.id)
                 .execute()
                 .path("createProject.title")
@@ -145,11 +147,6 @@ internal class ProjectControllerTest
                 .documentName("updateProject")
                 .variable("projectId", savedProject.id)
                 .variable("title", newTitle)
-                .variable("bio", savedProject.bio)
-                .variable("urls", savedProject.urls)
-                .variable("imageUrls", savedProject.imageUrls)
-                .variable("content", savedProject.content)
-                .variable("category", savedProject.category)
                 .execute()
                 .path("updateProject.title")
                 .entity(String::class.java)
@@ -161,12 +158,15 @@ internal class ProjectControllerTest
             authorId: Long,
         ): Project =
             projectService.createProject(
-                title = project.title,
-                bio = project.bio,
-                content = project.content,
-                category = project.category,
-                urls = project.urls,
-                imageUrls = project.imageUrls,
-                authorId = authorId,
+                CreateProjectRequest(
+                    title = project.title,
+                    bio = project.bio,
+                    content = project.content,
+                    urls = project.urls,
+                    imageUrls = project.imageUrls,
+                    category = project.category,
+                    stacks = project.stacks,
+                    authorId = authorId,
+                ),
             )
     }
