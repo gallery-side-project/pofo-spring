@@ -1,6 +1,7 @@
 package org.pofo.api.controller
 
 import org.pofo.api.dto.CreateProjectRequest
+import org.pofo.api.dto.UpdateProjectRequest
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.ProjectCategory
@@ -63,16 +64,20 @@ class ProjectController(
         @Argument imageUrls: List<String>?,
         @Argument content: String?,
         @Argument category: ProjectCategory?,
+        @Argument stacks: List<ProjectStack>?,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): Project =
         projectService.updateProject(
-            projectId,
-            title,
-            bio,
-            urls,
-            imageUrls,
-            content,
-            category,
-            principalDetails.jwtTokenData.userId,
+            UpdateProjectRequest(
+                projectId,
+                title,
+                bio,
+                urls,
+                imageUrls,
+                content,
+                category,
+                stacks,
+                principalDetails.jwtTokenData.userId,
+            ),
         )
 }

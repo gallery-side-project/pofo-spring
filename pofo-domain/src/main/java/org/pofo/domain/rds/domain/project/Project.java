@@ -53,7 +53,7 @@ public class Project {
     @JoinColumn(name = "user_id")
     private User author;
 
-    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, String content, ProjectCategory category) {
+    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, String content, ProjectCategory category, List<ProjectStack> stacks) {
         if (title != null) {
             this.title = title;
         }
@@ -71,6 +71,9 @@ public class Project {
         }
         if (category != null) {
             this.category = category;
+        }
+        if (stacks != null) {
+            this.stacks = stacks;
         }
         return this;
     }

@@ -49,5 +49,6 @@ type Mutation {
         imageUrls: [String],
         content: String,
         category: ProjectCategory
+        stacks: [ProjectStack]
     ): Project!
 }
