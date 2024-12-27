@@ -1,5 +1,5 @@
 type Project {
-    id: ID!
+    id: Int!
     title: String!
     bio: String
     urls: [String],
@@ -36,7 +36,7 @@ type Mutation {
     createProject(
         title: String!,
         bio: String,
-        keyImageIndex: Int!,
+        keyImageIndex: Int,
         urls: [String],
         imageUrls: [String],
         content: String!,

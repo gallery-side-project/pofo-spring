@@ -33,7 +33,12 @@ class ProjectService(
         val author = entityManager.getReference(User::class.java, createProjectRequest.authorId)
 
         val imageUrls = createProjectRequest.imageUrls ?: emptyList()
-        val keyImageIndex = createProjectRequest.keyImageIndex ?: -1
+        val keyImageIndex =
+            when {
+                imageUrls.isEmpty() -> -1
+                createProjectRequest.keyImageIndex == null -> 0
+                else -> createProjectRequest.keyImageIndex
+            }
 
         if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex < 0)) {
             throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
@@ -62,7 +67,12 @@ class ProjectService(
                 ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
 
         val imageUrls = updateProjectRequest.imageUrls ?: emptyList()
-        val keyImageIndex = updateProjectRequest.keyImageIndex ?: -1
+        val keyImageIndex =
+            when {
+                imageUrls.isEmpty() -> -1
+                updateProjectRequest.keyImageIndex == null -> 0
+                else -> updateProjectRequest.keyImageIndex
+            }
 
         if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex <= 0)) {
             throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)

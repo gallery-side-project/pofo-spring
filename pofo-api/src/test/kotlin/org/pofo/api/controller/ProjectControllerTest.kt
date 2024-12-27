@@ -183,6 +183,7 @@ internal class ProjectControllerTest
                 .documentName("updateProject")
                 .variable("projectId", savedProject.id)
                 .variable("title", newTitle)
+                .variable("keyImageIndex", 0)
                 .execute()
                 .path("updateProject.title")
                 .entity(String::class.java)

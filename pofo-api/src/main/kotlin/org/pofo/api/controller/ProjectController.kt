@@ -63,7 +63,7 @@ class ProjectController(
         @Argument title: String?,
         @Argument bio: String?,
         @Argument urls: List<String>?,
-        @Argument keyImageIndex: Int?,
+        @Argument keyImageIndex: Int,
         @Argument imageUrls: List<String>?,
         @Argument content: String?,
         @Argument category: ProjectCategory?,
