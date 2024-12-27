@@ -35,7 +35,7 @@ class ProjectService(
         val imageUrls = createProjectRequest.imageUrls ?: emptyList()
         val keyImageIndex = createProjectRequest.keyImageIndex ?: -1
 
-        if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex <= 0)) {
+        if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex < 0)) {
             throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
         }
 

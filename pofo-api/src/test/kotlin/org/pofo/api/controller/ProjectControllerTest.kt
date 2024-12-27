@@ -199,6 +199,7 @@ internal class ProjectControllerTest
                     bio = project.bio,
                     content = project.content,
                     urls = project.urls,
+                    keyImageIndex = 0,
                     imageUrls = project.imageUrls,
                     category = project.category,
                     stacks = project.stacks,
