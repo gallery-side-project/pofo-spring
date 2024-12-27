@@ -8,6 +8,7 @@ data class UpdateProjectRequest(
     val title: String?,
     val bio: String?,
     val urls: List<String>?,
+    val keyImageIndex: Int?,
     val imageUrls: List<String>?,
     val content: String?,
     val category: ProjectCategory?,

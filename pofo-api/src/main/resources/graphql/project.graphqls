@@ -1,11 +1,13 @@
 type Project {
-    id: ID!
+    id: Int!
     title: String!
     bio: String
-    urls: [String]
+    urls: [String],
+    keyImageIndex: Int,
     imageUrls: [String]
     content: String!
-    isApproved: Boolean
+    isApproved: Boolean,
+    likes: Int,
     category: ProjectCategory
     stacks: [ProjectStack]
     author: User
@@ -27,13 +29,14 @@ type Query {
     # 특정 ID로 프로젝트를 조회
     projectById(projectId: ID!): Project
     # 프로젝트 리스트 페이지네이션
-    getAllProjectsByPagination(cursor: Int, size: Int!): ProjectList
+    getAllProjectsByPagination(cursor: Int = 0, size: Int!): ProjectList
 }
 
 type Mutation {
     createProject(
         title: String!,
         bio: String,
+        keyImageIndex: Int,
         urls: [String],
         imageUrls: [String],
         content: String!,
@@ -46,6 +49,7 @@ type Mutation {
         title: String,
         bio: String,
         urls: [String],
+        keyImageIndex: Int!,
         imageUrls: [String],
         content: String,
         category: ProjectCategory

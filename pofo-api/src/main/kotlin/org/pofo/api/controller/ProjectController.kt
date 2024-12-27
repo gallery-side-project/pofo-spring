@@ -25,9 +25,9 @@ class ProjectController(
 
     @QueryMapping
     fun getAllProjectsByPagination(
-        @Argument cursor: Long,
+        @Argument cursor: Long?,
         @Argument size: Int,
-    ): ProjectList = projectService.getAllProjectsByPagination(size, cursor)
+    ): ProjectList = projectService.getAllProjectsByPagination(size, cursor ?: 0)
 
     @PreAuthorize("isAuthenticated()")
     @MutationMapping
@@ -35,6 +35,7 @@ class ProjectController(
         @Argument title: String,
         @Argument bio: String?,
         @Argument urls: List<String>?,
+        @Argument keyImageIndex: Int?,
         @Argument imageUrls: List<String>?,
         @Argument content: String,
         @Argument category: ProjectCategory,
@@ -46,6 +47,7 @@ class ProjectController(
                 title,
                 bio,
                 urls,
+                keyImageIndex,
                 imageUrls,
                 content,
                 category,
@@ -61,6 +63,7 @@ class ProjectController(
         @Argument title: String?,
         @Argument bio: String?,
         @Argument urls: List<String>?,
+        @Argument keyImageIndex: Int,
         @Argument imageUrls: List<String>?,
         @Argument content: String?,
         @Argument category: ProjectCategory?,
@@ -73,6 +76,7 @@ class ProjectController(
                 title,
                 bio,
                 urls,
+                keyImageIndex,
                 imageUrls,
                 content,
                 category,

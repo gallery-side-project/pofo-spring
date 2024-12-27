@@ -19,16 +19,14 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     @Override
     public ProjectList searchProjectWithCursor(int size, Long cursor) {
         QProject project = QProject.project;
-        BooleanExpression predicate = null;
 
-        if (cursor != null) {
-            predicate = project.id.lt(cursor);
-        }
+        boolean isInitialRequest = (cursor == null);
 
+        // 초기 요청: ID가 가장 큰 데이터부터 시작
         List<Project> projects = queryFactory.selectFrom(project)
-                .where(predicate)
-                .orderBy(project.id.desc())
-                .limit(size + 1)
+                .where(isInitialRequest ? null : project.id.lt(cursor))
+                .orderBy(project.id.desc()) // 항상 ID 내림차순 정렬
+                .limit(size + 1) // 요청 크기 + 1로 가져와서 다음 페이지 확인
                 .fetch();
 
         boolean hasNext = projects.size() > size;

@@ -31,6 +31,19 @@ class ProjectService(
     @Transactional
     fun createProject(createProjectRequest: CreateProjectRequest): Project {
         val author = entityManager.getReference(User::class.java, createProjectRequest.authorId)
+
+        val imageUrls = createProjectRequest.imageUrls ?: emptyList()
+        val keyImageIndex =
+            when {
+                imageUrls.isEmpty() -> -1
+                createProjectRequest.keyImageIndex == null -> 0
+                else -> createProjectRequest.keyImageIndex
+            }
+
+        if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex < 0)) {
+            throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
+        }
+
         val project =
             Project
                 .builder()
@@ -52,11 +65,25 @@ class ProjectService(
         var project =
             projectRepository.findById(updateProjectRequest.projectId)
                 ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
+
+        val imageUrls = updateProjectRequest.imageUrls ?: emptyList()
+        val keyImageIndex =
+            when {
+                imageUrls.isEmpty() -> -1
+                updateProjectRequest.keyImageIndex == null -> 0
+                else -> updateProjectRequest.keyImageIndex
+            }
+
+        if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex <= 0)) {
+            throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
+        }
+
         project =
             project.update(
                 updateProjectRequest.title,
                 updateProjectRequest.bio,
                 updateProjectRequest.urls,
+                updateProjectRequest.keyImageIndex,
                 updateProjectRequest.imageUrls,
                 updateProjectRequest.content,
                 updateProjectRequest.category,

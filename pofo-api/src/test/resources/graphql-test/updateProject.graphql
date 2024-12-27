@@ -3,6 +3,7 @@ mutation updateProject(
     $title: String,
     $bio: String,
     $urls: [String],
+    $keyImageIndex: Int!,
     $imageUrls: [String],
     $content: String,
     $category: ProjectCategory
@@ -12,6 +13,7 @@ mutation updateProject(
         title: $title,
         bio: $bio,
         urls: $urls,
+        keyImageIndex: $keyImageIndex,
         imageUrls: $imageUrls,
         content: $content,
         category: $category
