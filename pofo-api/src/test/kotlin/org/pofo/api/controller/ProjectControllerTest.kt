@@ -1,6 +1,7 @@
 package org.pofo.api.controller
 
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.pofo.api.dto.ProjectCreateRequest
 import org.pofo.api.dto.ProjectUpdateRequest
@@ -59,11 +60,7 @@ internal class ProjectControllerTest
             val projectCreateRequest =
                 ProjectCreateRequest(
                     title = project.title,
-                    bio = project.bio,
                     content = project.content,
-                    urls = project.urls,
-                    imageUrls = project.imageUrls,
-                    category = project.category,
                 )
 
             val graphQlTester =
@@ -79,6 +76,9 @@ internal class ProjectControllerTest
                 .path("createProject.title")
                 .entity(String::class.java)
                 .isEqualTo(project.title)
+                .path("createProject.content")
+                .entity(String::class.java)
+                .isEqualTo(project.content)
         }
 
         @Test
@@ -105,6 +105,7 @@ internal class ProjectControllerTest
         }
 
         @Test
+        @DisplayName("페이지 네이션 적은 것 테스트")
         fun getAllProjectsByPagination() {
             // given
             val savedProjects = mutableListOf<Project>()
@@ -132,6 +133,40 @@ internal class ProjectControllerTest
                 .path("getAllProjectsByPagination.hasNext")
                 .entity(Boolean::class.java)
                 .isEqualTo(false)
+        }
+
+        @Test
+        @DisplayName("2번째 페이지 데이터 검증")
+        fun getSecondPageProjectsByPaginationTest() {
+            // given
+            val savedProjects = mutableListOf<Project>()
+            repeat(20) {
+                savedProjects.add(saveProject(createProject(), savedUser.id))
+            }
+
+            val graphQlTester =
+                HttpGraphQlTester
+                    .builder(client)
+                    .build()
+
+            val firstPageCursor = savedProjects[savedProjects.size - 5].id
+            val expectedSecondPageProjects = savedProjects.subList(10, 15).reversed()
+
+            // when & then
+            graphQlTester
+                .documentName("getAllProjectsByPagination")
+                .variable("cursor", firstPageCursor)
+                .variable("size", 5)
+                .execute()
+                .path("getAllProjectsByPagination.projectCount")
+                .entity(Int::class.java)
+                .isEqualTo(5)
+                .path("getAllProjectsByPagination.projects[*].title")
+                .entityList(String::class.java)
+                .containsExactly(*expectedSecondPageProjects.map { it.title }.toTypedArray())
+                .path("getAllProjectsByPagination.hasNext")
+                .entity(Boolean::class.java)
+                .isEqualTo(true)
         }
 
         @Test
@@ -173,6 +208,7 @@ internal class ProjectControllerTest
                     bio = project.bio,
                     content = project.content,
                     urls = project.urls,
+                    keyImageIndex = 0,
                     imageUrls = project.imageUrls,
                     category = project.category,
                     stackNames = null,

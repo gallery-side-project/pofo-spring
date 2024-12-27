@@ -22,8 +22,8 @@ private val logger = KotlinLogging.logger {}
 @Transactional(readOnly = true)
 class ProjectService(
     private val entityManager: EntityManager,
-    private val projectRepository: ProjectRepository,
     private val stackRepository: StackRepository,
+    private val projectRepository: ProjectRepository,
 ) {
     fun findProjectById(projectId: Long): Project =
         projectRepository.findById(projectId) ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
@@ -40,6 +40,18 @@ class ProjectService(
     ): Project {
         val author = entityManager.getReference(User::class.java, authorId)
 
+        val imageUrls = projectCreateRequest.imageUrls ?: emptyList()
+        val keyImageIndex =
+            when {
+                imageUrls.isEmpty() -> -1
+                projectCreateRequest.keyImageIndex == null -> 0
+                else -> projectCreateRequest.keyImageIndex
+            }
+
+        if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex < 0)) {
+            throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
+        }
+
         val project =
             Project
                 .builder()
@@ -51,12 +63,6 @@ class ProjectService(
                 .category(projectCreateRequest.category)
                 .author(author)
                 .build()
-
-        if (projectCreateRequest.stackNames != null) {
-            val foundStacks = stackRepository.findByNameIn(projectCreateRequest.stackNames)
-            logNotExistStacks(projectCreateRequest.stackNames, foundStacks)
-            foundStacks.forEach(project::addStack)
-        }
         return projectRepository.save(project)
     }
 
@@ -70,6 +76,18 @@ class ProjectService(
             projectRepository.findById(projectUpdateRequest.projectId)
                 ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
 
+        val imageUrls = projectUpdateRequest.imageUrls ?: emptyList()
+        val keyImageIndex =
+            when {
+                imageUrls.isEmpty() -> -1
+                projectUpdateRequest.keyImageIndex == null -> 0
+                else -> projectUpdateRequest.keyImageIndex
+            }
+
+        if (keyImageIndex >= imageUrls.size || (imageUrls.isNotEmpty() && keyImageIndex <= 0)) {
+            throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
+        }
+
         if (projectUpdateRequest.stackNames != null) {
             val foundStacks = stackRepository.findByNameIn(projectUpdateRequest.stackNames)
             logNotExistStacks(projectUpdateRequest.stackNames, foundStacks)
@@ -81,6 +99,7 @@ class ProjectService(
             projectUpdateRequest.bio,
             projectUpdateRequest.urls,
             projectUpdateRequest.imageUrls,
+            projectUpdateRequest.keyImageIndex,
             projectUpdateRequest.content,
             projectUpdateRequest.category,
         )

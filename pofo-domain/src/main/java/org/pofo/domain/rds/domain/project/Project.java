@@ -27,6 +27,14 @@ public class Project {
     @Column
     private String Bio; // 한줄 소개
 
+    @Column
+    @Builder.Default
+    private Integer keyImageIndex = -1; // 대표 이미지 인덱스
+
+    @Column
+    @Builder.Default
+    private Long likes = 0L; //좋아요 수 (매번 집계 쿼리 사용을 피하기 위함)
+
     @Convert(converter = StringListConverter.class)
     @Column(columnDefinition = "TEXT")
     private List<String> urls; // 유저가 설정한 url list ex) github, npm 등등
@@ -45,6 +53,7 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectCategory category; // 프로젝트 유형
 
+    @Setter
     @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectStack> stacks = new ArrayList<>();
@@ -69,7 +78,7 @@ public class Project {
         }
     }
 
-    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, String content, ProjectCategory category) {
+    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, Integer keyImageIndex, String content, ProjectCategory category) {
         if (title != null) {
             this.title = title;
         }
@@ -78,6 +87,9 @@ public class Project {
         }
         if (urls != null) {
             this.urls = urls;
+        }
+        if (keyImageIndex != null) {
+            this.keyImageIndex = keyImageIndex;
         }
         if (imageUrls != null) {
             this.imageUrls = imageUrls;

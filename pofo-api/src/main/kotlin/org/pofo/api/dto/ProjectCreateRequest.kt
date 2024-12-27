@@ -6,6 +6,7 @@ data class ProjectCreateRequest(
     val title: String,
     val bio: String? = null,
     val urls: List<String>? = null,
+    val keyImageIndex: Int? = null,
     val imageUrls: List<String>? = null,
     val content: String,
     val category: ProjectCategory? = null,

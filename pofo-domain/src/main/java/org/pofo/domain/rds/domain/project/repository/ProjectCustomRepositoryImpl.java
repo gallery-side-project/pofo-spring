@@ -3,9 +3,7 @@ package org.pofo.domain.rds.domain.project.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.pofo.domain.rds.domain.project.Project;
-import org.pofo.domain.rds.domain.project.ProjectList;
-import org.pofo.domain.rds.domain.project.QProject;
+import org.pofo.domain.rds.domain.project.*;
 import org.pofo.domain.rds.domain.project.vo.ProjectQuery;
 import org.springframework.stereotype.Repository;
 
@@ -20,16 +18,14 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     @Override
     public ProjectList searchProjectWithCursor(int size, Long cursor) {
         QProject project = QProject.project;
-        BooleanExpression predicate = null;
 
-        if (cursor != null) {
-            predicate = project.id.lt(cursor);
-        }
+        boolean isInitialRequest = (cursor == null);
 
+        // 초기 요청: ID가 가장 큰 데이터부터 시작
         List<Project> projects = queryFactory.selectFrom(project)
-                .where(predicate)
-                .orderBy(project.id.desc())
-                .limit(size + 1)
+                .where(isInitialRequest ? null : project.id.lt(cursor))
+                .orderBy(project.id.desc()) // 항상 ID 내림차순 정렬
+                .limit(size + 1) // 요청 크기 + 1로 가져와서 다음 페이지 확인
                 .fetch();
 
         boolean hasNext = projects.size() > size;
@@ -44,6 +40,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     @Override
     public ProjectList searchProjectWithQuery(ProjectQuery query) {
         QProject qProject = QProject.project;
+        QProjectStack qProjectStack = QProjectStack.projectStack;
         BooleanExpression predicate = qProject.isNotNull();
 
         if (query.title() != null) {
@@ -58,18 +55,25 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             predicate = predicate.and(qProject.stacks.any().stack.name.in(query.stacks()));
         }
 
-        List<Project> fetched = queryFactory.selectFrom(qProject)
+        List<Project> fetchedProjects = queryFactory.selectFrom(qProject)
                 .where(predicate)
                 .orderBy(qProject.id.desc())
                 .limit(query.size() + 1)
                 .fetch();
 
-        boolean hasNext = fetched.size() > query.size();
+        boolean hasNext = fetchedProjects.size() > query.size();
         if (hasNext) {
-            fetched.remove(query.size());
+            fetchedProjects.remove(query.size());
         }
 
-        return new ProjectList(fetched, hasNext, fetched.size());
+        fetchedProjects.forEach(project -> {
+            List<ProjectStack> stacks = queryFactory.selectFrom(qProjectStack)
+                    .where(qProjectStack.project.id.eq(project.getId()))
+                    .fetch();
+            project.setStacks(stacks);
+        });
+
+        return new ProjectList(fetchedProjects, hasNext, fetchedProjects.size());
     }
 }
 

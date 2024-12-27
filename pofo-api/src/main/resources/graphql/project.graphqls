@@ -1,11 +1,13 @@
 type Project {
-    id: ID!
+    id: Int!
     title: String!
     bio: String
     urls: [String]
     imageUrls: [String]
+    keyImageIndex: Int
     content: String!
     isApproved: Boolean
+    likes: Int
     category: ProjectCategory
     stacks: [String]
     author: User
@@ -30,30 +32,32 @@ enum ProjectCategory {
 }
 
 input ProjectCreateRequest {
-    title: String!,
-    bio: String,
-    urls: [String],
-    imageUrls: [String],
-    content: String!,
+    title: String!
+    bio: String
+    urls: [String]
+    imageUrls: [String]
+    keyImageIndex: Int
+    content: String!
     category: ProjectCategory
     stackNames: [String]
 }
 
 input ProjectUpdateRequest {
-    projectId: ID!,
-    title: String,
-    bio: String,
-    urls: [String],
-    imageUrls: [String],
-    content: String,
+    projectId: ID!
+    title: String
+    bio: String
+    urls: [String]
+    imageUrls: [String]
+    keyImageIndex: Int
+    content: String
     category: ProjectCategory
     stackNames: [String]
 }
 
 input ProjectQuery {
     title: String
-    category: ProjectCategory,
-    stacks: [String],
+    category: ProjectCategory
+    stacks: [String]
     cursorId: ID! = 9223372036854775807
     size: Int! = 30
 }
@@ -62,7 +66,7 @@ type Query {
     # 특정 ID로 프로젝트를 조회
     projectById(projectId: ID!): Project
     # 프로젝트 리스트 페이지네이션
-    getAllProjectsByPagination(cursor: Int, size: Int!): ProjectList
+    getAllProjectsByPagination(cursor: Int = 0, size: Int!): ProjectList
     # 제목, 카테고리, 스택을 이용한 프로젝트 검색
     searchProject(projectQuery: ProjectQuery): ProjectList
 }

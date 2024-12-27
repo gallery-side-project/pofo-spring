@@ -24,9 +24,9 @@ class ProjectController(
 
     @QueryMapping
     fun getAllProjectsByPagination(
-        @Argument cursor: Long,
+        @Argument cursor: Long?,
         @Argument size: Int,
-    ): ProjectList = projectService.getAllProjectsByPagination(size, cursor)
+    ): ProjectList = projectService.getAllProjectsByPagination(size, cursor ?: 0)
 
     @PreAuthorize("isAuthenticated()")
     @MutationMapping
