@@ -6,6 +6,7 @@ import lombok.*;
 import org.pofo.domain.rds.converter.StringListConverter;
 import org.pofo.domain.rds.domain.user.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -44,16 +45,31 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectCategory category; // 프로젝트 유형
 
-    @Column
-    @Convert(converter = ProjectStackListConverter.class)
-    private List<ProjectStack> stacks;
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectStack> stacks = new ArrayList<>();
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User author;
 
-    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, String content, ProjectCategory category, List<ProjectStack> stacks) {
+    public void addStack(Stack stack) {
+        ProjectStack projectStack = ProjectStack.builder()
+                .project(this)
+                .stack(stack)
+                .build();
+        this.stacks.add(projectStack);
+    }
+
+    public void updateStack(List<Stack> stacks) {
+        this.stacks.clear();
+        for (Stack stack : stacks) {
+            this.addStack(stack);
+        }
+    }
+
+    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, String content, ProjectCategory category) {
         if (title != null) {
             this.title = title;
         }
@@ -71,9 +87,6 @@ public class Project {
         }
         if (category != null) {
             this.category = category;
-        }
-        if (stacks != null) {
-            this.stacks = stacks;
         }
         return this;
     }

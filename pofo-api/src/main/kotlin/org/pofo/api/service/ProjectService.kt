@@ -1,24 +1,29 @@
 package org.pofo.api.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityManager
-import lombok.extern.slf4j.Slf4j
-import org.pofo.api.dto.CreateProjectRequest
-import org.pofo.api.dto.UpdateProjectRequest
+import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.ProjectList
+import org.pofo.domain.rds.domain.project.Stack
 import org.pofo.domain.rds.domain.project.repository.ProjectRepository
+import org.pofo.domain.rds.domain.project.repository.StackRepository
+import org.pofo.domain.rds.domain.project.vo.ProjectQuery
 import org.pofo.domain.rds.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-@Slf4j
+private val logger = KotlinLogging.logger {}
+
 @Service
 @Transactional(readOnly = true)
 class ProjectService(
     private val entityManager: EntityManager,
     private val projectRepository: ProjectRepository,
+    private val stackRepository: StackRepository,
 ) {
     fun findProjectById(projectId: Long): Project =
         projectRepository.findById(projectId) ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
@@ -29,39 +34,72 @@ class ProjectService(
     ): ProjectList = projectRepository.searchProjectWithCursor(size, cursor)
 
     @Transactional
-    fun createProject(createProjectRequest: CreateProjectRequest): Project {
-        val author = entityManager.getReference(User::class.java, createProjectRequest.authorId)
+    fun createProject(
+        projectCreateRequest: ProjectCreateRequest,
+        authorId: Long,
+    ): Project {
+        val author = entityManager.getReference(User::class.java, authorId)
+
         val project =
             Project
                 .builder()
-                .title(createProjectRequest.title)
-                .Bio(createProjectRequest.bio)
-                .urls(createProjectRequest.urls)
-                .imageUrls(createProjectRequest.imageUrls)
-                .content(createProjectRequest.content)
-                .category(createProjectRequest.category)
-                .stacks(createProjectRequest.stacks)
+                .title(projectCreateRequest.title)
+                .Bio(projectCreateRequest.bio)
+                .urls(projectCreateRequest.urls)
+                .imageUrls(projectCreateRequest.imageUrls)
+                .content(projectCreateRequest.content)
+                .category(projectCreateRequest.category)
                 .author(author)
                 .build()
+
+        if (projectCreateRequest.stackNames != null) {
+            val foundStacks = stackRepository.findByNameIn(projectCreateRequest.stackNames)
+            logNotExistStacks(projectCreateRequest.stackNames, foundStacks)
+            foundStacks.forEach(project::addStack)
+        }
         return projectRepository.save(project)
     }
 
     @Transactional
-    fun updateProject(updateProjectRequest: UpdateProjectRequest): Project {
+    fun updateProject(
+        projectUpdateRequest: ProjectUpdateRequest,
+        authorId: Long,
+    ): Project {
         // TODO: 유저 Author가 여러명 있는데 수정 권한을 다 주는게 맞는지 여부 확인 후 소유자 체크 옵션 추가
-        var project =
-            projectRepository.findById(updateProjectRequest.projectId)
+        val project =
+            projectRepository.findById(projectUpdateRequest.projectId)
                 ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
-        project =
-            project.update(
-                updateProjectRequest.title,
-                updateProjectRequest.bio,
-                updateProjectRequest.urls,
-                updateProjectRequest.imageUrls,
-                updateProjectRequest.content,
-                updateProjectRequest.category,
-                updateProjectRequest.stacks,
-            )
+
+        if (projectUpdateRequest.stackNames != null) {
+            val foundStacks = stackRepository.findByNameIn(projectUpdateRequest.stackNames)
+            logNotExistStacks(projectUpdateRequest.stackNames, foundStacks)
+            project.updateStack(foundStacks)
+        }
+
+        project.update(
+            projectUpdateRequest.title,
+            projectUpdateRequest.bio,
+            projectUpdateRequest.urls,
+            projectUpdateRequest.imageUrls,
+            projectUpdateRequest.content,
+            projectUpdateRequest.category,
+        )
         return projectRepository.save(project)
+    }
+
+    fun searchProject(projectQuery: ProjectQuery): ProjectList = projectRepository.searchProjectWithQuery(projectQuery)
+
+    private fun logNotExistStacks(
+        stackNames: List<String>,
+        stacks: List<Stack>,
+    ) {
+        val stacksMap = stacks.associateBy { it.name }
+
+        for (stack in stackNames) {
+            val foundStack = stacksMap[stack]
+            if (foundStack == null) {
+                logger.warn { "A stack named [$stack] does not exist." }
+            }
+        }
     }
 }

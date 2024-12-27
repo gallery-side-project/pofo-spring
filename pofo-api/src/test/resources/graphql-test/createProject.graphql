@@ -1,19 +1,7 @@
 mutation createProject(
-    $title: String!,
-    $bio: String,
-    $urls: [String],
-    $imageUrls: [String],
-    $content: String!,
-    $category: ProjectCategory!
+    $projectCreateRequest: ProjectCreateRequest
 ) {
-    createProject(
-        title: $title,
-        bio: $bio,
-        urls: $urls,
-        imageUrls: $imageUrls,
-        content: $content,
-        category: $category
-    ) {
+    createProject(projectCreateRequest: $projectCreateRequest) {
         id
         title
         bio

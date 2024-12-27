@@ -1,12 +1,11 @@
 package org.pofo.api.controller
 
-import org.pofo.api.dto.CreateProjectRequest
-import org.pofo.api.dto.UpdateProjectRequest
+import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.api.security.PrincipalDetails
 import org.pofo.domain.rds.domain.project.Project
-import org.pofo.domain.rds.domain.project.ProjectCategory
 import org.pofo.domain.rds.domain.project.ProjectList
-import org.pofo.domain.rds.domain.project.ProjectStack
+import org.pofo.domain.rds.domain.project.vo.ProjectQuery
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
@@ -32,52 +31,27 @@ class ProjectController(
     @PreAuthorize("isAuthenticated()")
     @MutationMapping
     fun createProject(
-        @Argument title: String,
-        @Argument bio: String?,
-        @Argument urls: List<String>?,
-        @Argument imageUrls: List<String>?,
-        @Argument content: String,
-        @Argument category: ProjectCategory,
-        @Argument stacks: List<ProjectStack>?,
+        @Argument projectCreateRequest: ProjectCreateRequest,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): Project =
         projectService.createProject(
-            CreateProjectRequest(
-                title,
-                bio,
-                urls,
-                imageUrls,
-                content,
-                category,
-                stacks,
-                principalDetails.jwtTokenData.userId,
-            ),
+            projectCreateRequest,
+            principalDetails.jwtTokenData.userId,
         )
 
     @PreAuthorize("isAuthenticated()")
     @MutationMapping
     fun updateProject(
-        @Argument projectId: Long,
-        @Argument title: String?,
-        @Argument bio: String?,
-        @Argument urls: List<String>?,
-        @Argument imageUrls: List<String>?,
-        @Argument content: String?,
-        @Argument category: ProjectCategory?,
-        @Argument stacks: List<ProjectStack>?,
+        @Argument projectUpdateRequest: ProjectUpdateRequest,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
     ): Project =
         projectService.updateProject(
-            UpdateProjectRequest(
-                projectId,
-                title,
-                bio,
-                urls,
-                imageUrls,
-                content,
-                category,
-                stacks,
-                principalDetails.jwtTokenData.userId,
-            ),
+            projectUpdateRequest,
+            principalDetails.jwtTokenData.userId,
         )
+
+    @QueryMapping
+    fun searchProject(
+        @Argument projectQuery: ProjectQuery,
+    ): ProjectList = projectService.searchProject(projectQuery)
 }

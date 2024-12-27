@@ -2,7 +2,8 @@ package org.pofo.api.controller
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.pofo.api.dto.CreateProjectRequest
+import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.fixture.ProjectFixture.Companion.createProject
 import org.pofo.api.fixture.UserFixture
@@ -55,6 +56,15 @@ internal class ProjectControllerTest
         @Test
         fun createProjectSuccess() {
             val project = createProject()
+            val projectCreateRequest =
+                ProjectCreateRequest(
+                    title = project.title,
+                    bio = project.bio,
+                    content = project.content,
+                    urls = project.urls,
+                    imageUrls = project.imageUrls,
+                    category = project.category,
+                )
 
             val graphQlTester =
                 HttpGraphQlTester
@@ -64,14 +74,7 @@ internal class ProjectControllerTest
 
             graphQlTester
                 .documentName("createProject")
-                .variable("title", project.title)
-                .variable("bio", project.bio)
-                .variable("urls", project.urls)
-                .variable("imageUrls", project.imageUrls)
-                .variable("content", project.content)
-                .variable("category", project.category)
-                .variable("stacks", project.stacks)
-                .variable("authorId", savedUser.id)
+                .variable("projectCreateRequest", projectCreateRequest)
                 .execute()
                 .path("createProject.title")
                 .entity(String::class.java)
@@ -135,7 +138,12 @@ internal class ProjectControllerTest
         fun updateProject() {
             // given
             val savedProject = saveProject(createProject(), savedUser.id)
-            val newTitle = "새로운 타이틀"
+            val projectUpdateRequest =
+                ProjectUpdateRequest(
+                    projectId = savedProject.id,
+                    title = "new title",
+                    bio = "new bio",
+                )
 
             val graphQlTester =
                 HttpGraphQlTester
@@ -145,12 +153,14 @@ internal class ProjectControllerTest
 
             graphQlTester
                 .documentName("updateProject")
-                .variable("projectId", savedProject.id)
-                .variable("title", newTitle)
+                .variable("projectUpdateRequest", projectUpdateRequest)
                 .execute()
                 .path("updateProject.title")
                 .entity(String::class.java)
-                .isEqualTo(newTitle)
+                .isEqualTo(projectUpdateRequest.title!!)
+                .path("updateProject.bio")
+                .entity(String::class.java)
+                .isEqualTo(projectUpdateRequest.bio!!)
         }
 
         fun saveProject(
@@ -158,15 +168,15 @@ internal class ProjectControllerTest
             authorId: Long,
         ): Project =
             projectService.createProject(
-                CreateProjectRequest(
+                ProjectCreateRequest(
                     title = project.title,
                     bio = project.bio,
                     content = project.content,
                     urls = project.urls,
                     imageUrls = project.imageUrls,
                     category = project.category,
-                    stacks = project.stacks,
-                    authorId = authorId,
+                    stackNames = null,
                 ),
+                authorId = authorId,
             )
     }

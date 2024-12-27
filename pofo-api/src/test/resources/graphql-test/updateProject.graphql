@@ -1,20 +1,8 @@
 mutation updateProject(
-    $projectId: ID!,
-    $title: String,
-    $bio: String,
-    $urls: [String],
-    $imageUrls: [String],
-    $content: String,
-    $category: ProjectCategory
+    $projectUpdateRequest: ProjectUpdateRequest
 ) {
     updateProject(
-        projectId: $projectId,
-        title: $title,
-        bio: $bio,
-        urls: $urls,
-        imageUrls: $imageUrls,
-        content: $content,
-        category: $category
+        projectUpdateRequest: $projectUpdateRequest
     ) {
         id
         title
