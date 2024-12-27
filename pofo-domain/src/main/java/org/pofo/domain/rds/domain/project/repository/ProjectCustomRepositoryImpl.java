@@ -4,7 +4,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.pofo.domain.rds.domain.project.*;
-import org.pofo.domain.rds.domain.project.vo.ProjectQuery;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,7 +19,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public ProjectList searchProjectWithCursor(int size, Long cursor) {
+    public Slice<Project> searchProjectWithCursor(int size, Long cursor) {
         QProject project = QProject.project;
 
         boolean isInitialRequest = (cursor == null);
@@ -34,36 +37,43 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             projects.remove(size);
         }
 
-        return new ProjectList(projects, hasNext, projects.size());
+        return new SliceImpl<>(projects, PageRequest.ofSize(size), hasNext);
     }
 
     @Override
-    public ProjectList searchProjectWithQuery(ProjectQuery query) {
+    public Slice<Project> searchProjectWithQuery(
+            String title,
+            ProjectCategory category,
+            List<String> stackNames,
+            Pageable pageable) {
         QProject qProject = QProject.project;
         QProjectStack qProjectStack = QProjectStack.projectStack;
         BooleanExpression predicate = qProject.isNotNull();
+        long offset = pageable.getOffset();
+        int pageSize = pageable.getPageSize();
 
-        if (query.title() != null) {
-            predicate = predicate.and(qProject.title.startsWith(query.title()));
+        if (title != null) {
+            predicate = predicate.and(qProject.title.startsWith(title));
         }
 
-        if (query.category() != null) {
-            predicate = predicate.and(qProject.category.eq(query.category()));
+        if (category != null) {
+            predicate = predicate.and(qProject.category.eq(category));
         }
 
-        if (query.stacks() != null && !query.stacks().isEmpty()) {
-            predicate = predicate.and(qProject.stacks.any().stack.name.in(query.stacks()));
+        if (stackNames != null && !stackNames.isEmpty()) {
+            predicate = predicate.and(qProject.stacks.any().stack.name.in(stackNames));
         }
 
         List<Project> fetchedProjects = queryFactory.selectFrom(qProject)
                 .where(predicate)
+                .offset(offset)
+                .limit(pageSize + 1)
                 .orderBy(qProject.id.desc())
-                .limit(query.size() + 1)
                 .fetch();
 
-        boolean hasNext = fetchedProjects.size() > query.size();
+        boolean hasNext = fetchedProjects.size() > pageSize;
         if (hasNext) {
-            fetchedProjects.remove(query.size());
+            fetchedProjects.remove(pageSize);
         }
 
         fetchedProjects.forEach(project -> {
@@ -73,7 +83,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             project.setStacks(stacks);
         });
 
-        return new ProjectList(fetchedProjects, hasNext, fetchedProjects.size());
+        return new SliceImpl<>(fetchedProjects, pageable, hasNext);
     }
 }
 

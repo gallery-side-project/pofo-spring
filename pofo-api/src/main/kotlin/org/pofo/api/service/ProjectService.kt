@@ -3,16 +3,18 @@ package org.pofo.api.service
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.persistence.EntityManager
 import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectListResponse
+import org.pofo.api.dto.ProjectResponse
+import org.pofo.api.dto.ProjectSearchRequest
 import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.rds.domain.project.Project
-import org.pofo.domain.rds.domain.project.ProjectList
 import org.pofo.domain.rds.domain.project.Stack
 import org.pofo.domain.rds.domain.project.repository.ProjectRepository
 import org.pofo.domain.rds.domain.project.repository.StackRepository
-import org.pofo.domain.rds.domain.project.vo.ProjectQuery
 import org.pofo.domain.rds.domain.user.User
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,19 +27,24 @@ class ProjectService(
     private val stackRepository: StackRepository,
     private val projectRepository: ProjectRepository,
 ) {
-    fun findProjectById(projectId: Long): Project =
-        projectRepository.findById(projectId) ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
+    fun findProjectById(projectId: Long): ProjectResponse {
+        val foundProject = projectRepository.findById(projectId) ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
+        return ProjectResponse.from(foundProject)
+    }
 
     fun getAllProjectsByPagination(
         size: Int,
         cursor: Long,
-    ): ProjectList = projectRepository.searchProjectWithCursor(size, cursor)
+    ): ProjectListResponse {
+        val foundProjects = projectRepository.searchProjectWithCursor(size, cursor)
+        return ProjectListResponse.from(foundProjects)
+    }
 
     @Transactional
     fun createProject(
         projectCreateRequest: ProjectCreateRequest,
         authorId: Long,
-    ): Project {
+    ): ProjectResponse {
         val author = entityManager.getReference(User::class.java, authorId)
 
         val imageUrls = projectCreateRequest.imageUrls ?: emptyList()
@@ -61,16 +68,19 @@ class ProjectService(
                 .imageUrls(projectCreateRequest.imageUrls)
                 .content(projectCreateRequest.content)
                 .category(projectCreateRequest.category)
+                .isApproved(projectCreateRequest.isApproved)
                 .author(author)
                 .build()
-        return projectRepository.save(project)
+        val savedProject = projectRepository.save(project)
+
+        return ProjectResponse.from(savedProject)
     }
 
     @Transactional
     fun updateProject(
         projectUpdateRequest: ProjectUpdateRequest,
         authorId: Long,
-    ): Project {
+    ): ProjectResponse {
         // TODO: 유저 Author가 여러명 있는데 수정 권한을 다 주는게 맞는지 여부 확인 후 소유자 체크 옵션 추가
         val project =
             projectRepository.findById(projectUpdateRequest.projectId)
@@ -94,19 +104,32 @@ class ProjectService(
             project.updateStack(foundStacks)
         }
 
-        project.update(
-            projectUpdateRequest.title,
-            projectUpdateRequest.bio,
-            projectUpdateRequest.urls,
-            projectUpdateRequest.imageUrls,
-            projectUpdateRequest.keyImageIndex,
-            projectUpdateRequest.content,
-            projectUpdateRequest.category,
-        )
-        return projectRepository.save(project)
+        val updatedProject =
+            project.update(
+                projectUpdateRequest.title,
+                projectUpdateRequest.bio,
+                projectUpdateRequest.urls,
+                projectUpdateRequest.imageUrls,
+                projectUpdateRequest.keyImageIndex,
+                projectUpdateRequest.content,
+                projectUpdateRequest.category,
+            )
+        return ProjectResponse.from(updatedProject)
     }
 
-    fun searchProject(projectQuery: ProjectQuery): ProjectList = projectRepository.searchProjectWithQuery(projectQuery)
+    fun searchProject(projectSearchRequest: ProjectSearchRequest): ProjectListResponse {
+        val pageRequest =
+            PageRequest
+                .of(projectSearchRequest.page, projectSearchRequest.size)
+        val projectSlice =
+            projectRepository.searchProjectWithQuery(
+                projectSearchRequest.title,
+                projectSearchRequest.category,
+                projectSearchRequest.stackNames,
+                pageRequest,
+            )
+        return ProjectListResponse.from(projectSlice)
+    }
 
     private fun logNotExistStacks(
         stackNames: List<String>,

@@ -1,11 +1,11 @@
 package org.pofo.api.controller
 
 import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectListResponse
+import org.pofo.api.dto.ProjectResponse
+import org.pofo.api.dto.ProjectSearchRequest
 import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.api.security.PrincipalDetails
-import org.pofo.domain.rds.domain.project.Project
-import org.pofo.domain.rds.domain.project.ProjectList
-import org.pofo.domain.rds.domain.project.vo.ProjectQuery
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
@@ -20,20 +20,20 @@ class ProjectController(
     @QueryMapping
     fun projectById(
         @Argument projectId: Long,
-    ): Project = projectService.findProjectById(projectId)
+    ): ProjectResponse = projectService.findProjectById(projectId)
 
     @QueryMapping
     fun getAllProjectsByPagination(
         @Argument cursor: Long?,
         @Argument size: Int,
-    ): ProjectList = projectService.getAllProjectsByPagination(size, cursor ?: 0)
+    ): ProjectListResponse = projectService.getAllProjectsByPagination(size, cursor ?: 0)
 
     @PreAuthorize("isAuthenticated()")
     @MutationMapping
     fun createProject(
         @Argument projectCreateRequest: ProjectCreateRequest,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
-    ): Project =
+    ): ProjectResponse =
         projectService.createProject(
             projectCreateRequest,
             principalDetails.jwtTokenData.userId,
@@ -44,7 +44,7 @@ class ProjectController(
     fun updateProject(
         @Argument projectUpdateRequest: ProjectUpdateRequest,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
-    ): Project =
+    ): ProjectResponse =
         projectService.updateProject(
             projectUpdateRequest,
             principalDetails.jwtTokenData.userId,
@@ -52,6 +52,6 @@ class ProjectController(
 
     @QueryMapping
     fun searchProject(
-        @Argument projectQuery: ProjectQuery,
-    ): ProjectList = projectService.searchProject(projectQuery)
+        @Argument projectSearchRequest: ProjectSearchRequest,
+    ): ProjectListResponse = projectService.searchProject(projectSearchRequest)
 }

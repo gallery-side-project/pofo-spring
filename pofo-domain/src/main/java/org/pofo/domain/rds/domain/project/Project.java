@@ -33,7 +33,7 @@ public class Project {
 
     @Column
     @Builder.Default
-    private Long likes = 0L; //좋아요 수 (매번 집계 쿼리 사용을 피하기 위함)
+    private Integer likes = 0; //좋아요 수 (매번 집계 쿼리 사용을 피하기 위함)
 
     @Convert(converter = StringListConverter.class)
     @Column(columnDefinition = "TEXT")
@@ -46,7 +46,7 @@ public class Project {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column
+    @Column(nullable = false)
     private Boolean isApproved; // 모음팀 측에서 인증됬는지 (타 앱 연동을 통해)
 
     @Column

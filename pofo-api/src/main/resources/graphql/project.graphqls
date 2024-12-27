@@ -8,15 +8,15 @@ type Project {
     content: String!
     isApproved: Boolean
     likes: Int
-    category: ProjectCategory
+    category: String
     stacks: [String]
-    author: User
+    authorName: String
 }
 
 type ProjectList {
     projects: [Project]!
     hasNext: Boolean!
-    projectCount: Int!
+    count: Int!
 }
 
 enum ProjectCategory {
@@ -40,6 +40,7 @@ input ProjectCreateRequest {
     content: String!
     category: ProjectCategory
     stackNames: [String]
+    isApproved: Boolean! = false
 }
 
 input ProjectUpdateRequest {
@@ -54,11 +55,11 @@ input ProjectUpdateRequest {
     stackNames: [String]
 }
 
-input ProjectQuery {
+input ProjectSearchRequest {
     title: String
     category: ProjectCategory
-    stacks: [String]
-    cursorId: ID! = 9223372036854775807
+    stackNames: [String]
+    page: Int! = 0
     size: Int! = 30
 }
 
@@ -68,7 +69,7 @@ type Query {
     # 프로젝트 리스트 페이지네이션
     getAllProjectsByPagination(cursor: Int = 0, size: Int!): ProjectList
     # 제목, 카테고리, 스택을 이용한 프로젝트 검색
-    searchProject(projectQuery: ProjectQuery): ProjectList
+    searchProject(projectSearchRequest: ProjectSearchRequest): ProjectList
 }
 
 type Mutation {

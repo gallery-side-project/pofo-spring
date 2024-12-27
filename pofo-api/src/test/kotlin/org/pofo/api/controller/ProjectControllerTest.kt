@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectResponse
 import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.fixture.ProjectFixture.Companion.createProject
@@ -60,6 +61,7 @@ internal class ProjectControllerTest
             val projectCreateRequest =
                 ProjectCreateRequest(
                     title = project.title,
+                    bio = project.bio,
                     content = project.content,
                 )
 
@@ -108,7 +110,7 @@ internal class ProjectControllerTest
         @DisplayName("페이지 네이션 적은 것 테스트")
         fun getAllProjectsByPagination() {
             // given
-            val savedProjects = mutableListOf<Project>()
+            val savedProjects = mutableListOf<ProjectResponse>()
             repeat(3) {
                 savedProjects.add(saveProject(createProject(), savedUser.id))
             }
@@ -124,7 +126,7 @@ internal class ProjectControllerTest
                 .variable("cursor", savedProjects.last().id)
                 .variable("size", 2)
                 .execute()
-                .path("getAllProjectsByPagination.projectCount")
+                .path("getAllProjectsByPagination.count")
                 .entity(Int::class.java)
                 .isEqualTo(2)
                 .path("getAllProjectsByPagination.projects[*].title")
@@ -139,7 +141,7 @@ internal class ProjectControllerTest
         @DisplayName("2번째 페이지 데이터 검증")
         fun getSecondPageProjectsByPaginationTest() {
             // given
-            val savedProjects = mutableListOf<Project>()
+            val savedProjects = mutableListOf<ProjectResponse>()
             repeat(20) {
                 savedProjects.add(saveProject(createProject(), savedUser.id))
             }
@@ -158,7 +160,7 @@ internal class ProjectControllerTest
                 .variable("cursor", firstPageCursor)
                 .variable("size", 5)
                 .execute()
-                .path("getAllProjectsByPagination.projectCount")
+                .path("getAllProjectsByPagination.count")
                 .entity(Int::class.java)
                 .isEqualTo(5)
                 .path("getAllProjectsByPagination.projects[*].title")
@@ -201,7 +203,7 @@ internal class ProjectControllerTest
         fun saveProject(
             project: Project,
             authorId: Long,
-        ): Project =
+        ): ProjectResponse =
             projectService.createProject(
                 ProjectCreateRequest(
                     title = project.title,

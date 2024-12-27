@@ -11,4 +11,5 @@ data class ProjectCreateRequest(
     val content: String,
     val category: ProjectCategory? = null,
     val stackNames: List<String>? = null,
+    val isApproved: Boolean = false,
 )
