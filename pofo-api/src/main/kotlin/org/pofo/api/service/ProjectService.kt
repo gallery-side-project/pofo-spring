@@ -66,12 +66,22 @@ class ProjectService(
                 .Bio(projectCreateRequest.bio)
                 .urls(projectCreateRequest.urls)
                 .imageUrls(projectCreateRequest.imageUrls)
+                .keyImageIndex(keyImageIndex)
                 .content(projectCreateRequest.content)
-                .category(projectCreateRequest.category)
                 .isApproved(projectCreateRequest.isApproved)
                 .author(author)
                 .build()
         val savedProject = projectRepository.save(project)
+
+        if (projectCreateRequest.stackNames != null) {
+            val foundStacks = stackRepository.findByNameIn(projectCreateRequest.stackNames)
+            logNotExistStacks(projectCreateRequest.stackNames, foundStacks)
+            project.updateStack(foundStacks)
+        }
+
+        if (projectCreateRequest.categories != null) {
+            project.updateCategories(projectCreateRequest.categories)
+        }
 
         return ProjectResponse.from(savedProject)
     }
@@ -98,12 +108,6 @@ class ProjectService(
             throw CustomException(ErrorCode.PROJECT_IMAGE_INDEX_ERROR)
         }
 
-        if (projectUpdateRequest.stackNames != null) {
-            val foundStacks = stackRepository.findByNameIn(projectUpdateRequest.stackNames)
-            logNotExistStacks(projectUpdateRequest.stackNames, foundStacks)
-            project.updateStack(foundStacks)
-        }
-
         val updatedProject =
             project.update(
                 projectUpdateRequest.title,
@@ -112,8 +116,17 @@ class ProjectService(
                 projectUpdateRequest.imageUrls,
                 projectUpdateRequest.keyImageIndex,
                 projectUpdateRequest.content,
-                projectUpdateRequest.category,
             )
+        if (projectUpdateRequest.stackNames != null) {
+            val foundStacks = stackRepository.findByNameIn(projectUpdateRequest.stackNames)
+            logNotExistStacks(projectUpdateRequest.stackNames, foundStacks)
+            project.updateStack(foundStacks)
+        }
+
+        if (projectUpdateRequest.categories != null) {
+            project.updateCategories(projectUpdateRequest.categories)
+        }
+
         return ProjectResponse.from(updatedProject)
     }
 
@@ -124,7 +137,7 @@ class ProjectService(
         val projectSlice =
             projectRepository.searchProjectWithQuery(
                 projectSearchRequest.title,
-                projectSearchRequest.category,
+                projectSearchRequest.categories,
                 projectSearchRequest.stackNames,
                 pageRequest,
             )

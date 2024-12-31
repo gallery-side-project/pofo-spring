@@ -1,6 +1,6 @@
 package org.pofo.api.dto
 
-import org.pofo.domain.rds.domain.project.ProjectCategory
+import org.pofo.domain.rds.domain.project.Category
 
 data class ProjectUpdateRequest(
     val projectId: Long,
@@ -10,6 +10,6 @@ data class ProjectUpdateRequest(
     val imageUrls: List<String>? = null,
     val keyImageIndex: Int? = null,
     val content: String? = null,
-    val category: ProjectCategory? = null,
+    val categories: List<Category>? = null,
     val stackNames: List<String>? = null,
 )

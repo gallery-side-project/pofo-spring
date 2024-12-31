@@ -43,7 +43,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     @Override
     public Slice<Project> searchProjectWithQuery(
             String title,
-            ProjectCategory category,
+            List<Category> categories,
             List<String> stackNames,
             Pageable pageable) {
         QProject qProject = QProject.project;
@@ -56,12 +56,20 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             predicate = predicate.and(qProject.title.startsWith(title));
         }
 
-        if (category != null) {
-            predicate = predicate.and(qProject.category.eq(category));
+        if (categories != null && !categories.isEmpty()) {
+            BooleanExpression categoriesCondition = categories.stream()
+                    .map(category -> qProject.categories.any().category.eq(category))
+                    .reduce(BooleanExpression::and)
+                    .get();
+            predicate = predicate.and(categoriesCondition);
         }
 
         if (stackNames != null && !stackNames.isEmpty()) {
-            predicate = predicate.and(qProject.stacks.any().stack.name.in(stackNames));
+            BooleanExpression stacksCondition = stackNames.stream()
+                    .map(stackName -> qProject.stacks.any().stack.name.eq(stackName))
+                    .reduce(BooleanExpression::and)
+                    .get();
+            predicate = predicate.and(stacksCondition);
         }
 
         List<Project> fetchedProjects = queryFactory.selectFrom(qProject)

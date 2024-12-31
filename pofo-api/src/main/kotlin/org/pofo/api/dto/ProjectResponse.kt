@@ -12,7 +12,7 @@ data class ProjectResponse(
     val content: String,
     val isApproved: Boolean,
     val likes: Int,
-    val category: String?,
+    val categories: List<String>?,
     val stacks: List<String>?,
     val authorName: String,
 ) {
@@ -28,7 +28,7 @@ data class ProjectResponse(
                 project.content,
                 project.isApproved,
                 project.likes,
-                project.category?.name,
+                project.categories.map { it.category.name },
                 project.stacks.map { it.stack.name },
                 project.author.email,
             )
