@@ -33,7 +33,12 @@ class UserService(
             throw CustomException(ErrorCode.USER_EXISTS)
         }
         val encodedPassword = passwordEncoder.encode(registerRequest.password)
-        val user = User.create(email, encodedPassword)
+        val user =
+            User
+                .builder()
+                .email(email)
+                .password(encodedPassword)
+                .build()
         return userRepository.save(user)
     }
 

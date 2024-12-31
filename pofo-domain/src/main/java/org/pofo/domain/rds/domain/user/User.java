@@ -24,19 +24,13 @@ public class User {
     @Column
     @NonNull
     private String password;
-    
+
     @Column
     @NonNull
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole role = UserRole.ROLE_USER;
 
-    private User(@NonNull String email, @NonNull String password, @NonNull UserRole role) {
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
-    public static User create(@NonNull String email, @NonNull String password) {
-        return new User(email, password, UserRole.ROLE_USER);
-    }
+    @Column
+    private String avatarUrl;
 }
