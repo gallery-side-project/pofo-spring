@@ -1,6 +1,6 @@
 package org.pofo.api.dto
 
-import org.pofo.domain.rds.domain.project.ProjectCategory
+import org.pofo.domain.rds.domain.project.Category
 
 data class ProjectCreateRequest(
     val title: String,
@@ -9,7 +9,7 @@ data class ProjectCreateRequest(
     val keyImageIndex: Int? = null,
     val imageUrls: List<String>? = null,
     val content: String,
-    val category: ProjectCategory? = null,
+    val categories: List<Category>? = null,
     val stackNames: List<String>? = null,
     val isApproved: Boolean = false,
 )

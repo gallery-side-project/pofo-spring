@@ -50,8 +50,9 @@ public class Project {
     private Boolean isApproved; // 모음팀 측에서 인증됬는지 (타 앱 연동을 통해)
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private ProjectCategory category; // 프로젝트 유형
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectCategory> categories = new ArrayList<>(); // 프로젝트 유형
 
     @Setter
     @Builder.Default
@@ -78,7 +79,22 @@ public class Project {
         }
     }
 
-    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, Integer keyImageIndex, String content, ProjectCategory category) {
+    public void addCategory(Category category) {
+        ProjectCategory projectCategory = ProjectCategory.builder()
+                .project(this)
+                .category(category)
+                .build();
+        this.categories.add(projectCategory);
+    }
+
+    public void updateCategories(List<Category> categories) {
+        this.categories.clear();
+        for (Category category : categories) {
+            this.addCategory(category);
+        }
+    }
+
+    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, Integer keyImageIndex, String content) {
         if (title != null) {
             this.title = title;
         }
@@ -96,9 +112,6 @@ public class Project {
         }
         if (content != null) {
             this.content = content;
-        }
-        if (category != null) {
-            this.category = category;
         }
         return this;
     }

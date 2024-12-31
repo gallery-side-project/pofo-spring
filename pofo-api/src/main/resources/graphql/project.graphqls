@@ -8,7 +8,7 @@ type Project {
     content: String!
     isApproved: Boolean
     likes: Int
-    category: String
+    categories: [String]
     stacks: [String]
     authorName: String
 }
@@ -38,7 +38,7 @@ input ProjectCreateRequest {
     imageUrls: [String]
     keyImageIndex: Int
     content: String!
-    category: ProjectCategory
+    categories: [ProjectCategory]
     stackNames: [String]
     isApproved: Boolean! = false
 }
@@ -51,13 +51,13 @@ input ProjectUpdateRequest {
     imageUrls: [String]
     keyImageIndex: Int
     content: String
-    category: ProjectCategory
+    categories: [ProjectCategory]
     stackNames: [String]
 }
 
 input ProjectSearchRequest {
     title: String
-    category: ProjectCategory
+    categories: [ProjectCategory]
     stackNames: [String]
     page: Int! = 0
     size: Int! = 30

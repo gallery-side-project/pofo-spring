@@ -4,7 +4,7 @@ query getProjectById($projectId: ID!) {
         title
         bio
         content
-        category
+        categories
         authorName
     }
 }

@@ -212,7 +212,6 @@ internal class ProjectControllerTest
                     urls = project.urls,
                     keyImageIndex = 0,
                     imageUrls = project.imageUrls,
-                    category = project.category,
                     stackNames = null,
                 ),
                 authorId = authorId,
