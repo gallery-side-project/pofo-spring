@@ -66,10 +66,12 @@ class OAuth2AuthenticationService(
         }
 
         val createdUser =
-            User.create(
-                oAuth2Attribute.userProperties.email,
-                "OAuth2-${UUID.randomUUID()}",
-            )
+            User
+                .builder()
+                .email(oAuth2Attribute.userProperties.email)
+                .password("OAuth2-${UUID.randomUUID()}")
+                .avatarUrl(oAuth2Attribute.userProperties.avatarUrl)
+                .build()
         userRepository.save(createdUser)
         val socialAccount =
             UserSocialAccount(

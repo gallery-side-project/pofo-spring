@@ -4,5 +4,5 @@ abstract class OAuth2UserProperties(
     protected val attributes: Map<String, Any>,
     val id: String,
     val email: String,
-    val imageUrl: String,
+    val avatarUrl: String,
 )
