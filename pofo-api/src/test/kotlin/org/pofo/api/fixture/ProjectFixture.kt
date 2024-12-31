@@ -2,7 +2,6 @@ package org.pofo.api.fixture
 
 import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.ProjectCategory
-import org.pofo.domain.rds.domain.project.ProjectStack
 
 class ProjectFixture {
     companion object {
@@ -14,8 +13,7 @@ class ProjectFixture {
                 .content("취업좀 시켜줘라")
                 .urls(listOf("https://github.com/mclub4"))
                 .imageUrls(listOf("https://avatars.githubusercontent.com/u/55117706?v=4"))
-                .category(ProjectCategory.CATEGORY_A)
-                .stacks(listOf(ProjectStack.ELK))
+                .category(ProjectCategory.WEB)
                 .isApproved(false)
                 .build()
     }

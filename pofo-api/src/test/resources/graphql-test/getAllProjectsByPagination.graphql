@@ -6,6 +6,6 @@ query getAllProjectsByPagination($cursor: Int!, $size: Int!) {
             bio
         }
         hasNext
-        projectCount
+        count
     }
 }

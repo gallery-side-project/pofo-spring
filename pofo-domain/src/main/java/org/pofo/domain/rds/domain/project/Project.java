@@ -6,6 +6,7 @@ import lombok.*;
 import org.pofo.domain.rds.converter.StringListConverter;
 import org.pofo.domain.rds.domain.user.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,7 +33,7 @@ public class Project {
 
     @Column
     @Builder.Default
-    private Long likes = 0L; //좋아요 수 (매번 집계 쿼리 사용을 피하기 위함)
+    private Integer likes = 0; //좋아요 수 (매번 집계 쿼리 사용을 피하기 위함)
 
     @Convert(converter = StringListConverter.class)
     @Column(columnDefinition = "TEXT")
@@ -45,23 +46,39 @@ public class Project {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column
+    @Column(nullable = false)
     private Boolean isApproved; // 모음팀 측에서 인증됬는지 (타 앱 연동을 통해)
 
     @Column
     @Enumerated(EnumType.STRING)
     private ProjectCategory category; // 프로젝트 유형
 
-    @Column
-    @Convert(converter = ProjectStackListConverter.class)
-    private List<ProjectStack> stacks;
+    @Setter
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectStack> stacks = new ArrayList<>();
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User author;
 
-    public Project update(String title, String bio, List<String> urls, Integer keyImageIndex, List<String> imageUrls, String content, ProjectCategory category, List<ProjectStack> stacks) {
+    public void addStack(Stack stack) {
+        ProjectStack projectStack = ProjectStack.builder()
+                .project(this)
+                .stack(stack)
+                .build();
+        this.stacks.add(projectStack);
+    }
+
+    public void updateStack(List<Stack> stacks) {
+        this.stacks.clear();
+        for (Stack stack : stacks) {
+            this.addStack(stack);
+        }
+    }
+
+    public Project update(String title, String bio, List<String> urls, List<String> imageUrls, Integer keyImageIndex, String content, ProjectCategory category) {
         if (title != null) {
             this.title = title;
         }
@@ -82,9 +99,6 @@ public class Project {
         }
         if (category != null) {
             this.category = category;
-        }
-        if (stacks != null) {
-            this.stacks = stacks;
         }
         return this;
     }

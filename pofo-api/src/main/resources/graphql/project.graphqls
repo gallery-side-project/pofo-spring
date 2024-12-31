@@ -2,27 +2,65 @@ type Project {
     id: Int!
     title: String!
     bio: String
-    urls: [String],
-    keyImageIndex: Int,
+    urls: [String]
     imageUrls: [String]
+    keyImageIndex: Int
     content: String!
-    isApproved: Boolean,
-    likes: Int,
-    category: ProjectCategory
-    stacks: [ProjectStack]
-    author: User
+    isApproved: Boolean
+    likes: Int
+    category: String
+    stacks: [String]
+    authorName: String
 }
 
 type ProjectList {
     projects: [Project]!
     hasNext: Boolean!
-    projectCount: Int!
+    count: Int!
 }
 
 enum ProjectCategory {
-    CATEGORY_A,
-    CATEGORY_B,
-    CATEGORY_C
+    ALL
+    WEB
+    APP
+    GAME
+    GRAPHIC
+    AI
+    EMBEDDED
+    LIBRARY
+    ETC
+}
+
+input ProjectCreateRequest {
+    title: String!
+    bio: String
+    urls: [String]
+    imageUrls: [String]
+    keyImageIndex: Int
+    content: String!
+    category: ProjectCategory
+    stackNames: [String]
+    isApproved: Boolean! = false
+}
+
+input ProjectUpdateRequest {
+    projectId: ID!
+    title: String
+    bio: String
+    urls: [String]
+    imageUrls: [String]
+    keyImageIndex: Int
+    content: String
+    category: ProjectCategory
+    stackNames: [String]
+}
+
+input ProjectSearchRequest {
+    title: String
+    category: ProjectCategory
+    stackNames: [String]
+    page: Int! = 0
+    size: Int! = 30
 }
 
 type Query {
@@ -30,29 +68,13 @@ type Query {
     projectById(projectId: ID!): Project
     # 프로젝트 리스트 페이지네이션
     getAllProjectsByPagination(cursor: Int = 0, size: Int!): ProjectList
+    # 제목, 카테고리, 스택을 이용한 프로젝트 검색
+    searchProject(projectSearchRequest: ProjectSearchRequest): ProjectList
 }
 
 type Mutation {
-    createProject(
-        title: String!,
-        bio: String,
-        keyImageIndex: Int,
-        urls: [String],
-        imageUrls: [String],
-        content: String!,
-        category: ProjectCategory
-        stacks: [ProjectStack]
-    ): Project!
-
-    updateProject(
-        projectId: ID!,
-        title: String,
-        bio: String,
-        urls: [String],
-        keyImageIndex: Int!,
-        imageUrls: [String],
-        content: String,
-        category: ProjectCategory
-        stacks: [ProjectStack]
-    ): Project!
+    # 프로젝트 생성
+    createProject(projectCreateRequest: ProjectCreateRequest): Project!
+    # 프로젝트 업데이트
+    updateProject(projectUpdateRequest: ProjectUpdateRequest): Project!
 }

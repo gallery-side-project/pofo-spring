@@ -3,9 +3,11 @@ package org.pofo.domain.rds.domain.project.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.pofo.domain.rds.domain.project.Project;
-import org.pofo.domain.rds.domain.project.ProjectList;
-import org.pofo.domain.rds.domain.project.QProject;
+import org.pofo.domain.rds.domain.project.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,7 +19,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public ProjectList searchProjectWithCursor(int size, Long cursor) {
+    public Slice<Project> searchProjectWithCursor(int size, Long cursor) {
         QProject project = QProject.project;
 
         boolean isInitialRequest = (cursor == null);
@@ -35,6 +37,53 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             projects.remove(size);
         }
 
-        return new ProjectList(projects, hasNext, projects.size());
+        return new SliceImpl<>(projects, PageRequest.ofSize(size), hasNext);
+    }
+
+    @Override
+    public Slice<Project> searchProjectWithQuery(
+            String title,
+            ProjectCategory category,
+            List<String> stackNames,
+            Pageable pageable) {
+        QProject qProject = QProject.project;
+        QProjectStack qProjectStack = QProjectStack.projectStack;
+        BooleanExpression predicate = qProject.isNotNull();
+        long offset = pageable.getOffset();
+        int pageSize = pageable.getPageSize();
+
+        if (title != null) {
+            predicate = predicate.and(qProject.title.startsWith(title));
+        }
+
+        if (category != null) {
+            predicate = predicate.and(qProject.category.eq(category));
+        }
+
+        if (stackNames != null && !stackNames.isEmpty()) {
+            predicate = predicate.and(qProject.stacks.any().stack.name.in(stackNames));
+        }
+
+        List<Project> fetchedProjects = queryFactory.selectFrom(qProject)
+                .where(predicate)
+                .offset(offset)
+                .limit(pageSize + 1)
+                .orderBy(qProject.id.desc())
+                .fetch();
+
+        boolean hasNext = fetchedProjects.size() > pageSize;
+        if (hasNext) {
+            fetchedProjects.remove(pageSize);
+        }
+
+        fetchedProjects.forEach(project -> {
+            List<ProjectStack> stacks = queryFactory.selectFrom(qProjectStack)
+                    .where(qProjectStack.project.id.eq(project.getId()))
+                    .fetch();
+            project.setStacks(stacks);
+        });
+
+        return new SliceImpl<>(fetchedProjects, pageable, hasNext);
     }
 }
+

@@ -3,7 +3,9 @@ package org.pofo.api.controller
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.pofo.api.dto.CreateProjectRequest
+import org.pofo.api.dto.ProjectCreateRequest
+import org.pofo.api.dto.ProjectResponse
+import org.pofo.api.dto.ProjectUpdateRequest
 import org.pofo.api.dto.RegisterRequest
 import org.pofo.api.fixture.ProjectFixture.Companion.createProject
 import org.pofo.api.fixture.UserFixture
@@ -56,6 +58,12 @@ internal class ProjectControllerTest
         @Test
         fun createProjectSuccess() {
             val project = createProject()
+            val projectCreateRequest =
+                ProjectCreateRequest(
+                    title = project.title,
+                    bio = project.bio,
+                    content = project.content,
+                )
 
             val graphQlTester =
                 HttpGraphQlTester
@@ -65,18 +73,14 @@ internal class ProjectControllerTest
 
             graphQlTester
                 .documentName("createProject")
-                .variable("title", project.title)
-                .variable("bio", project.bio)
-                .variable("urls", project.urls)
-                .variable("imageUrls", project.imageUrls)
-                .variable("content", project.content)
-                .variable("category", project.category)
-                .variable("stacks", project.stacks)
-                .variable("authorId", savedUser.id)
+                .variable("projectCreateRequest", projectCreateRequest)
                 .execute()
                 .path("createProject.title")
                 .entity(String::class.java)
                 .isEqualTo(project.title)
+                .path("createProject.content")
+                .entity(String::class.java)
+                .isEqualTo(project.content)
         }
 
         @Test
@@ -106,7 +110,7 @@ internal class ProjectControllerTest
         @DisplayName("페이지 네이션 적은 것 테스트")
         fun getAllProjectsByPagination() {
             // given
-            val savedProjects = mutableListOf<Project>()
+            val savedProjects = mutableListOf<ProjectResponse>()
             repeat(3) {
                 savedProjects.add(saveProject(createProject(), savedUser.id))
             }
@@ -122,7 +126,7 @@ internal class ProjectControllerTest
                 .variable("cursor", savedProjects.last().id)
                 .variable("size", 2)
                 .execute()
-                .path("getAllProjectsByPagination.projectCount")
+                .path("getAllProjectsByPagination.count")
                 .entity(Int::class.java)
                 .isEqualTo(2)
                 .path("getAllProjectsByPagination.projects[*].title")
@@ -137,7 +141,7 @@ internal class ProjectControllerTest
         @DisplayName("2번째 페이지 데이터 검증")
         fun getSecondPageProjectsByPaginationTest() {
             // given
-            val savedProjects = mutableListOf<Project>()
+            val savedProjects = mutableListOf<ProjectResponse>()
             repeat(20) {
                 savedProjects.add(saveProject(createProject(), savedUser.id))
             }
@@ -156,7 +160,7 @@ internal class ProjectControllerTest
                 .variable("cursor", firstPageCursor)
                 .variable("size", 5)
                 .execute()
-                .path("getAllProjectsByPagination.projectCount")
+                .path("getAllProjectsByPagination.count")
                 .entity(Int::class.java)
                 .isEqualTo(5)
                 .path("getAllProjectsByPagination.projects[*].title")
@@ -171,7 +175,12 @@ internal class ProjectControllerTest
         fun updateProject() {
             // given
             val savedProject = saveProject(createProject(), savedUser.id)
-            val newTitle = "새로운 타이틀"
+            val projectUpdateRequest =
+                ProjectUpdateRequest(
+                    projectId = savedProject.id,
+                    title = "new title",
+                    bio = "new bio",
+                )
 
             val graphQlTester =
                 HttpGraphQlTester
@@ -181,21 +190,22 @@ internal class ProjectControllerTest
 
             graphQlTester
                 .documentName("updateProject")
-                .variable("projectId", savedProject.id)
-                .variable("title", newTitle)
-                .variable("keyImageIndex", 0)
+                .variable("projectUpdateRequest", projectUpdateRequest)
                 .execute()
                 .path("updateProject.title")
                 .entity(String::class.java)
-                .isEqualTo(newTitle)
+                .isEqualTo(projectUpdateRequest.title!!)
+                .path("updateProject.bio")
+                .entity(String::class.java)
+                .isEqualTo(projectUpdateRequest.bio!!)
         }
 
         fun saveProject(
             project: Project,
             authorId: Long,
-        ): Project =
+        ): ProjectResponse =
             projectService.createProject(
-                CreateProjectRequest(
+                ProjectCreateRequest(
                     title = project.title,
                     bio = project.bio,
                     content = project.content,
@@ -203,8 +213,8 @@ internal class ProjectControllerTest
                     keyImageIndex = 0,
                     imageUrls = project.imageUrls,
                     category = project.category,
-                    stacks = project.stacks,
-                    authorId = authorId,
+                    stackNames = null,
                 ),
+                authorId = authorId,
             )
     }
