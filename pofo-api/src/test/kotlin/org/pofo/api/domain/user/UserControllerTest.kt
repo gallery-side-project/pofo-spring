@@ -7,8 +7,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
-import org.pofo.api.domain.user.UserController
-import org.pofo.api.domain.user.UserService
 import org.pofo.api.domain.user.dto.UserLoginRequest
 import org.pofo.api.domain.user.dto.UserRegisterRequest
 import org.pofo.api.fixture.UserFixture
