@@ -30,30 +30,33 @@ class UserService(
 ) {
     @Transactional
     fun createUser(userRegisterRequest: UserRegisterRequest): User {
-        val email =
-            userRegisterRequest.email
+        val email = userRegisterRequest.email
+        val username = userRegisterRequest.username
         if (userRepository
-                .existsByEmail(
+                .existsByEmailOrUsername(
                     email,
+                    username,
                 )
         ) {
             throw CustomException(
                 ErrorCode.USER_EXISTS,
             )
         }
+
         val encodedPassword =
             passwordEncoder
                 .encode(
                     userRegisterRequest.password,
                 )
+
         val user =
             User
                 .builder()
-                .email(
-                    email,
-                ).password(
-                    encodedPassword,
-                ).build()
+                .email(email)
+                .password(encodedPassword)
+                .username(userRegisterRequest.username)
+                .build()
+
         return userRepository
             .save(
                 user,
