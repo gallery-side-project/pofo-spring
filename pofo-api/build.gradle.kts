@@ -30,4 +30,6 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+
+    compileOnly("com.google.cloud.sql:postgres-socket-factory-connector-j-8:1.21.2")
 }
