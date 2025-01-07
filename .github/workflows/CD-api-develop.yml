@@ -86,7 +86,7 @@ jobs:
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" ./pofo-api
           docker push "${DOCKER_TAG}"
-          
+
       - name: 'Deploy to Cloud Run'
         # END - Docker auth and build
         uses: 'google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17' # google-github-actions/deploy-cloudrun@v2
@@ -99,14 +99,14 @@ jobs:
           env_vars: |-
             POSTGRES_DATASOURCE_URL=${{ secrets.POSTGRES_DATASOURCE_URL }}
             POSTGRES_DATASOURCE_USERNAME=${{ secrets.POSTGRES_DATASOURCE_USERNAME }}
-            POSTGRES_DATASOURCE_PASSWORD='${{ secrets.POSTGRES_DATASOURCE_PASSWORD }}'
+            POSTGRES_DATASOURCE_PASSWORD=${{ secrets.POSTGRES_DATASOURCE_PASSWORD }}
             OAUTH2_GITHUB_CLIENT_ID=${{ secrets.OAUTH2_GITHUB_CLIENT_ID }}
             OAUTH2_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH2_GITHUB_CLIENT_SECRET }}
             OAUTH2_GITHUB_REDIRECT_URI=${{ secrets.OAUTH2_GITHUB_REDIRECT_URI }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
             POFO_DOMAIN=${{ secrets.POFO_DOMAIN }}
-          
+
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
         run: |2-
