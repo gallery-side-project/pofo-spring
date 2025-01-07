@@ -95,11 +95,11 @@ jobs:
           region: '${{ env.REGION }}'
           # NOTE: If using a pre-built image, update the image name below:
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}'
-          flag: '--add-cloudsql-instances ${{ env.CLOUD_SQL_CONNECTION_NAME }}'
+          flags: '--add-cloudsql-instances ${{ env.CLOUD_SQL_CONNECTION_NAME }}'
           env_vars: |-
             POSTGRES_DATASOURCE_URL=${{ secrets.POSTGRES_DATASOURCE_URL }}
             POSTGRES_DATASOURCE_USERNAME=${{ secrets.POSTGRES_DATASOURCE_USERNAME }}
-            POSTGRES_DATASOURCE_PASSWORD=${{ secrets.POSTGRES_DATASOURCE_PASSWORD }}
+            POSTGRES_DATASOURCE_PASSWORD='${{ secrets.POSTGRES_DATASOURCE_PASSWORD }}'
             OAUTH2_GITHUB_CLIENT_ID=${{ secrets.OAUTH2_GITHUB_CLIENT_ID }}
             OAUTH2_GITHUB_CLIENT_SECRET=${{ secrets.OAUTH2_GITHUB_CLIENT_SECRET }}
             OAUTH2_GITHUB_REDIRECT_URI=${{ secrets.OAUTH2_GITHUB_REDIRECT_URI }}
