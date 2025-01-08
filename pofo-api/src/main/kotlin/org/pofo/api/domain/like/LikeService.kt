@@ -31,7 +31,7 @@ class LikeService(
                 ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
 
         if (likeRepository.existsByUserAndProject(user, project)) {
-            throw IllegalStateException("이미 좋아요를 누른 프로젝트입니다. (Project ID: $projectId)")
+            throw CustomException(ErrorCode.ALREADY_LIKED_PROJECT)
         }
 
         val like =

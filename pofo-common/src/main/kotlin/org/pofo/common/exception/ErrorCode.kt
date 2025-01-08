@@ -21,4 +21,8 @@ enum class ErrorCode(
     PROJECT_NOT_FOUND(404, "프로젝트를 찾을 수 없습니다.", "PROJ-001"),
     PROJECT_STACK_NOT_FOUND(400, "프로젝트 스택을 찾을 수 없습니다.", "PROJ-002"),
     PROJECT_IMAGE_INDEX_ERROR(400, "대표 이미지 인덱스가 잘못되었습니다.", "PROJ-003"),
+
+    // Like
+    LIKE_NOT_FOUND(400, "기존에 좋아요가 존재하지 않습니다.", "LIKE-001"),
+    ALREADY_LIKED_PROJECT(400, "이미 좋아요를 누른 글입니다.", "LIKE-002"),
 }

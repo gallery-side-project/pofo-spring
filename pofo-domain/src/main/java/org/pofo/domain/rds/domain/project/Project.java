@@ -118,4 +118,14 @@ public class Project {
         }
         return this;
     }
+
+    public void increaseLikes() {
+        this.likes++;
+    }
+
+    public void decreaseLikes() {
+        if (this.likes > 0) {
+            this.likes--;
+        }
+    }
 }
