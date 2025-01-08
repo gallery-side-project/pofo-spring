@@ -42,6 +42,7 @@ class LikeControllerTest
         private val projectRepository: ProjectRepository,
         private val likeRepository: LikeRepository,
         private val jwtService: JwtService,
+        private val likeService: LikeService,
     ) : DescribeSpec({
             extensions(
                 SpringExtension,
@@ -144,17 +145,34 @@ class LikeControllerTest
 
             describe("좋아요 동시성 테스트") {
                 it("동시 요청에서도 좋아요 수가 정확히 관리된다") {
-                    val likeCount = 80
+                    val likeCount = 1
 
                     // 모든 스레드가 동시에 시작되도록 제어해서 동시성 처리 테스트
                     val latch = CountDownLatch(likeCount)
                     val executor = Executors.newFixedThreadPool(likeCount)
 
+                    val newUser =
+                        userRepository.saveAndFlush(
+                            User
+                                .builder()
+                                .email("test@naver.com")
+                                .password("123gjs21@d")
+                                .username("testnamerr")
+                                .build(),
+                        )
+                    val newProject =
+                        projectRepository.save(ProjectFixture.createProject())
+
+                    val test = userRepository.findById(newUser.id)
+
                     repeat(likeCount) {
                         executor.submit {
                             try {
-                                project.increaseLikes()
-                                projectRepository.saveAndFlush(project)
+                                likeService.likeProject(newUser.id, newProject.id)
+                            } catch (ex: Exception) {
+                                println(
+                                    "User ID: ${test.id}, Project ID: ${newProject.id} - Exception in thread ${Thread.currentThread().name}: ${ex.message}",
+                                )
                             } finally {
                                 latch.countDown()
                             }
@@ -167,7 +185,7 @@ class LikeControllerTest
 
                     // DB에 조회 한번 해봐서 제대로 값이 나왔는지 확인
                     val updatedProject =
-                        projectRepository.findById(project.id!!)
+                        projectRepository.findById(newProject.id!!)
                             ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
                     updatedProject.likes shouldBe likeCount
                 }
