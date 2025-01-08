@@ -46,11 +46,19 @@ class SwaggerConfig {
     // API 그룹화 필요시 추후 진행.
     // 지금은 API가 몇개 없어서 단일 그룹으로 헀는데 추후 그룹화 하는게 좋습니다.
     @Bean
-    fun techStackApi(): GroupedOpenApi =
+    fun techStackApiGroup(): GroupedOpenApi =
         GroupedOpenApi
             .builder()
-            .packagesToScan("org.pofo.api.docs", "org.pofo.api.controller")
-            .group("Tech Stack API")
+            .packagesToScan("org.pofo.api.domain.stack")
+            .group("Tech Stack Group")
+            .build()
+
+    @Bean
+    fun userApiGroup(): GroupedOpenApi =
+        GroupedOpenApi
+            .builder()
+            .packagesToScan("org.pofo.api.domain.user")
+            .group("User Group")
             .build()
 
     @Bean

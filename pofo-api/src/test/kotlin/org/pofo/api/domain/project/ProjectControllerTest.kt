@@ -61,8 +61,9 @@ internal class ProjectControllerTest
             savedUser =
                 userService.createUser(
                     UserRegisterRequest(
-                        user.email,
-                        user.password,
+                        email = user.email,
+                        password = user.password,
+                        username = user.username,
                     ),
                 )
             accessToken =

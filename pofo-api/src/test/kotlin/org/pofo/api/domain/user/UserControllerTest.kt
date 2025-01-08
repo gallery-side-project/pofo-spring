@@ -56,8 +56,9 @@ internal class UserControllerTest
             ) {
                 val requestBody =
                     UserRegisterRequest(
-                        user.email,
-                        user.password,
+                        email = user.email,
+                        password = user.password,
+                        username = user.username,
                     )
 
                 it(
@@ -102,8 +103,9 @@ internal class UserControllerTest
                         userService
                             .createUser(
                                 UserRegisterRequest(
-                                    user.email,
-                                    user.password,
+                                    email = user.email,
+                                    password = user.password,
+                                    username = user.username,
                                 ),
                             )
                     }
@@ -161,6 +163,7 @@ internal class UserControllerTest
                             UserRegisterRequest(
                                 user.email,
                                 user.password,
+                                user.username,
                             ),
                         )
                 }
@@ -266,8 +269,9 @@ internal class UserControllerTest
                         userService
                             .createUser(
                                 UserRegisterRequest(
-                                    user.email,
-                                    user.password,
+                                    email = user.email,
+                                    password = user.password,
+                                    username = user.username,
                                 ),
                             )
                     val accessToken =
@@ -332,8 +336,9 @@ internal class UserControllerTest
                         userService
                             .createUser(
                                 UserRegisterRequest(
-                                    user.email,
-                                    user.password,
+                                    email = user.email,
+                                    password = user.password,
+                                    username = user.username,
                                 ),
                             )
                     accessToken =
