@@ -25,4 +25,5 @@ enum class ErrorCode(
     // Like
     LIKE_NOT_FOUND(400, "기존에 좋아요가 존재하지 않습니다.", "LIKE-001"),
     ALREADY_LIKED_PROJECT(400, "이미 좋아요를 누른 글입니다.", "LIKE-002"),
+    LIKE_FAILED(400, "좋아요를 실패했습니다", "LIKE-003"),
 }

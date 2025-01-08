@@ -144,7 +144,9 @@ class LikeControllerTest
 
             describe("좋아요 동시성 테스트") {
                 it("동시 요청에서도 좋아요 수가 정확히 관리된다") {
-                    val likeCount = 10
+                    val likeCount = 80
+
+                    // 모든 스레드가 동시에 시작되도록 제어해서 동시성 처리 테스트
                     val latch = CountDownLatch(likeCount)
                     val executor = Executors.newFixedThreadPool(likeCount)
 
@@ -159,9 +161,11 @@ class LikeControllerTest
                         }
                     }
 
+                    // 스레드가 모두 끝날때 까지 대기
                     latch.await()
                     executor.shutdown()
 
+                    // DB에 조회 한번 해봐서 제대로 값이 나왔는지 확인
                     val updatedProject =
                         projectRepository.findById(project.id!!)
                             ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
