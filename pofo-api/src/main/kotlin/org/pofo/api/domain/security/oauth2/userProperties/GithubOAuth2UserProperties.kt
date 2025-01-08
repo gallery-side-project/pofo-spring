@@ -6,5 +6,6 @@ class GithubOAuth2UserProperties(
         attributes = attributes,
         id = attributes["id"].toString(),
         email = attributes["email"].toString(),
+        name = attributes["login"].toString(),
         avatarUrl = attributes["avatar_url"].toString(),
     )

@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import java.util.UUID
+import kotlin.random.Random
 
 private val logger =
     KotlinLogging
@@ -86,26 +87,32 @@ class OAuth2AuthenticationService(
                     oAuth2Attribute.userProperties.id,
                     socialType,
                 )
-        if (findUser !=
-            null
-        ) {
+        if (findUser != null) {
             return findUser
+        }
+
+        lateinit var randomUsername: String
+        while (true) {
+            val randomNumber = Random.nextInt(10000, 100000)
+            randomUsername = "${oAuth2Attribute.userProperties.name}-$randomNumber"
+            if (!userRepository.existsByUsername(randomUsername)) {
+                break
+            }
         }
 
         val createdUser =
             User
                 .builder()
-                .email(
-                    oAuth2Attribute.userProperties.email,
-                ).password(
-                    "OAuth2-${UUID.randomUUID()}",
-                ).avatarUrl(
-                    oAuth2Attribute.userProperties.avatarUrl,
-                ).build()
+                .email(oAuth2Attribute.userProperties.email)
+                .password("OAuth2-${UUID.randomUUID()}")
+                .username(randomUsername)
+                .avatarUrl(oAuth2Attribute.userProperties.avatarUrl)
+                .build()
         userRepository
             .save(
                 createdUser,
             )
+
         val socialAccount =
             UserSocialAccount(
                 oAuth2Attribute.userProperties.id,
