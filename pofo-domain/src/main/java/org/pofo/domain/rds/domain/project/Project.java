@@ -17,6 +17,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Project {
 
+    @Version
+    private Integer version;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -66,9 +69,9 @@ public class Project {
 
     public void addStack(Stack stack) {
         ProjectStack projectStack = ProjectStack.builder()
-                .project(this)
-                .stack(stack)
-                .build();
+            .project(this)
+            .stack(stack)
+            .build();
         this.stacks.add(projectStack);
     }
 
@@ -81,9 +84,9 @@ public class Project {
 
     public void addCategory(Category category) {
         ProjectCategory projectCategory = ProjectCategory.builder()
-                .project(this)
-                .category(category)
-                .build();
+            .project(this)
+            .category(category)
+            .build();
         this.categories.add(projectCategory);
     }
 
