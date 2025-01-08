@@ -42,6 +42,7 @@ env:
   # WORKLOAD_IDENTITY_PROVIDER: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider' # TODO: update to your workload identity provider
   GAR_NAME: 'pofo-docker'
   CLOUD_SQL_CONNECTION_NAME: 'pofo-444903:asia-northeast3:pofo-postgresql'
+  VPC_CONNECTOR: 'default'
 
 jobs:
   deploy:
@@ -95,7 +96,7 @@ jobs:
           region: '${{ env.REGION }}'
           # NOTE: If using a pre-built image, update the image name below:
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}'
-          flags: '--add-cloudsql-instances ${{ env.CLOUD_SQL_CONNECTION_NAME }}'
+          flags: '--add-cloudsql-instances ${{ env.CLOUD_SQL_CONNECTION_NAME }} --vpc-connector ${{ env.VPC_CONNECTOR }}'
           env_vars: |-
             POSTGRES_DATASOURCE_URL=${{ secrets.POSTGRES_DATASOURCE_URL }}
             POSTGRES_DATASOURCE_USERNAME=${{ secrets.POSTGRES_DATASOURCE_USERNAME }}
