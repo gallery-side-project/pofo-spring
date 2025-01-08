@@ -1,12 +1,17 @@
 package org.pofo.api.domain.like
 
+import org.pofo.common.exception.CustomException
+import org.pofo.common.exception.ErrorCode
+import org.pofo.domain.rds.domain.like.Like
 import org.pofo.domain.rds.domain.like.LikeRepository
+import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.repository.ProjectRepository
 import org.pofo.domain.rds.domain.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class LikeService(
     private val likeRepository: LikeRepository,
     private val projectRepository: ProjectRepository,
@@ -18,19 +23,23 @@ class LikeService(
         projectId: Long,
     ) {
         val user =
-            userRepository
-                .findById(userId)
-                .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
+            userRepository.findById(userId)
+                ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+
         val project =
-            projectRepository
-                .findById(projectId)
-                .orElseThrow { IllegalArgumentException("프로젝트를 찾을 수 없습니다.") }
+            projectRepository.findById(projectId)
+                ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
 
         if (likeRepository.existsByUserAndProject(user, project)) {
-            throw IllegalStateException("이미 좋아요를 누른 프로젝트입니다.")
+            throw IllegalStateException("이미 좋아요를 누른 프로젝트입니다. (Project ID: $projectId)")
         }
 
-        val like = Like.createLike(user, project)
+        val like =
+            Like
+                .builder()
+                .project(project)
+                .user(user)
+                .build()
         likeRepository.save(like)
         project.increaseLikes()
     }
@@ -41,30 +50,25 @@ class LikeService(
         projectId: Long,
     ) {
         val user =
-            userRepository
-                .findById(userId)
-                .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
+            userRepository.findById(userId)
+                ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
+
         val project =
-            projectRepository
-                .findById(projectId)
-                .orElseThrow { IllegalArgumentException("프로젝트를 찾을 수 없습니다.") }
+            projectRepository.findById(projectId)
+                ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
 
         val like =
-            likeRepository
-                .findByUserAndProject(user, project)
-                .orElseThrow { IllegalStateException("좋아요가 존재하지 않습니다.") }
+            likeRepository.findByUserAndProject(user, project)
+                ?: throw CustomException(ErrorCode.LIKE_NOT_FOUND)
 
         likeRepository.delete(like)
         project.decreaseLikes()
     }
 
-    @Transactional(readOnly = true)
     fun getLikedProjects(userId: Long): List<Project> {
         val user =
-            userRepository
-                .findById(userId)
-                .orElseThrow { IllegalArgumentException("사용자를 찾을 수 없습니다.") }
-
+            userRepository.findById(userId)
+                ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
         return likeRepository.findLikedProjectsByUser(user)
     }
 }
