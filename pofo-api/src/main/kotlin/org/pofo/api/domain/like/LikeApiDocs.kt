@@ -24,7 +24,7 @@ interface LikeApiDocs {
     fun likeProject(
         @Parameter(hidden = true) @AuthenticationPrincipal principalDetails: PrincipalDetails,
         @PathVariable("projectId") projectId: Long,
-    ): ApiResponse<Unit>
+    ): ApiResponse<Map<String, Int>>
 
     @Operation(summary = "좋아요 해제", description = "특정 프로젝트에 등록된 좋아요를 해제합니다.")
     @ApiResponses(
@@ -38,5 +38,5 @@ interface LikeApiDocs {
     fun unlikeProject(
         @Parameter(hidden = true) @AuthenticationPrincipal principalDetails: PrincipalDetails,
         @PathVariable("projectId") projectId: Long,
-    ): ApiResponse<Unit>
+    ): ApiResponse<Map<String, Int>>
 }

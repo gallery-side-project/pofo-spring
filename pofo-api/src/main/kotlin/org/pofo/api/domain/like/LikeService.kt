@@ -4,7 +4,6 @@ import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
 import org.pofo.domain.rds.domain.like.Like
 import org.pofo.domain.rds.domain.like.LikeRepository
-import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.repository.ProjectRepository
 import org.pofo.domain.rds.domain.user.UserRepository
 import org.springframework.stereotype.Service
@@ -21,7 +20,7 @@ class LikeService(
     fun likeProject(
         userId: Long,
         projectId: Long,
-    ) {
+    ): Int {
         val user =
             userRepository.findById(userId)
                 ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
@@ -42,13 +41,14 @@ class LikeService(
                 .build()
         likeRepository.save(like)
         project.increaseLikes()
+        return project.likes
     }
 
     @Transactional
     fun unlikeProject(
         userId: Long,
         projectId: Long,
-    ) {
+    ): Int {
         val user =
             userRepository.findById(userId)
                 ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
@@ -63,12 +63,6 @@ class LikeService(
 
         likeRepository.delete(like)
         project.decreaseLikes()
-    }
-
-    fun getLikedProjects(userId: Long): List<Project> {
-        val user =
-            userRepository.findById(userId)
-                ?: throw CustomException(ErrorCode.USER_NOT_FOUND)
-        return likeRepository.findLikedProjectsByUser(user)
+        return project.likes
     }
 }

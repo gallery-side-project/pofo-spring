@@ -15,17 +15,17 @@ class LikeController(
     override fun likeProject(
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
         @PathVariable projectId: Long,
-    ): ApiResponse<Unit> {
-        likeService.likeProject(principalDetails.jwtTokenData.userId, projectId)
-        return ApiResponse.success(Unit)
+    ): ApiResponse<Map<String, Int>> {
+        val currentLikes = likeService.likeProject(principalDetails.jwtTokenData.userId, projectId)
+        return ApiResponse.success(mapOf("likes" to currentLikes))
     }
 
     @DeleteMapping("/{projectId}")
     override fun unlikeProject(
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
         @PathVariable projectId: Long,
-    ): ApiResponse<Unit> {
-        likeService.unlikeProject(principalDetails.jwtTokenData.userId, projectId)
-        return ApiResponse.success(Unit)
+    ): ApiResponse<Map<String, Int>> {
+        val currentLikes = likeService.unlikeProject(principalDetails.jwtTokenData.userId, projectId)
+        return ApiResponse.success(mapOf("likes" to currentLikes))
     }
 }

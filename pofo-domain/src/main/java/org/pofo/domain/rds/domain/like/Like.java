@@ -6,7 +6,7 @@ import org.pofo.domain.rds.domain.project.Project;
 import org.pofo.domain.rds.domain.user.User;
 
 @Entity
-@Table(name = "like")
+@Table(name = "\"like\"")
 @Getter
 @Builder
 @AllArgsConstructor
