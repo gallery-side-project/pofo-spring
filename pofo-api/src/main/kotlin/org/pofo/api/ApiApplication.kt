@@ -4,7 +4,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
 import org.springframework.boot.runApplication
+import org.springframework.retry.annotation.EnableRetry
 
+@EnableRetry
 @SpringBootApplication(
     exclude = [ElasticsearchDataAutoConfiguration::class, ElasticsearchRestClientAutoConfiguration::class],
 )

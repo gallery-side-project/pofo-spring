@@ -157,21 +157,31 @@ class LikeControllerTest
 
             describe("좋아요 동시성 테스트") {
                 it("동시 요청에서도 좋아요 수가 정확히 관리된다") {
-                    val likeCount = 1
+                    val likeCount = 10
+
+                    val users =
+                        (1..likeCount).map {
+                            userRepository.save(
+                                User
+                                    .builder()
+                                    .email("user$it@example.com")
+                                    .password("testPassword")
+                                    .role(UserRole.ROLE_USER)
+                                    .username("user$it")
+                                    .build(),
+                            )
+                        }
 
                     // 모든 스레드가 동시에 시작되도록 제어해서 동시성 처리 테스트
                     val latch = CountDownLatch(likeCount)
                     val executor = Executors.newFixedThreadPool(likeCount)
 
-                    repeat(likeCount) {
+                    users.forEach { user ->
                         executor.submit {
                             try {
                                 likeService.likeProject(user.id, project.id)
                             } catch (ex: Exception) {
-                                println(
-                                    "User ID: ${user.id}, Project ID: ${project.id} - " +
-                                        "Exception in thread ${Thread.currentThread().name}: ${ex.message}",
-                                )
+                                println("Exception for User ID: ${user.id}, Project ID: ${project.id} -> ${ex.message}")
                             } finally {
                                 latch.countDown()
                             }

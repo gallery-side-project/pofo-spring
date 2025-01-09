@@ -18,7 +18,7 @@ import java.util.List;
 public class Project {
 
     @Version
-    private Integer version;
+    private Integer version = 0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
