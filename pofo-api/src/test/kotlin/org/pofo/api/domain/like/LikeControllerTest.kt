@@ -168,7 +168,7 @@ class LikeControllerTest
                     repeat(likeCount) {
                         executor.submit {
                             try {
-                                likeService.likeProject(newUser.id, newProject.id)
+                                likeService.likeProject(test.id, newProject.id)
                             } catch (ex: Exception) {
                                 println(
                                     "User ID: ${test.id}, Project ID: ${newProject.id} - Exception in thread ${Thread.currentThread().name}: ${ex.message}",
