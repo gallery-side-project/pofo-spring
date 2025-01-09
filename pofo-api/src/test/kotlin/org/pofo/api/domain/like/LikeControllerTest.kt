@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
 import org.pofo.api.fixture.ProjectFixture
-import org.pofo.api.fixture.UserFixture
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
 import org.pofo.common.response.Version
@@ -17,6 +16,7 @@ import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.project.repository.ProjectRepository
 import org.pofo.domain.rds.domain.user.User
 import org.pofo.domain.rds.domain.user.UserRepository
+import org.pofo.domain.rds.domain.user.UserRole
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -26,12 +26,10 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.post
-import org.springframework.transaction.annotation.Transactional
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class LikeControllerTest
@@ -56,16 +54,30 @@ class LikeControllerTest
             lateinit var accessToken: String
 
             beforeEach {
-                user = userRepository.save(UserFixture.createUser())
+                user =
+                    userRepository.save(
+                        User
+                            .builder()
+                            .email("${System.currentTimeMillis()}-example@org.com")
+                            .password("testPassword")
+                            .role(UserRole.ROLE_USER)
+                            .username("${System.currentTimeMillis()}-TEST")
+                            .build(),
+                    )
                 project =
                     projectRepository.save(ProjectFixture.createProject())
-
                 accessToken =
                     jwtService.generateAccessToken(
                         JwtTokenData(
                             user,
                         ),
                     )
+            }
+
+            afterSpec {
+                likeRepository.deleteAll()
+                projectRepository.deleteAll()
+                userRepository.deleteAll()
             }
 
             describe("좋아요 등록") {
@@ -151,27 +163,14 @@ class LikeControllerTest
                     val latch = CountDownLatch(likeCount)
                     val executor = Executors.newFixedThreadPool(likeCount)
 
-                    val newUser =
-                        userRepository.saveAndFlush(
-                            User
-                                .builder()
-                                .email("test@naver.com")
-                                .password("123gjs21@d")
-                                .username("testnamerr")
-                                .build(),
-                        )
-                    val newProject =
-                        projectRepository.save(ProjectFixture.createProject())
-
-                    val test = userRepository.findById(newUser.id)
-
                     repeat(likeCount) {
                         executor.submit {
                             try {
-                                likeService.likeProject(test.id, newProject.id)
+                                likeService.likeProject(user.id, project.id)
                             } catch (ex: Exception) {
                                 println(
-                                    "User ID: ${test.id}, Project ID: ${newProject.id} - Exception in thread ${Thread.currentThread().name}: ${ex.message}",
+                                    "User ID: ${user.id}, Project ID: ${project.id} - " +
+                                        "Exception in thread ${Thread.currentThread().name}: ${ex.message}",
                                 )
                             } finally {
                                 latch.countDown()
@@ -185,7 +184,7 @@ class LikeControllerTest
 
                     // DB에 조회 한번 해봐서 제대로 값이 나왔는지 확인
                     val updatedProject =
-                        projectRepository.findById(newProject.id!!)
+                        projectRepository.findById(project.id!!)
                             ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
                     updatedProject.likes shouldBe likeCount
                 }
