@@ -84,7 +84,7 @@ class LikeControllerTest
                 it("성공적으로 좋아요를 등록한다") {
                     val result =
                         mockMvc
-                            .post("${Version.V1}/likes/${project.id}") {
+                            .post("${Version.V1}/like/${project.id}") {
                                 contentType = MediaType.APPLICATION_JSON
                                 headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
                             }.andExpect {
@@ -108,7 +108,7 @@ class LikeControllerTest
                     // When
                     val result =
                         mockMvc
-                            .post("${Version.V1}/likes/${project.id}") {
+                            .post("${Version.V1}/like/${project.id}") {
                                 contentType = MediaType.APPLICATION_JSON
                                 headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
                             }.andExpect {
@@ -131,7 +131,7 @@ class LikeControllerTest
 
                     // When
                     mockMvc
-                        .delete("${Version.V1}/likes/${project.id}") {
+                        .delete("${Version.V1}/like/${project.id}") {
                             contentType = MediaType.APPLICATION_JSON
                             headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
                         }.andExpect {
@@ -145,7 +145,7 @@ class LikeControllerTest
 
                 it("좋아요가 없는 상태에서 해제 시 실패한다") {
                     mockMvc
-                        .delete("${Version.V1}/likes/${project.id}") {
+                        .delete("${Version.V1}/like/${project.id}") {
                             contentType = MediaType.APPLICATION_JSON
                             headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
                         }.andExpect {
