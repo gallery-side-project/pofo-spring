@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.io.InputStreamReader
 
 @Service
-class OpenSearchService(
+class StackService(
     private val openSearchClient: OpenSearchClient,
 ) {
     fun bulkInsertFromCSV(file: MultipartFile) {

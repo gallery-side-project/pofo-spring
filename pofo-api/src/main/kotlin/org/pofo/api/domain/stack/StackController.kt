@@ -15,16 +15,16 @@ import org.springframework.web.multipart.MultipartFile
     Version.V1 +
         "/tech-stack",
 )
-class AutocompleteController(
-    private val openSearchService: OpenSearchService,
-) : AutocompleteApiDocs {
+class StackController(
+    private val stackService: StackService,
+) : StackApiDocs {
     @PostMapping(
         "/",
     )
     override fun insertTechStack(
         @RequestBody techStack: TechStackAutoComplete,
     ): ApiResponse<String> {
-        openSearchService
+        stackService
             .indexTechStack(
                 techStack,
             )
@@ -42,7 +42,7 @@ class AutocompleteController(
             "file",
         ) file: MultipartFile,
     ): ApiResponse<String> {
-        openSearchService
+        stackService
             .bulkInsertFromCSV(
                 file,
             )
@@ -59,7 +59,7 @@ class AutocompleteController(
         @RequestParam query: String,
     ): ApiResponse<Map<String, List<String>>> {
         val suggestions =
-            openSearchService
+            stackService
                 .getSuggestions(
                     query,
                 )
@@ -86,7 +86,7 @@ class AutocompleteController(
     ): ApiResponse<List<TechStackAutoComplete>> =
         ApiResponse
             .success(
-                openSearchService
+                stackService
                     .searchSingleField(
                         field,
                         keyword,

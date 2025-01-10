@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile
 import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerResponse
 
 @Tag(name = "[Tech Stack API]", description = "기술 스택 관련 API")
-interface AutocompleteApiDocs {
+interface StackApiDocs {
     @Operation(summary = "단일 기술 스택 삽입", description = "단일 기술 스택 데이터를 OpenSearch에 삽입합니다.")
     @ApiResponses(
         value = [
