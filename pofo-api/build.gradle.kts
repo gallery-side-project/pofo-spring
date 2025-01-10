@@ -32,4 +32,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
     implementation("com.google.cloud.sql:postgres-socket-factory:1.21.2")
+
+    implementation("org.springframework.retry:spring-retry")
+    implementation("org.springframework:spring-aspects")
 }

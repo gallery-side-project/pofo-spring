@@ -1,74 +1,76 @@
 spring:
-  jpa:
-    open-in-view: false
-    properties:
-      hibernate.default_batch_fetch_size: 100
+    jpa:
+        open-in-view: false
+        properties:
+            hibernate.default_batch_fetch_size: 100
 
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: local
-
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:pofoTestDB?MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
-    username: sa
-
-  h2:
-    console:
-      enabled: true
+    data:
+        redis:
+            host: ${REDIS_HOST:localhost}
+            port: ${REDIS_PORT:6379}
 
 ---
 
 spring:
-  config:
-    activate:
-      on-profile: dev
+    config:
+        activate:
+            on-profile: local
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        properties:
+            hibernate:
+                show_sql: true
+                format_sql: true
+                connection:
+                    isolation: 2
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${POSTGRES_DATASOURCE_URL}
-    username: ${POSTGRES_DATASOURCE_USERNAME}
-    password: ${POSTGRES_DATASOURCE_PASSWORD}
+    datasource:
+        driver-class-name: org.h2.Driver
+        url: jdbc:h2:mem:pofoTestDB?MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+        username: sa
+
+    h2:
+        console:
+            enabled: true
 
 ---
 
 spring:
-  config:
-    activate:
-      on-profile: prod
+    config:
+        activate:
+            on-profile: dev
 
-  jpa:
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${POSTGRES_DATASOURCE_URL}
-    username: ${POSTGRES_DATASOURCE_USERNAME}
-    password: ${POSTGRES_DATASOURCE_PASSWORD}
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: ${POSTGRES_DATASOURCE_URL}
+        username: ${POSTGRES_DATASOURCE_USERNAME}
+        password: ${POSTGRES_DATASOURCE_PASSWORD}
+
+---
+
+spring:
+    config:
+        activate:
+            on-profile: prod
+
+    jpa:
+        hibernate:
+            ddl-auto: none
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: ${POSTGRES_DATASOURCE_URL}
+        username: ${POSTGRES_DATASOURCE_USERNAME}
+        password: ${POSTGRES_DATASOURCE_PASSWORD}
