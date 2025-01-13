@@ -1,14 +1,16 @@
 package org.pofo.domain.rds.domain.project;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import javax.annotation.Nullable;
 
 @Entity
 @Table(name = "stack")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Stack {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,10 +19,7 @@ public class Stack {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column
+    @Nullable
     private String imageUrl;
-
-    public Stack(String name) {
-        this.name = name;
-    }
 }

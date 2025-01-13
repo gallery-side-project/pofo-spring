@@ -2,14 +2,13 @@ package org.pofo.api.domain.user
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import org.pofo.api.common.fixture.UserFixture
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
 import org.pofo.api.domain.user.dto.UserLoginRequest
 import org.pofo.api.domain.user.dto.UserRegisterRequest
-import org.pofo.api.fixture.UserFixture
 import org.pofo.common.exception.ErrorCode
 import org.pofo.common.response.Version
 import org.pofo.domain.rds.domain.user.User
@@ -29,9 +28,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
-@ActiveProfiles(
-    "test",
-)
+@ActiveProfiles("test")
 internal class UserControllerTest
     @Autowired
     constructor(
@@ -40,20 +37,11 @@ internal class UserControllerTest
         private val jwtService: JwtService,
         private val bannedAccessTokenRepository: BannedAccessTokenRepository,
     ) : DescribeSpec({
-            extensions(
-                SpringExtension,
-            )
-
             val objectMapper =
                 jacksonObjectMapper()
-            val user:
-                User =
-                UserFixture
-                    .createUser()
+            val user: User = UserFixture.createUser()
 
-            describe(
-                "회원 가입 시",
-            ) {
+            describe("회원 가입 시") {
                 val requestBody =
                     UserRegisterRequest(
                         email = user.email,
@@ -61,88 +49,51 @@ internal class UserControllerTest
                         username = user.username,
                     )
 
-                it(
-                    "유저 생성에 성공하고, 유저 조회에 성공해야 한다.",
-                ) {
-                    val resultActions =
-                        mockMvc
-                            .post(
-                                Version.V1 +
-                                    "/user",
-                            ) {
-                                contentType =
-                                    MediaType.APPLICATION_JSON
-                                content =
-                                    objectMapper.writeValueAsString(
-                                        requestBody,
-                                    )
-                            }
-                    resultActions
-                        .andExpect {
-                            status {
-                                isOk()
-                            }
+                it("유저 생성에 성공하고, 유저 조회에 성공해야 한다.") {
+                    mockMvc
+                        .post(Version.V1 + "/user") {
+                            contentType =
+                                MediaType.APPLICATION_JSON
+                            content =
+                                objectMapper.writeValueAsString(requestBody)
+                        }.andExpect {
+                            status { isOk() }
                         }
-                    val findUser =
-                        userService
-                            .getUserByEmail(
-                                requestBody.email,
-                            )
-                    findUser.id
-                        .shouldNotBeNull()
-                    findUser.email shouldBe
-                        user.email
-                    findUser.role shouldBe
-                        user.role
+
+                    val findUser = userService.getUserByEmail(requestBody.email)
+
+                    findUser.id.shouldNotBeNull()
+                    findUser.email shouldBe user.email
+                    findUser.role shouldBe user.role
                 }
 
-                context(
-                    "중복된 사용자가 있을 때",
-                ) {
-                    beforeEach {
-                        userService
-                            .createUser(
-                                UserRegisterRequest(
-                                    email = user.email,
-                                    password = user.password,
-                                    username = user.username,
-                                ),
-                            )
-                    }
+                context("중복된 사용자가 있을 때") {
+                    it("유저 생성이 실패해야 한다.") {
+                        userService.createUser(
+                            UserRegisterRequest(
+                                email = user.email,
+                                password = user.password,
+                                username = user.username,
+                            ),
+                        )
 
-                    it(
-                        "유저 생성이 실패해야 한다.",
-                    ) {
                         mockMvc
-                            .post(
-                                Version.V1 +
-                                    "/user",
-                            ) {
+                            .post(Version.V1 + "/user") {
                                 contentType =
                                     MediaType.APPLICATION_JSON
                                 content =
-                                    objectMapper.writeValueAsString(
-                                        requestBody,
-                                    )
+                                    objectMapper.writeValueAsString(requestBody)
                             }.andExpect {
-                                status {
-                                    isBadRequest()
-                                }
-                                jsonPath(
-                                    "$.code",
-                                ) {
-                                    value(
-                                        ErrorCode.USER_EXISTS.code,
-                                    )
+                                status { isBadRequest() }
+                                jsonPath("$.code") {
+                                    value(ErrorCode.USER_EXISTS.code)
                                 }
                             }
                     }
                 }
             }
 
-            describe(
-                "로그인 시",
-            ) {
+            describe("로그인 시") {
                 fun jwtLogin(requestBody: UserLoginRequest): ResultActionsDsl =
                     mockMvc
                         .post(
@@ -157,48 +108,27 @@ internal class UserControllerTest
                                 )
                         }
 
-                beforeEach {
-                    userService
-                        .createUser(
+                context("이메일과 비밀번호가 제대로 주어졌을 때") {
+                    it("엑세스 토큰을 반환하고, 리프레쉬 토큰을 쿠키에 설정해야 한다.") {
+                        userService.createUser(
                             UserRegisterRequest(
                                 user.email,
                                 user.password,
                                 user.username,
                             ),
                         )
-                }
-
-                context(
-                    "이메일과 비밀번호가 제대로 주어졌을 때",
-                ) {
-                    it(
-                        "엑세스 토큰을 반환하고, 리프레쉬 토큰을 쿠키에 설정해야 한다.",
-                    ) {
                         val requestBody =
                             UserLoginRequest(
                                 user.email,
                                 user.password,
                             )
-                        val resultActions =
-                            jwtLogin(
-                                requestBody,
-                            )
-                        resultActions
-                            .andExpect {
-                                status {
-                                    isOk()
-                                }
-                                cookie {
-                                    exists(
-                                        UserController.REFRESH_COOKIE_NAME,
-                                    )
-                                }
-                                jsonPath(
-                                    "$.data.accessToken",
-                                ) {
-                                    exists()
-                                }
+                        jwtLogin(requestBody).andExpect {
+                            status {
+                                isOk()
                             }
+                            cookie { exists(UserController.REFRESH_COOKIE_NAME) }
+                            jsonPath("$.data.accessToken") { exists() }
+                        }
                     }
                 }
 
@@ -213,15 +143,12 @@ internal class UserControllerTest
                                 "wrong@org.com",
                                 "",
                             )
-                        jwtLogin(
-                            requestBody,
-                        ).andExpect {
+
+                        jwtLogin(requestBody).andExpect {
                             status {
                                 isUnauthorized()
                             }
-                            jsonPath(
-                                "$.code",
-                            ) {
+                            jsonPath("$.code") {
                                 value(
                                     ErrorCode.USER_LOGIN_FAILED.code,
                                 )
@@ -241,15 +168,12 @@ internal class UserControllerTest
                                 user.email,
                                 "wrongPassword",
                             )
-                        jwtLogin(
-                            requestBody,
-                        ).andExpect {
+
+                        jwtLogin(requestBody).andExpect {
                             status {
                                 isUnauthorized()
                             }
-                            jsonPath(
-                                "$.code",
-                            ) {
+                            jsonPath("$.code") {
                                 value(
                                     ErrorCode.USER_LOGIN_FAILED.code,
                                 )
@@ -283,10 +207,7 @@ internal class UserControllerTest
                             )
 
                     mockMvc
-                        .post(
-                            Version.V1 +
-                                "/user/logout",
-                        ) {
+                        .post(Version.V1 + "/user/logout") {
                             contentType =
                                 MediaType.APPLICATION_JSON
                             headers {
@@ -296,42 +217,23 @@ internal class UserControllerTest
                                 )
                             }
                         }.andExpect {
-                            status {
-                                isOk()
-                            }
+                            status { isOk() }
                             cookie {
-                                exists(
-                                    UserController.REFRESH_COOKIE_NAME,
-                                )
-                                maxAge(
-                                    UserController.REFRESH_COOKIE_NAME,
-                                    0,
-                                )
-                                value(
-                                    UserController.REFRESH_COOKIE_NAME,
-                                    "",
-                                )
+                                exists(UserController.REFRESH_COOKIE_NAME)
+                                maxAge(UserController.REFRESH_COOKIE_NAME, 0)
+                                value(UserController.REFRESH_COOKIE_NAME, "")
                             }
                         }
+
                     val bannedAccessTokenOptional =
-                        bannedAccessTokenRepository
-                            .findById(
-                                savedUser.id,
-                            )
-                    bannedAccessTokenOptional.isPresent shouldBe
-                        true
-                    bannedAccessTokenOptional.get().value shouldBe
-                        accessToken
+                        bannedAccessTokenRepository.findById(savedUser.id)
+                    bannedAccessTokenOptional.isPresent shouldBe true
+                    bannedAccessTokenOptional.get().value shouldBe accessToken
                 }
             }
 
-            describe(
-                "내 정보 조회 시",
-            ) {
-                lateinit var accessToken:
-                    String
-
-                beforeEach {
+            describe("내 정보 조회 시") {
+                it("내 정보가 반환된다.") {
                     val savedUser =
                         userService
                             .createUser(
@@ -341,22 +243,11 @@ internal class UserControllerTest
                                     username = user.username,
                                 ),
                             )
-                    accessToken =
-                        jwtService.generateAccessToken(
-                            JwtTokenData(
-                                savedUser,
-                            ),
-                        )
-                }
+                    val accessToken =
+                        jwtService.generateAccessToken(JwtTokenData(savedUser))
 
-                it(
-                    "내 정보가 반환된다.",
-                ) {
                     mockMvc
-                        .get(
-                            Version.V1 +
-                                "/user/me",
-                        ) {
+                        .get(Version.V1 + "/user/me") {
                             headers {
                                 set(
                                     HttpHeaders.AUTHORIZATION,
@@ -364,28 +255,10 @@ internal class UserControllerTest
                                 )
                             }
                         }.andExpect {
-                            status {
-                                isOk()
-                            }
-                            jsonPath(
-                                "$.data.email",
-                            ) {
-                                value(
-                                    user.email,
-                                )
-                            }
-                            jsonPath(
-                                "$.data.password",
-                            ) {
-                                doesNotExist()
-                            }
-                            jsonPath(
-                                "$.data.role",
-                            ) {
-                                value(
-                                    user.role.name,
-                                )
-                            }
+                            status { isOk() }
+                            jsonPath("$.data.email") { value(user.email) }
+                            jsonPath("$.data.password") { doesNotExist() }
+                            jsonPath("$.data.role") { value(user.role.name) }
                         }
                 }
             }

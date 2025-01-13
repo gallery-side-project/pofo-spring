@@ -1,12 +1,11 @@
 package org.pofo.api.domain.like
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
+import org.pofo.api.common.fixture.ProjectFixture
+import org.pofo.api.common.fixture.UserFixture
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
-import org.pofo.api.fixture.ProjectFixture
 import org.pofo.common.exception.CustomException
 import org.pofo.common.exception.ErrorCode
 import org.pofo.common.response.Version
@@ -42,28 +41,13 @@ class LikeControllerTest
         private val jwtService: JwtService,
         private val likeService: LikeService,
     ) : DescribeSpec({
-            extensions(
-                SpringExtension,
-            )
-
-            val objectMapper =
-                jacksonObjectMapper()
-
             lateinit var user: User
             lateinit var project: Project
             lateinit var accessToken: String
 
             beforeEach {
                 user =
-                    userRepository.save(
-                        User
-                            .builder()
-                            .email("${System.currentTimeMillis()}-example@org.com")
-                            .password("testPassword")
-                            .role(UserRole.ROLE_USER)
-                            .username("${System.currentTimeMillis()}-TEST")
-                            .build(),
-                    )
+                    userRepository.save(UserFixture.createUser())
                 project =
                     projectRepository.save(ProjectFixture.createProject())
                 accessToken =
@@ -74,7 +58,7 @@ class LikeControllerTest
                     )
             }
 
-            afterSpec {
+            afterTest {
                 likeRepository.deleteAll()
                 projectRepository.deleteAll()
                 userRepository.deleteAll()
@@ -82,15 +66,14 @@ class LikeControllerTest
 
             describe("좋아요 등록") {
                 it("성공적으로 좋아요를 등록한다") {
-                    val result =
-                        mockMvc
-                            .post("${Version.V1}/like/${project.id}") {
-                                contentType = MediaType.APPLICATION_JSON
-                                headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
-                            }.andExpect {
-                                status { isOk() }
-                                jsonPath("$.data.likes") { value(1) }
-                            }
+                    mockMvc
+                        .post("${Version.V1}/like/${project.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                            headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
+                        }.andExpect {
+                            status { isOk() }
+                            jsonPath("$.data.likes") { value(1) }
+                        }
 
                     likeRepository.existsByUserAndProject(user, project) shouldBe true
                 }
@@ -106,15 +89,14 @@ class LikeControllerTest
                     )
 
                     // When
-                    val result =
-                        mockMvc
-                            .post("${Version.V1}/like/${project.id}") {
-                                contentType = MediaType.APPLICATION_JSON
-                                headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
-                            }.andExpect {
-                                status { isBadRequest() }
-                                jsonPath("$.code") { value(ErrorCode.ALREADY_LIKED_PROJECT.code) }
-                            }
+                    mockMvc
+                        .post("${Version.V1}/like/${project.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                            headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
+                        }.andExpect {
+                            status { isBadRequest() }
+                            jsonPath("$.code") { value(ErrorCode.ALREADY_LIKED_PROJECT.code) }
+                        }
                 }
             }
 

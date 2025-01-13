@@ -1,4 +1,4 @@
-package org.pofo.api.fixture
+package org.pofo.api.common.fixture
 
 import org.pofo.domain.rds.domain.user.User
 import org.pofo.domain.rds.domain.user.UserRole
@@ -10,7 +10,7 @@ class UserFixture {
         private const val TEST_USERNAME = "testUsername"
 
         fun createUser(): User =
-            this.createUser(
+            createUser(
                 email = TEST_USER_EMAIL,
                 password = TEST_USER_PASSWORD,
                 username = TEST_USERNAME,
@@ -18,7 +18,7 @@ class UserFixture {
             )
 
         fun createUser(role: UserRole): User =
-            this.createUser(
+            createUser(
                 email = TEST_USER_EMAIL,
                 password = TEST_USER_PASSWORD,
                 username = TEST_USERNAME,
@@ -33,6 +33,7 @@ class UserFixture {
         ): User =
             User
                 .builder()
+                .id(1L)
                 .email(email)
                 .password(password)
                 .username(username)

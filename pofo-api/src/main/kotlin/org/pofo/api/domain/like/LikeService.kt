@@ -23,7 +23,7 @@ class LikeService(
     @Retryable(
         value = [OptimisticLockingFailureException::class, StaleObjectStateException::class],
         maxAttempts = 10,
-        backoff = Backoff(delay = 50, multiplier = 2.0),
+        backoff = Backoff(delay = 50, multiplier = 1.2),
     )
     @Transactional
     fun likeProject(
@@ -86,7 +86,7 @@ class LikeService(
     private fun <T> retryOptimisticLock(action: () -> T): T {
         var attempts = 0
         val maxRetries = 10
-        var waitTime = 50L
+        val waitTime = 50L
         while (true) {
             try {
                 return action()
