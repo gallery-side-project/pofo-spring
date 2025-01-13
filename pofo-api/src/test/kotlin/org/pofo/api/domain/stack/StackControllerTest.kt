@@ -42,7 +42,7 @@ internal class StackControllerTest(
 ) : DescribeSpec({
         val objectMapper = jacksonObjectMapper()
 
-        describe("POST /v1/tech-stack - 단일 스택 삽입 시") {
+        describe("POST /tech-stack - 단일 스택 삽입 시") {
             context("이름만 보내면") {
                 it("단일 스택 저장에 성공하고, status 201을 응답한다.") {
                     val stackInsertRequest = StackInsertRequest(name = "Kotlin", imageUrl = null)

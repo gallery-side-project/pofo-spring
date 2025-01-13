@@ -18,11 +18,11 @@ class CommonAccessDeniedHandler : AccessDeniedHandler {
         response: HttpServletResponse,
         accessDeniedException: AccessDeniedException,
     ) {
-        response.status = HttpStatus.UNAUTHORIZED.value()
+        response.status = HttpStatus.FORBIDDEN.value()
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         objectMapper.writeValue(
             response.writer,
-            ApiResponse.failure(ErrorCode.UNAUTHORIZED),
+            ApiResponse.failure(ErrorCode.FORBIDDEN),
         )
     }
 }
