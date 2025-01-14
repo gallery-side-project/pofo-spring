@@ -12,6 +12,7 @@ import org.pofo.api.domain.user.dto.UserRegisterRequest
 import org.pofo.common.exception.ErrorCode
 import org.pofo.common.response.Version
 import org.pofo.domain.rds.domain.user.User
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val userService: UserService,
     private val cookieUtil: CookieUtil,
+    private val environment: Environment,
 ) : UserApiDocs {
     companion object {
         const val REFRESH_COOKIE_NAME = "POFO_RTN"
@@ -84,6 +86,7 @@ class UserController(
                 cookieName = REFRESH_COOKIE_NAME,
                 maxAge = JwtService.REFRESH_TOKEN_EXPIRATION / 1000,
                 value = tokenResponse.refreshToken,
+                secure = environment.matchesProfiles("prod"),
             )
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString())

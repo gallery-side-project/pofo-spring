@@ -9,6 +9,7 @@ import org.pofo.api.domain.user.UserController
 import org.pofo.domain.redis.domain.refreshToken.RefreshToken
 import org.pofo.domain.redis.domain.refreshToken.RefreshTokenRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpHeaders
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
@@ -19,6 +20,7 @@ class OAuth2AuthenticationSuccessHandler(
     private val jwtService: JwtService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val cookieUtil: CookieUtil,
+    private val environment: Environment,
 ) : SimpleUrlAuthenticationSuccessHandler() {
     @Value("\${pofo.domain}")
     private lateinit var domain: String
@@ -40,6 +42,7 @@ class OAuth2AuthenticationSuccessHandler(
             cookieUtil.createCookie(
                 UserController.REFRESH_COOKIE_NAME,
                 refreshToken,
+                environment.matchesProfiles("prod"),
                 JwtService.REFRESH_TOKEN_EXPIRATION,
             )
         response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())

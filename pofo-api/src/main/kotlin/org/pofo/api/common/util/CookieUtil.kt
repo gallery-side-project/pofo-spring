@@ -34,13 +34,14 @@ class CookieUtil {
     fun createCookie(
         cookieName: String,
         value: String,
+        secure: Boolean = true,
         maxAge: Long,
     ): ResponseCookie =
         ResponseCookie
             .from(cookieName, value)
             .path("/")
             .httpOnly(true)
-            .secure(true)
+            .secure(secure)
             .maxAge(maxAge)
             .build()
 
@@ -49,5 +50,5 @@ class CookieUtil {
      *
      * @return ResponseCookie   쿠키의 maxAge가 0인 쿠키
      */
-    fun createDeletingCookie(cookieName: String): ResponseCookie = createCookie(cookieName, "", 0)
+    fun createDeletingCookie(cookieName: String): ResponseCookie = createCookie(cookieName, "", false, 0)
 }

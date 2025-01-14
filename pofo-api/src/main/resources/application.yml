@@ -2,7 +2,6 @@ spring:
   profiles:
     group:
       test: local
-
   config:
     import:
       - application-oauth2.yml
