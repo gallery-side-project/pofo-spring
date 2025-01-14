@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface StackRepository extends JpaRepository<Stack, Long> {
     List<Stack> findByNameIn(Collection<String> names);
+    List<Stack> findByNameContainingIgnoreCase(String name);
 }

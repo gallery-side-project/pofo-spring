@@ -11,6 +11,7 @@ enum class ErrorCode(
     NOT_FOUND(404, "잘못된 URL 호출", "COMMON-004"),
     METHOD_NOT_ALLOWED(405, "허용되지 않는 메소드", "COMMON-005"),
     UNSUPPORTED_MEDIA_TYPE(415, "지원하지 않는 Content 형식", "COMMON-006"),
+    METHOD_ARGUMENT_NOT_VALID(400, "주어진 인자가 잘못되었습니다.", "COMMON-274"),
 
     // USER
     USER_NOT_FOUND(404, "유저를 찾을 수 없습니다.", "USER-001"),

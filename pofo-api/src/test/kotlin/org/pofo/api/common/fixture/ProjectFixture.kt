@@ -1,4 +1,4 @@
-package org.pofo.api.fixture
+package org.pofo.api.common.fixture
 
 import org.pofo.domain.rds.domain.project.Project
 

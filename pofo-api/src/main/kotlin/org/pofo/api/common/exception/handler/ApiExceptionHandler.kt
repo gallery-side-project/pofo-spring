@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -21,7 +22,7 @@ private val logger = KotlinLogging.logger {}
 /**
  * 서블릿 내의 에러를 감지합니다.
  * 필터 단에서 검출하는 인증 및 인가 에러는 security 부분을 참고해주세요
- * @see org.pofo.api.security.exception.handler
+ * @see org.pofo.api.domain.security.exception.handler
  */
 @RestControllerAdvice
 class ApiExceptionHandler {
@@ -82,6 +83,16 @@ class ApiExceptionHandler {
     fun handleHttpRequestMethodNotSupportedException(
         exception: HttpRequestMethodNotSupportedException,
     ): ApiResponse<Nothing> = ApiResponse.failure(ErrorCode.METHOD_NOT_ALLOWED)
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleMethodArgumentNotValidException(exception: MethodArgumentNotValidException): ApiResponse<Nothing> {
+        val bindingErrors = exception.bindingResult.allErrors
+        logger.info {
+            "binding errors: ${bindingErrors.joinToString("\n")}"
+        }
+        return ApiResponse.failure(ErrorCode.METHOD_ARGUMENT_NOT_VALID)
+    }
 
     /**
      * 처리되지 않은 오류를 검출합니다.

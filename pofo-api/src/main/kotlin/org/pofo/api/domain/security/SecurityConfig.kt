@@ -64,7 +64,12 @@ class SecurityConfig(
                     .forEach {
                         authorize(HttpMethod.POST, it, permitAll)
                     }
-                authorize(Version.V1 + "/tech-stack/**", permitAll)
+                authorize(Version.V1 + "/tech-stack/autocomplete", permitAll)
+                listOf("/tech-stack", "/tech-stack/upload-csv")
+                    .map { "${Version.V1}$it" }
+                    .forEach {
+                        authorize(HttpMethod.POST, it, hasRole("ADMIN"))
+                    }
                 authorize(anyRequest, authenticated)
             }
             exceptionHandling {

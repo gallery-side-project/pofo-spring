@@ -3,6 +3,8 @@ package org.pofo.api.domain.project
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.pofo.api.common.fixture.ProjectFixture.Companion.createProject
+import org.pofo.api.common.fixture.UserFixture
 import org.pofo.api.domain.project.dto.ProjectCreateRequest
 import org.pofo.api.domain.project.dto.ProjectResponse
 import org.pofo.api.domain.project.dto.ProjectUpdateRequest
@@ -10,8 +12,6 @@ import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
 import org.pofo.api.domain.user.UserService
 import org.pofo.api.domain.user.dto.UserRegisterRequest
-import org.pofo.api.fixture.ProjectFixture.Companion.createProject
-import org.pofo.api.fixture.UserFixture
 import org.pofo.domain.rds.domain.project.Project
 import org.pofo.domain.rds.domain.user.User
 import org.springframework.beans.factory.annotation.Autowired
