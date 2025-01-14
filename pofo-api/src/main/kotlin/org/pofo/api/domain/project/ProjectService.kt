@@ -83,8 +83,10 @@ class ProjectService(
             when {
                 imageUrls
                     .isEmpty() -> -1
+
                 projectCreateRequest.keyImageIndex ==
                     null -> 0
+
                 else -> projectCreateRequest.keyImageIndex
             }
 
@@ -181,8 +183,10 @@ class ProjectService(
             when {
                 imageUrls
                     .isEmpty() -> -1
+
                 projectUpdateRequest.keyImageIndex ==
                     null -> 0
+
                 else -> projectUpdateRequest.keyImageIndex
             }
 

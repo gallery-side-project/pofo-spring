@@ -29,10 +29,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig(
-    private val environment: Environment,
+    environment: Environment,
 ) {
     @Value("\${pofo.domain}")
     private lateinit var domain: String
+
+    private val isProduction: Boolean = environment.matchesProfiles("prod")
 
     @Bean
     fun filterChain(
@@ -42,8 +44,6 @@ class SecurityConfig(
         oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
         oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler,
     ): SecurityFilterChain {
-        val isDevOrLocal = environment.activeProfiles.contains("local") || environment.activeProfiles.contains("dev")
-
         http {
             cors {
                 configurationSource = corsConfigurationSource()
@@ -54,7 +54,7 @@ class SecurityConfig(
             formLogin { disable() }
             httpBasic { disable() }
             authorizeHttpRequests {
-                if (isDevOrLocal) {
+                if (!isProduction) {
                     listOf("/graphql", "/graphiql", "/h2-console/**", "/v3/api-docs/**", "/swagger-ui/**").forEach {
                         authorize(it, permitAll)
                     }
@@ -89,7 +89,7 @@ class SecurityConfig(
 
     fun corsConfigurationSource(): CorsConfigurationSource {
         val corsConfiguration = CorsConfiguration()
-        corsConfiguration.allowedOrigins = listOf(domain)
+        corsConfiguration.allowedOrigins = if (isProduction) listOf(domain) else listOf(domain, "http://localhost:3000")
         corsConfiguration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
         corsConfiguration.allowedHeaders = listOf("*")
         corsConfiguration.allowCredentials = true
