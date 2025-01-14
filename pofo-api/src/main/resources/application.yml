@@ -22,6 +22,10 @@ jwt:
 pofo:
   domain: ${POFO_DOMAIN:http://localhost:3000}
 
+server:
+    servlet:
+        context-path: /api
+
 ---
 
 spring:
