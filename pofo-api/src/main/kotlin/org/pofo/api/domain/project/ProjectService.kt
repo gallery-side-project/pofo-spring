@@ -19,49 +19,28 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional(
-    readOnly = true,
-)
+@Transactional(readOnly = true)
 class ProjectService(
     private val entityManager: EntityManager,
     private val stackRepository: StackRepository,
     private val projectRepository: ProjectRepository,
 ) {
     companion object {
-        private val logger =
-            KotlinLogging
-                .logger {
-                }
+        private val logger = KotlinLogging.logger { }
     }
 
     fun findProjectById(projectId: Long): ProjectResponse {
         val foundProject =
-            projectRepository.findById(
-                projectId,
-            )
-                ?: throw CustomException(
-                    ErrorCode.PROJECT_NOT_FOUND,
-                )
-        return ProjectResponse
-            .from(
-                foundProject,
-            )
+            projectRepository.findById(projectId) ?: throw CustomException(ErrorCode.PROJECT_NOT_FOUND)
+        return ProjectResponse.from(foundProject)
     }
 
     fun getAllProjectsByPagination(
         size: Int,
         cursor: Long,
     ): ProjectListResponse {
-        val foundProjects =
-            projectRepository
-                .searchProjectWithCursor(
-                    size,
-                    cursor,
-                )
-        return ProjectListResponse
-            .from(
-                foundProjects,
-            )
+        val foundProjects = projectRepository.searchProjectWithCursor(size, cursor)
+        return ProjectListResponse.from(foundProjects)
     }
 
     @Transactional
@@ -69,29 +48,17 @@ class ProjectService(
         projectCreateRequest: ProjectCreateRequest,
         authorId: Long,
     ): ProjectResponse {
-        val author =
-            entityManager
-                .getReference(
-                    User::class.java,
-                    authorId,
-                )
+        val author = entityManager.getReference(User::class.java, authorId)
 
-        val imageUrls =
-            projectCreateRequest.imageUrls
-                ?: emptyList()
+        val imageUrls = projectCreateRequest.imageUrls ?: emptyList()
         val keyImageIndex =
             when {
-                imageUrls
-                    .isEmpty() -> -1
-
-                projectCreateRequest.keyImageIndex ==
-                    null -> 0
-
+                imageUrls.isEmpty() -> -1
+                projectCreateRequest.keyImageIndex == null -> 0
                 else -> projectCreateRequest.keyImageIndex
             }
 
-        if (keyImageIndex >=
-            imageUrls.size ||
+        if (keyImageIndex >= imageUrls.size ||
             (
                 imageUrls.isNotEmpty() &&
                     keyImageIndex <
@@ -106,32 +73,18 @@ class ProjectService(
         val project =
             Project
                 .builder()
-                .title(
-                    projectCreateRequest.title,
-                ).Bio(
-                    projectCreateRequest.bio,
-                ).urls(
-                    projectCreateRequest.urls,
-                ).imageUrls(
-                    projectCreateRequest.imageUrls,
-                ).keyImageIndex(
-                    keyImageIndex,
-                ).content(
-                    projectCreateRequest.content,
-                ).isApproved(
-                    projectCreateRequest.isApproved,
-                ).author(
-                    author,
-                ).build()
-        val savedProject =
-            projectRepository
-                .save(
-                    project,
-                )
+                .title(projectCreateRequest.title)
+                .Bio(projectCreateRequest.bio)
+                .urls(projectCreateRequest.urls)
+                .imageUrls(projectCreateRequest.imageUrls)
+                .keyImageIndex(keyImageIndex)
+                .content(projectCreateRequest.content)
+                .isApproved(projectCreateRequest.isApproved)
+                .author(author)
+                .build()
+        val savedProject = projectRepository.save(project)
 
-        if (projectCreateRequest.stackNames !=
-            null
-        ) {
+        if (projectCreateRequest.stackNames != null) {
             val foundStacks =
                 stackRepository
                     .findByNameIn(
@@ -217,27 +170,16 @@ class ProjectService(
             null
         ) {
             val foundStacks =
-                stackRepository
-                    .findByNameIn(
-                        projectUpdateRequest.stackNames,
-                    )
+                stackRepository.findByNameIn(projectUpdateRequest.stackNames)
             logNotExistStacks(
                 projectUpdateRequest.stackNames,
                 foundStacks,
             )
-            project
-                .updateStack(
-                    foundStacks,
-                )
+            project.updateStack(foundStacks)
         }
 
-        if (projectUpdateRequest.categories !=
-            null
-        ) {
-            project
-                .updateCategories(
-                    projectUpdateRequest.categories,
-                )
+        if (projectUpdateRequest.categories != null) {
+            project.updateCategories(projectUpdateRequest.categories)
         }
 
         return ProjectResponse
@@ -272,21 +214,13 @@ class ProjectService(
         stacks: List<Stack>,
     ) {
         val stacksMap =
-            stacks
-                .associateBy {
-                    it.name
-                }
+            stacks.associateBy { it.name }
 
         for (stack in stackNames) {
             val foundStack =
                 stacksMap[stack]
-            if (foundStack ==
-                null
-            ) {
-                logger
-                    .warn {
-                        "A stack named [$stack] does not exist."
-                    }
+            if (foundStack == null) {
+                logger.warn { "A stack named [$stack] does not exist." }
             }
         }
     }
