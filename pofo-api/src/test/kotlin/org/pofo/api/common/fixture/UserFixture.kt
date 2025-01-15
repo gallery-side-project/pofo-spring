@@ -5,35 +5,14 @@ import org.pofo.domain.rds.domain.user.UserRole
 
 class UserFixture {
     companion object {
-        private const val TEST_USER_EMAIL = "test@org.com"
-        private const val TEST_USER_PASSWORD = "testPassword"
-        private const val TEST_USERNAME = "testUsername"
-
-        fun createUser(): User =
-            createUser(
-                email = TEST_USER_EMAIL,
-                password = TEST_USER_PASSWORD,
-                username = TEST_USERNAME,
-                role = UserRole.ROLE_USER,
-            )
-
-        fun createUser(role: UserRole): User =
-            createUser(
-                email = TEST_USER_EMAIL,
-                password = TEST_USER_PASSWORD,
-                username = TEST_USERNAME,
-                role = role,
-            )
-
         fun createUser(
-            email: String,
-            password: String,
-            username: String,
-            role: UserRole,
+            email: String = "test@org.com",
+            password: String = "Test Password",
+            username: String = "test Username",
+            role: UserRole = UserRole.ROLE_USER,
         ): User =
             User
                 .builder()
-                .id(1L)
                 .email(email)
                 .password(password)
                 .username(username)

@@ -42,14 +42,14 @@ internal class UserControllerTest
             val user: User = UserFixture.createUser()
 
             describe("회원 가입 시") {
-                val requestBody =
-                    UserRegisterRequest(
-                        email = user.email,
-                        password = user.password,
-                        username = user.username,
-                    )
-
                 it("유저 생성에 성공하고, 유저 조회에 성공해야 한다.") {
+                    val requestBody =
+                        UserRegisterRequest(
+                            email = user.email,
+                            password = user.password,
+                            username = user.username,
+                        )
+
                     mockMvc
                         .post(Version.V1 + "/user") {
                             contentType =
@@ -69,6 +69,13 @@ internal class UserControllerTest
 
                 context("중복된 사용자가 있을 때") {
                     it("유저 생성이 실패해야 한다.") {
+                        val requestBody =
+                            UserRegisterRequest(
+                                email = user.email,
+                                password = user.password,
+                                username = user.username,
+                            )
+
                         userService.createUser(
                             UserRegisterRequest(
                                 email = user.email,

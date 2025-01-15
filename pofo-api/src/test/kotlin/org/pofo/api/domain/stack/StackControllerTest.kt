@@ -42,7 +42,7 @@ internal class StackControllerTest(
 ) : DescribeSpec({
         val objectMapper = jacksonObjectMapper()
 
-        describe("POST /tech-stack - 단일 스택 삽입 시") {
+        describe("단일 스택 삽입") {
             context("이름만 보내면") {
                 it("단일 스택 저장에 성공하고, status 201을 응답한다.") {
                     val stackInsertRequest = StackInsertRequest(name = "Kotlin", imageUrl = null)
@@ -118,7 +118,7 @@ internal class StackControllerTest(
             }
         }
 
-        describe("POST /tech-stack/upload-csv - CSV를 이용한 스택 삽입 시") {
+        describe("CSV를 이용한 스택 삽입") {
             context("form-data에 key를 file해서 stack.csv를 넣으면") {
                 it("CSV 스택 저장에 성공하고, status 201을 응답한다.") {
                     val mockFile = StackFixture.createMockMultipartFile()
@@ -136,7 +136,7 @@ internal class StackControllerTest(
             }
         }
 
-        describe("GET /tech-stack/autocomplete - 스택 자동 완성 검색 시") {
+        describe("스택 자동 완성 검색") {
             context("String으로 된 쿼리를 보내면") {
                 it("status 200과 자동 완성 결과를 응답한다.") {
                     val query = "Rea"

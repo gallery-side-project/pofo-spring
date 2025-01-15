@@ -58,7 +58,7 @@ class LikeControllerTest
                     )
             }
 
-            afterTest {
+            afterEach {
                 likeRepository.deleteAll()
                 projectRepository.deleteAll()
                 userRepository.deleteAll()

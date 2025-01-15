@@ -74,7 +74,7 @@ class ProjectService(
             Project
                 .builder()
                 .title(projectCreateRequest.title)
-                .Bio(projectCreateRequest.bio)
+                .bio(projectCreateRequest.bio)
                 .urls(projectCreateRequest.urls)
                 .imageUrls(projectCreateRequest.imageUrls)
                 .keyImageIndex(keyImageIndex)
@@ -190,23 +190,20 @@ class ProjectService(
 
     fun searchProject(projectSearchRequest: ProjectSearchRequest): ProjectListResponse {
         val pageRequest =
-            PageRequest
-                .of(
-                    projectSearchRequest.page,
-                    projectSearchRequest.size,
-                )
+            PageRequest.of(
+                projectSearchRequest.page,
+                projectSearchRequest.size,
+            )
         val projectSlice =
             projectRepository
                 .searchProjectWithQuery(
                     projectSearchRequest.title,
                     projectSearchRequest.categories,
                     projectSearchRequest.stackNames,
+                    projectSearchRequest.authorName,
                     pageRequest,
                 )
-        return ProjectListResponse
-            .from(
-                projectSlice,
-            )
+        return ProjectListResponse.from(projectSlice)
     }
 
     private fun logNotExistStacks(

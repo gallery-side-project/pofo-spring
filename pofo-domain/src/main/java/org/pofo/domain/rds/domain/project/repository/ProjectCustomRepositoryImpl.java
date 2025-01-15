@@ -45,15 +45,19 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
             String title,
             List<Category> categories,
             List<String> stackNames,
+            String authorName,
             Pageable pageable) {
         QProject qProject = QProject.project;
-        QProjectStack qProjectStack = QProjectStack.projectStack;
         BooleanExpression predicate = qProject.isNotNull();
         long offset = pageable.getOffset();
         int pageSize = pageable.getPageSize();
 
         if (title != null) {
             predicate = predicate.and(qProject.title.startsWith(title));
+        }
+
+        if (authorName != null) {
+            predicate = predicate.and(qProject.author.username.eq(authorName));
         }
 
         if (categories != null && !categories.isEmpty()) {
@@ -83,13 +87,6 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository {
         if (hasNext) {
             fetchedProjects.remove(pageSize);
         }
-
-        fetchedProjects.forEach(project -> {
-            List<ProjectStack> stacks = queryFactory.selectFrom(qProjectStack)
-                    .where(qProjectStack.project.id.eq(project.getId()))
-                    .fetch();
-            project.setStacks(stacks);
-        });
 
         return new SliceImpl<>(fetchedProjects, pageable, hasNext);
     }
