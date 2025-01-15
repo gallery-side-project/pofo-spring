@@ -44,7 +44,7 @@ internal class UserControllerTest(
                 username = user.username,
             )
 
-        describe("회원 가입 시") {
+        describe("회원 가입") {
             it("유저 생성에 성공하고, 유저 조회에 성공해야 한다.") {
                 mockMvc
                     .post(Version.V1 + "/user") {
@@ -82,7 +82,7 @@ internal class UserControllerTest(
             }
         }
 
-        describe("로그인 시") {
+        describe("로그인") {
             fun jwtLogin(requestBody: UserLoginRequest): ResultActionsDsl =
                 mockMvc
                     .post(
@@ -151,7 +151,7 @@ internal class UserControllerTest(
             }
         }
 
-        describe("로그아웃 시") {
+        describe("로그아웃") {
             it("엑세스 토큰을 벤하고, 리프레쉬 토큰을 지워야 한다.") {
                 val savedUser = userService.createUser(userRegisterRequest)
                 val accessToken =
@@ -184,7 +184,7 @@ internal class UserControllerTest(
             }
         }
 
-        describe("내 정보 조회 시") {
+        describe("내 정보 조회") {
             it("내 정보가 반환된다.") {
                 val savedUser = userService.createUser(userRegisterRequest)
                 val accessToken =
