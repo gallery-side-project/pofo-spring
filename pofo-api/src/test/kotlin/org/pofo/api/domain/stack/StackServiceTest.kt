@@ -8,7 +8,7 @@ import org.pofo.api.common.fixture.StackFixture
 import org.pofo.domain.rds.domain.project.Stack
 import org.pofo.domain.rds.domain.project.repository.StackRepository
 
-class StackServiceTest :
+internal class StackServiceTest :
     StringSpec({
         lateinit var stackService: StackService
         lateinit var stackRepository: StackRepository

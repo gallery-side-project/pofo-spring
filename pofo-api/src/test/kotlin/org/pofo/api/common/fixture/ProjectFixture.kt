@@ -4,14 +4,24 @@ import org.pofo.domain.rds.domain.project.Project
 
 class ProjectFixture {
     companion object {
-        fun createProject(): Project =
+        fun createProject(
+            title: String = "Test Project",
+            bio: String = "Test Project Bio",
+            content: String = "Test Project Content",
+            urls: List<String> = listOf(),
+            imageUrls: List<String> = listOf(),
+            keyImageIndex: Int = 0,
+            likes: Int = 0,
+        ): Project =
             Project
                 .builder()
-                .title("Luminia")
-                .Bio("줄거리로 애니를 찾아주고, 애니를 검색하고 리뷰를 달 수 있는 플랫폼입니다.")
-                .content("취업좀 시켜줘라")
-                .urls(listOf("https://github.com/mclub4"))
-                .imageUrls(listOf("https://avatars.githubusercontent.com/u/55117706?v=4"))
+                .title(title)
+                .bio(bio)
+                .content(content)
+                .urls(urls)
+                .imageUrls(imageUrls)
+                .keyImageIndex(keyImageIndex)
+                .likes(likes)
                 .isApproved(false)
                 .build()
     }

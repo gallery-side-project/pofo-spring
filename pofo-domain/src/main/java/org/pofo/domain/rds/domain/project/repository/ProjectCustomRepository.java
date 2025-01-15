@@ -13,6 +13,7 @@ public interface ProjectCustomRepository {
             String title,
             List<Category> categories,
             List<String> stackNames,
+            String authorName,
             Pageable pageable
     );
 }

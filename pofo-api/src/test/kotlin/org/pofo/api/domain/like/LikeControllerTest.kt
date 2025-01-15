@@ -31,7 +31,7 @@ import java.util.concurrent.Executors
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class LikeControllerTest
+internal class LikeControllerTest
     @Autowired
     constructor(
         private val mockMvc: MockMvc,
@@ -58,7 +58,7 @@ class LikeControllerTest
                     )
             }
 
-            afterTest {
+            afterEach {
                 likeRepository.deleteAll()
                 projectRepository.deleteAll()
                 userRepository.deleteAll()

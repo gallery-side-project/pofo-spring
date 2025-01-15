@@ -36,7 +36,7 @@ data class ProjectResponse(
                     .map {
                         it.stack.name
                     },
-                project.author.email,
+                project.author.username,
             )
     }
 }

@@ -1,0 +1,10 @@
+query searchProject($projectSearchRequest: ProjectSearchRequest) {
+    searchProject(projectSearchRequest: $projectSearchRequest) {
+        projects {
+            id
+            title
+        }
+        hasNext
+        count
+    }
+}

@@ -59,6 +59,7 @@ input ProjectSearchRequest {
     title: String
     categories: [ProjectCategory]
     stackNames: [String]
+    authorName: String
     page: Int! = 0
     size: Int! = 30
 }

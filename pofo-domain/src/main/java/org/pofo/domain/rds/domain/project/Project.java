@@ -28,7 +28,7 @@ public class Project {
     private String title;
 
     @Column
-    private String Bio; // 한줄 소개
+    private String bio; // 한줄 소개
 
     @Column
     @Builder.Default
@@ -102,7 +102,7 @@ public class Project {
             this.title = title;
         }
         if (bio != null) {
-            this.Bio = bio;
+            this.bio = bio;
         }
         if (urls != null) {
             this.urls = urls;

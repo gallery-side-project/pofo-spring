@@ -26,6 +26,7 @@ class ProjectController(
                 projectId,
             )
 
+    @Deprecated(message = "요청 사항이 늘어남에 따라 검색 기능으로 대체", replaceWith = ReplaceWith("searchProject"))
     @QueryMapping
     fun getAllProjectsByPagination(
         @Argument cursor: Long?,
