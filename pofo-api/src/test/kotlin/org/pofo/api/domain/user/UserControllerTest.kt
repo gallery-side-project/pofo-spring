@@ -29,244 +29,181 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-internal class UserControllerTest
-    @Autowired
-    constructor(
-        private val mockMvc: MockMvc,
-        private val userService: UserService,
-        private val jwtService: JwtService,
-        private val bannedAccessTokenRepository: BannedAccessTokenRepository,
-    ) : DescribeSpec({
-            val objectMapper =
-                jacksonObjectMapper()
-            val user: User = UserFixture.createUser()
+internal class UserControllerTest(
+    @Autowired private val mockMvc: MockMvc,
+    @Autowired private val userService: UserService,
+    @Autowired private val bannedAccessTokenRepository: BannedAccessTokenRepository,
+    @Autowired private val jwtService: JwtService,
+) : DescribeSpec({
+        val objectMapper = jacksonObjectMapper()
+        val user: User = UserFixture.createUser()
+        val userRegisterRequest =
+            UserRegisterRequest(
+                email = user.email,
+                password = user.password,
+                username = user.username,
+            )
 
-            describe("회원 가입 시") {
-                it("유저 생성에 성공하고, 유저 조회에 성공해야 한다.") {
-                    val requestBody =
-                        UserRegisterRequest(
-                            email = user.email,
-                            password = user.password,
-                            username = user.username,
-                        )
+        describe("회원 가입 시") {
+            it("유저 생성에 성공하고, 유저 조회에 성공해야 한다.") {
+                mockMvc
+                    .post(Version.V1 + "/user") {
+                        contentType =
+                            MediaType.APPLICATION_JSON
+                        content =
+                            objectMapper.writeValueAsString(userRegisterRequest)
+                    }.andExpect {
+                        status { isOk() }
+                    }
+
+                val findUser = userService.getUserByEmail(user.email)
+                findUser.id.shouldNotBeNull()
+                findUser.email shouldBe user.email
+                findUser.role shouldBe user.role
+            }
+
+            context("중복된 사용자가 있을 때") {
+                it("유저 생성이 실패해야 한다.") {
+                    userService.createUser(userRegisterRequest)
 
                     mockMvc
                         .post(Version.V1 + "/user") {
                             contentType =
                                 MediaType.APPLICATION_JSON
                             content =
-                                objectMapper.writeValueAsString(requestBody)
+                                objectMapper.writeValueAsString(userRegisterRequest)
                         }.andExpect {
-                            status { isOk() }
+                            status { isBadRequest() }
+                            jsonPath("$.code") {
+                                value(ErrorCode.USER_EXISTS.code)
+                            }
                         }
-
-                    val findUser = userService.getUserByEmail(requestBody.email)
-
-                    findUser.id.shouldNotBeNull()
-                    findUser.email shouldBe user.email
-                    findUser.role shouldBe user.role
                 }
+            }
+        }
 
-                context("중복된 사용자가 있을 때") {
-                    it("유저 생성이 실패해야 한다.") {
-                        val requestBody =
-                            UserRegisterRequest(
-                                email = user.email,
-                                password = user.password,
-                                username = user.username,
+        describe("로그인 시") {
+            fun jwtLogin(requestBody: UserLoginRequest): ResultActionsDsl =
+                mockMvc
+                    .post(
+                        Version.V1 +
+                            "/user/login",
+                    ) {
+                        contentType =
+                            MediaType.APPLICATION_JSON
+                        content =
+                            objectMapper.writeValueAsString(
+                                requestBody,
                             )
+                    }
 
-                        userService.createUser(
-                            UserRegisterRequest(
-                                email = user.email,
-                                password = user.password,
-                                username = user.username,
+            context("이메일과 비밀번호가 제대로 주어졌을 때") {
+                it("엑세스 토큰을 반환하고, 리프레쉬 토큰을 쿠키에 설정해야 한다.") {
+                    userService.createUser(userRegisterRequest)
+
+                    val requestBody =
+                        UserLoginRequest(
+                            user.email,
+                            user.password,
+                        )
+                    jwtLogin(requestBody).andExpect {
+                        status {
+                            isOk()
+                        }
+                        cookie { exists(UserController.REFRESH_COOKIE_NAME) }
+                        jsonPath("$.data.accessToken") { exists() }
+                    }
+                }
+            }
+
+            context("이메일이 제대로 주어지지 않았을 때") {
+                it("로그인 실패 에러를 반환해야 한다.") {
+                    val requestBody =
+                        UserLoginRequest(
+                            "wrong@org.com",
+                            "",
+                        )
+
+                    jwtLogin(requestBody).andExpect {
+                        status { isUnauthorized() }
+                        jsonPath("$.code") {
+                            value(ErrorCode.USER_LOGIN_FAILED.code)
+                        }
+                    }
+                }
+            }
+
+            context("비밀번호가 제대로 주어지지 않았을 때") {
+                it("로그인 실패 에러를 반환해야 한다.") {
+                    val requestBody =
+                        UserLoginRequest(
+                            user.email,
+                            "wrongPassword",
+                        )
+
+                    jwtLogin(requestBody).andExpect {
+                        status { isUnauthorized() }
+                        jsonPath("$.code") {
+                            value(ErrorCode.USER_LOGIN_FAILED.code)
+                        }
+                    }
+                }
+            }
+        }
+
+        describe("로그아웃 시") {
+            it("엑세스 토큰을 벤하고, 리프레쉬 토큰을 지워야 한다.") {
+                val savedUser = userService.createUser(userRegisterRequest)
+                val accessToken =
+                    jwtService
+                        .generateAccessToken(
+                            JwtTokenData(
+                                savedUser,
                             ),
                         )
 
-                        mockMvc
-                            .post(Version.V1 + "/user") {
-                                contentType =
-                                    MediaType.APPLICATION_JSON
-                                content =
-                                    objectMapper.writeValueAsString(requestBody)
-                            }.andExpect {
-                                status { isBadRequest() }
-                                jsonPath("$.code") {
-                                    value(ErrorCode.USER_EXISTS.code)
-                                }
-                            }
-                    }
-                }
-            }
-
-            describe("로그인 시") {
-                fun jwtLogin(requestBody: UserLoginRequest): ResultActionsDsl =
-                    mockMvc
-                        .post(
-                            Version.V1 +
-                                "/user/login",
-                        ) {
-                            contentType =
-                                MediaType.APPLICATION_JSON
-                            content =
-                                objectMapper.writeValueAsString(
-                                    requestBody,
-                                )
+                mockMvc
+                    .post(Version.V1 + "/user/logout") {
+                        contentType = MediaType.APPLICATION_JSON
+                        headers {
+                            set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                         }
-
-                context("이메일과 비밀번호가 제대로 주어졌을 때") {
-                    it("엑세스 토큰을 반환하고, 리프레쉬 토큰을 쿠키에 설정해야 한다.") {
-                        userService.createUser(
-                            UserRegisterRequest(
-                                user.email,
-                                user.password,
-                                user.username,
-                            ),
-                        )
-                        val requestBody =
-                            UserLoginRequest(
-                                user.email,
-                                user.password,
-                            )
-                        jwtLogin(requestBody).andExpect {
-                            status {
-                                isOk()
-                            }
-                            cookie { exists(UserController.REFRESH_COOKIE_NAME) }
-                            jsonPath("$.data.accessToken") { exists() }
+                    }.andExpect {
+                        status { isOk() }
+                        cookie {
+                            exists(UserController.REFRESH_COOKIE_NAME)
+                            maxAge(UserController.REFRESH_COOKIE_NAME, 0)
+                            value(UserController.REFRESH_COOKIE_NAME, "")
                         }
                     }
-                }
 
-                context(
-                    "이메일이 제대로 주어지지 않았을 때",
-                ) {
-                    it(
-                        "로그인 실패 에러를 반환해야 한다.",
-                    ) {
-                        val requestBody =
-                            UserLoginRequest(
-                                "wrong@org.com",
-                                "",
+                val bannedAccessTokenOptional =
+                    bannedAccessTokenRepository.findById(savedUser.id)
+                bannedAccessTokenOptional.isPresent shouldBe true
+                bannedAccessTokenOptional.get().value shouldBe accessToken
+            }
+        }
+
+        describe("내 정보 조회 시") {
+            it("내 정보가 반환된다.") {
+                val savedUser = userService.createUser(userRegisterRequest)
+                val accessToken =
+                    jwtService.generateAccessToken(JwtTokenData(savedUser))
+
+                mockMvc
+                    .get(Version.V1 + "/user/me") {
+                        headers {
+                            set(
+                                HttpHeaders.AUTHORIZATION,
+                                "Bearer $accessToken",
                             )
-
-                        jwtLogin(requestBody).andExpect {
-                            status {
-                                isUnauthorized()
-                            }
-                            jsonPath("$.code") {
-                                value(
-                                    ErrorCode.USER_LOGIN_FAILED.code,
-                                )
-                            }
                         }
+                    }.andExpect {
+                        status { isOk() }
+                        jsonPath("$.data.email") { value(user.email) }
+                        jsonPath("$.data.password") { doesNotExist() }
+                        jsonPath("$.data.role") { value(user.role.name) }
                     }
-                }
-
-                context(
-                    "비밀번호가 제대로 주어지지 않았을 때",
-                ) {
-                    it(
-                        "로그인 실패 에러를 반환해야 한다.",
-                    ) {
-                        val requestBody =
-                            UserLoginRequest(
-                                user.email,
-                                "wrongPassword",
-                            )
-
-                        jwtLogin(requestBody).andExpect {
-                            status {
-                                isUnauthorized()
-                            }
-                            jsonPath("$.code") {
-                                value(
-                                    ErrorCode.USER_LOGIN_FAILED.code,
-                                )
-                            }
-                        }
-                    }
-                }
             }
-
-            describe(
-                "로그아웃 시",
-            ) {
-                it(
-                    "엑세스 토큰을 벤하고, 리프레쉬 토큰을 지워야 한다.",
-                ) {
-                    val savedUser =
-                        userService
-                            .createUser(
-                                UserRegisterRequest(
-                                    email = user.email,
-                                    password = user.password,
-                                    username = user.username,
-                                ),
-                            )
-                    val accessToken =
-                        jwtService
-                            .generateAccessToken(
-                                JwtTokenData(
-                                    savedUser,
-                                ),
-                            )
-
-                    mockMvc
-                        .post(Version.V1 + "/user/logout") {
-                            contentType =
-                                MediaType.APPLICATION_JSON
-                            headers {
-                                set(
-                                    HttpHeaders.AUTHORIZATION,
-                                    "Bearer $accessToken",
-                                )
-                            }
-                        }.andExpect {
-                            status { isOk() }
-                            cookie {
-                                exists(UserController.REFRESH_COOKIE_NAME)
-                                maxAge(UserController.REFRESH_COOKIE_NAME, 0)
-                                value(UserController.REFRESH_COOKIE_NAME, "")
-                            }
-                        }
-
-                    val bannedAccessTokenOptional =
-                        bannedAccessTokenRepository.findById(savedUser.id)
-                    bannedAccessTokenOptional.isPresent shouldBe true
-                    bannedAccessTokenOptional.get().value shouldBe accessToken
-                }
-            }
-
-            describe("내 정보 조회 시") {
-                it("내 정보가 반환된다.") {
-                    val savedUser =
-                        userService
-                            .createUser(
-                                UserRegisterRequest(
-                                    email = user.email,
-                                    password = user.password,
-                                    username = user.username,
-                                ),
-                            )
-                    val accessToken =
-                        jwtService.generateAccessToken(JwtTokenData(savedUser))
-
-                    mockMvc
-                        .get(Version.V1 + "/user/me") {
-                            headers {
-                                set(
-                                    HttpHeaders.AUTHORIZATION,
-                                    "Bearer $accessToken",
-                                )
-                            }
-                        }.andExpect {
-                            status { isOk() }
-                            jsonPath("$.data.email") { value(user.email) }
-                            jsonPath("$.data.password") { doesNotExist() }
-                            jsonPath("$.data.role") { value(user.role.name) }
-                        }
-                }
-            }
-        })
+        }
+    })

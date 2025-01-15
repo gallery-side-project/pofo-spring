@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class ProjectControllerTest
+internal class ProjectControllerTest
     @Autowired
     constructor(
         private val mockMvc: MockMvc,
@@ -36,13 +36,14 @@ class ProjectControllerTest
         private val projectService: ProjectService,
         private val jwtService: JwtService,
     ) : StringSpec({
-            val user = UserFixture.createUser()
-            val client: WebTestClient.Builder =
-                MockMvcWebTestClient.bindTo(mockMvc).baseUrl("http://localhost:8080/graphql")
+            lateinit var user: User
+            lateinit var client: WebTestClient.Builder
             lateinit var savedUser: User
             lateinit var accessToken: String
 
             beforeEach {
+                user = UserFixture.createUser()
+                client = MockMvcWebTestClient.bindTo(mockMvc).baseUrl("http://localhost:8080/graphql")
                 savedUser =
                     userService.createUser(
                         UserRegisterRequest(
