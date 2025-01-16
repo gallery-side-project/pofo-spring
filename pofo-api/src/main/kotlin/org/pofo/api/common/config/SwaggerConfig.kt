@@ -62,6 +62,14 @@ class SwaggerConfig {
             .build()
 
     @Bean
+    fun likeApiGroup(): GroupedOpenApi =
+        GroupedOpenApi
+            .builder()
+            .packagesToScan("org.pofo.api.domain.like")
+            .group("User Group")
+            .build()
+
+    @Bean
     fun openAPI(): OpenAPI {
         val securityRequirement = SecurityRequirement().addList(token)
 
