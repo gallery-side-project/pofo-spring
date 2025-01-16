@@ -66,7 +66,7 @@ class SwaggerConfig {
         GroupedOpenApi
             .builder()
             .packagesToScan("org.pofo.api.domain.like")
-            .group("User Group")
+            .group("Like Group")
             .build()
 
     @Bean
