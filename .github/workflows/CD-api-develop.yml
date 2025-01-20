@@ -62,7 +62,7 @@ jobs:
       - name: 'Setup Gradle'
         uses: gradle/actions/setup-gradle@v4
       - name: Build with Gradle
-        run: ./gradlew :pofo-api:build -x test
+        run: ./gradlew build -x test
 
       # Configure Workload Identity Federation and generate an access token.
       #
@@ -84,7 +84,7 @@ jobs:
       - name: 'Build and Push Container'
         run: |-
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" ./pofo-api
+          docker build --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
 
       - name: 'Deploy to Cloud Run'
@@ -97,6 +97,7 @@ jobs:
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}'
           flags: '--add-cloudsql-instances ${{ env.CLOUD_SQL_CONNECTION_NAME }}'
           env_vars: |-
+            SPRING_PROFILES_ACTIVE=dev
             POSTGRES_DATASOURCE_URL=${{ secrets.POSTGRES_DATASOURCE_URL }}
             POSTGRES_DATASOURCE_USERNAME=${{ secrets.POSTGRES_DATASOURCE_USERNAME }}
             POSTGRES_DATASOURCE_PASSWORD=${{ secrets.POSTGRES_DATASOURCE_PASSWORD }}

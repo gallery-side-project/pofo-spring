@@ -40,15 +40,6 @@
 
 ## Architecture
 
-### Multi-module Architecture
-
-![pofo-multi-module-architecture](https://github.com/user-attachments/assets/8f28a733-5ac9-491e-88e1-4a7220623f2f)
-
-- `pofo-api`: 프론트엔드 측에서 사용하는 API module
-- `pofo-infra`: Executable Module에서 공통으로 사용하는 외부 의존성 module
-- `pofo-domain`: 도메인 객체와 Database 접근을 담당하는 module
-- `pofo-common`: 의존성이 없으며, 특정 도메인에 종속되지 않는 공통 모듈
-
 ### Infrastructure Architecture
 
 ![pofo-infrastructure-architecture](https://github.com/user-attachments/assets/350ae65b-39d0-48b9-a736-967ab8a86b42)

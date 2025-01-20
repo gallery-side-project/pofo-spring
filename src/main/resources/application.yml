@@ -1,0 +1,99 @@
+spring:
+  profiles:
+    group:
+      test: local
+  config:
+    import:
+      - application-oauth2.yml
+      - application-db.yml
+  web:
+    resources:
+      add-mappings: false
+  graphql:
+    schema:
+      locations:
+        - classpath:graphql/**/
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY:not_secured_secretnot_secured_secretnot_secured_secretnot_secured_secretnot_secured_secret}
+
+pofo:
+  domain: ${POFO_DOMAIN:http://localhost:3000}
+
+server:
+    servlet:
+        context-path: /api
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      printer:
+        enabled: true
+
+logging:
+  level:
+    org.pofo.api: DEBUG
+    org.springframework.security: DEBUG
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    persist-authorization: true
+    path: /swagger-ui
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      printer:
+        enabled: true
+
+logging:
+  level:
+    org.pofo.api: INFO
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    persist-authorization: true
+    path: /swagger-ui
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: ERROR
