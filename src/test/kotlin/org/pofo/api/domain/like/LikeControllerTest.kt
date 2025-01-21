@@ -21,10 +21,12 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.post
+import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 internal class LikeControllerTest
 @Autowired
 constructor(
@@ -49,12 +51,6 @@ constructor(
                     user,
                 ),
             )
-    }
-
-    afterEach {
-        likeRepository.deleteAll()
-        projectRepository.deleteAll()
-        userRepository.deleteAll()
     }
 
     describe("좋아요 등록") {
