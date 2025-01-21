@@ -96,9 +96,13 @@ internal class ProjectControllerTest
             }
 
             "프로젝트 검색 - 페이지네이션" {
-                val savedProjects = List(30) { idx ->
-                    createProject(title = "Test Project $idx", author = savedUser)
-                }
+                val savedProjects =
+                    List(30) { idx ->
+                        createProject(
+                            title = "Test Project $idx",
+                            author = savedUser,
+                        )
+                    }
                 projectRepository.saveAll(savedProjects)
 
                 val firstPageRequest =
@@ -168,9 +172,20 @@ internal class ProjectControllerTest
                         ),
                     )
 
-                val savedProjects = List(30) { idx ->
-                    createProject(title = "Test Project $idx", author = if (idx % 2 == 0) savedUser else otherSavedUser)
-                }
+                val savedProjects =
+                    List(30) { idx ->
+                        createProject(
+                            title = "Test Project $idx",
+                            author =
+                                if (idx % 2 ==
+                                    0
+                                ) {
+                                    savedUser
+                                } else {
+                                    otherSavedUser
+                                },
+                        )
+                    }
                 projectRepository.saveAll(savedProjects)
 
                 val firstUserRequest =

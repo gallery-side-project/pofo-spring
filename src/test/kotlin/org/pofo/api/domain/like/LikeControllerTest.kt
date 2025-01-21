@@ -28,101 +28,101 @@ import org.springframework.transaction.annotation.Transactional
 @ActiveProfiles("test")
 @Transactional
 internal class LikeControllerTest
-@Autowired
-constructor(
-    private val mockMvc: MockMvc,
-    private val userRepository: UserRepository,
-    private val projectRepository: ProjectRepository,
-    private val likeRepository: LikeRepository,
-    private val jwtService: JwtService,
-) : DescribeSpec({
-    lateinit var user: User
-    lateinit var project: Project
-    lateinit var accessToken: String
+    @Autowired
+    constructor(
+        private val mockMvc: MockMvc,
+        private val userRepository: UserRepository,
+        private val projectRepository: ProjectRepository,
+        private val likeRepository: LikeRepository,
+        private val jwtService: JwtService,
+    ) : DescribeSpec({
+            lateinit var user: User
+            lateinit var project: Project
+            lateinit var accessToken: String
 
-    beforeEach {
-        user =
-            userRepository.save(UserFixture.createUser())
-        project =
-            projectRepository.save(ProjectFixture.createProject(author = user))
-        accessToken =
-            jwtService.generateAccessToken(
-                JwtTokenData(
-                    user,
-                ),
-            )
-    }
+            beforeEach {
+                user =
+                    userRepository.save(UserFixture.createUser())
+                project =
+                    projectRepository.save(ProjectFixture.createProject(author = user))
+                accessToken =
+                    jwtService.generateAccessToken(
+                        JwtTokenData(
+                            user,
+                        ),
+                    )
+            }
 
-    describe("좋아요 등록") {
-        it("성공적으로 좋아요를 등록한다") {
-            mockMvc
-                .post("${Version.V1}/like/${project.id}") {
-                    contentType = MediaType.APPLICATION_JSON
-                    headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
-                }.andExpect {
-                    status { isOk() }
-                    jsonPath("$.data.likes") { value(1) }
+            describe("좋아요 등록") {
+                it("성공적으로 좋아요를 등록한다") {
+                    mockMvc
+                        .post("${Version.V1}/like/${project.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                            headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
+                        }.andExpect {
+                            status { isOk() }
+                            jsonPath("$.data.likes") { value(1) }
+                        }
+
+                    likeRepository.existsByUserAndProject(user, project) shouldBe true
                 }
 
-            likeRepository.existsByUserAndProject(user, project) shouldBe true
-        }
+                it("중복된 좋아요 등록 시 실패한다") {
+                    // Given
+                    likeRepository.save(
+                        Like
+                            .builder()
+                            .user(user)
+                            .project(project)
+                            .build(),
+                    )
 
-        it("중복된 좋아요 등록 시 실패한다") {
-            // Given
-            likeRepository.save(
-                Like
-                    .builder()
-                    .user(user)
-                    .project(project)
-                    .build(),
-            )
-
-            // When
-            mockMvc
-                .post("${Version.V1}/like/${project.id}") {
-                    contentType = MediaType.APPLICATION_JSON
-                    headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
-                }.andExpect {
-                    status { isBadRequest() }
-                    jsonPath("$.code") { value(ErrorCode.ALREADY_LIKED_PROJECT.code) }
+                    // When
+                    mockMvc
+                        .post("${Version.V1}/like/${project.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                            headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
+                        }.andExpect {
+                            status { isBadRequest() }
+                            jsonPath("$.code") { value(ErrorCode.ALREADY_LIKED_PROJECT.code) }
+                        }
                 }
-        }
-    }
+            }
 
-    describe("좋아요 해제") {
-        it("성공적으로 좋아요를 해제한다") {
-            // Given
-            likeRepository.save(
-                Like
-                    .builder()
-                    .user(user)
-                    .project(project)
-                    .build(),
-            )
+            describe("좋아요 해제") {
+                it("성공적으로 좋아요를 해제한다") {
+                    // Given
+                    likeRepository.save(
+                        Like
+                            .builder()
+                            .user(user)
+                            .project(project)
+                            .build(),
+                    )
 
-            // When
-            mockMvc
-                .delete("${Version.V1}/like/${project.id}") {
-                    contentType = MediaType.APPLICATION_JSON
-                    headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
-                }.andExpect {
-                    status { isOk() }
-                    jsonPath("$.data.likes") { value(0) }
+                    // When
+                    mockMvc
+                        .delete("${Version.V1}/like/${project.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                            headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
+                        }.andExpect {
+                            status { isOk() }
+                            jsonPath("$.data.likes") { value(0) }
+                        }
+
+                    // Then
+                    likeRepository.existsByUserAndProject(user, project) shouldBe false
                 }
 
-            // Then
-            likeRepository.existsByUserAndProject(user, project) shouldBe false
-        }
-
-        it("좋아요가 없는 상태에서 해제 시 실패한다") {
-            mockMvc
-                .delete("${Version.V1}/like/${project.id}") {
-                    contentType = MediaType.APPLICATION_JSON
-                    headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
-                }.andExpect {
-                    status { isBadRequest() }
-                    jsonPath("$.code") { value(ErrorCode.LIKE_NOT_FOUND.code) }
+                it("좋아요가 없는 상태에서 해제 시 실패한다") {
+                    mockMvc
+                        .delete("${Version.V1}/like/${project.id}") {
+                            contentType = MediaType.APPLICATION_JSON
+                            headers { set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken") }
+                        }.andExpect {
+                            status { isBadRequest() }
+                            jsonPath("$.code") { value(ErrorCode.LIKE_NOT_FOUND.code) }
+                        }
                 }
-        }
-    }
-})
+            }
+        })

@@ -42,15 +42,14 @@ class UserService(
             )
 
         val user =
-            User.builder()
+            User
+                .builder()
                 .email(email)
                 .username(username)
                 .password(encodedPassword)
                 .build()
 
-        return userRepository.save(
-            user,
-        )
+        return userRepository.save(user)
     }
 
     fun getUserById(userId: Long): User =
