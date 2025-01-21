@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 import org.jlleitschuh.gradle.ktlint.tasks.GenerateReportsTask
-import org.jlleitschuh.gradle.ktlint.tasks.KtLintCheckTask
 
 
 plugins {
@@ -13,7 +12,7 @@ plugins {
     kotlin("plugin.lombok") version kotlinVersion
     id("org.springframework.boot") version "3.3.4"
     id("io.spring.dependency-management") version "1.1.6"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
     id("io.freefair.lombok") version "8.10"
 }
 
@@ -119,6 +118,8 @@ tasks.withType<Test> {
 
 // --- ktlint Settings
 ktlint {
+    version.set("1.4.1")
+
     reporters {
         reporter(ReporterType.JSON)
     }
@@ -130,8 +131,7 @@ tasks.withType<GenerateReportsTask> {
     )
 }
 
-tasks.withType<KtLintCheckTask> {
-    dependsOn(tasks.withType<JavaCompile>())
+tasks.named("runKtlintCheckOverMainSourceSet") {
+    dependsOn(tasks.named("compileJava"))
 }
-
 // ---
