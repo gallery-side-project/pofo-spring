@@ -9,15 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     container: node:20-bookworm-slim
 
-    services:
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     permissions:
       contents: read
 
@@ -32,6 +23,3 @@ jobs:
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
       - name: Build with Gradle Wrapper
         run: ./gradlew build
-        env:
-          REDIS_HOST: redis
-          REDIS_PORT: 6379

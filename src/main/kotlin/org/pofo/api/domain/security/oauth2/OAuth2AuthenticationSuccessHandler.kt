@@ -6,7 +6,7 @@ import org.pofo.api.common.util.CookieUtil
 import org.pofo.api.domain.security.PrincipalDetails
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.token.RefreshToken
-import org.pofo.api.domain.security.token.RefreshTokenRepository
+import org.pofo.api.domain.security.token.TokenRepository
 import org.pofo.api.domain.user.UserController
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 @Component
 class OAuth2AuthenticationSuccessHandler(
     private val jwtService: JwtService,
-    private val refreshTokenRepository: RefreshTokenRepository,
+    private val refreshTokenRepository: TokenRepository<RefreshToken>,
     private val cookieUtil: CookieUtil,
     private val environment: Environment,
 ) : SimpleUrlAuthenticationSuccessHandler() {
