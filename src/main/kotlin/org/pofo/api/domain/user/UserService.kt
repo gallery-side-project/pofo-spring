@@ -74,7 +74,7 @@ class UserService(
             RefreshToken(
                 findUser.id,
                 tokenResponse.refreshToken,
-                JwtService.REFRESH_TOKEN_EXPIRATION / 1000,
+                JwtService.REFRESH_TOKEN_EXPIRATION,
             )
         refreshTokenRepository.save(refreshTokenEntity)
         return tokenResponse

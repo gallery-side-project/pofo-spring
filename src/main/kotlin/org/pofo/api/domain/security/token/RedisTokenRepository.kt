@@ -1,27 +1,23 @@
 package org.pofo.api.domain.security.token
 
-import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.StringRedisTemplate
+import java.time.Duration
 
 class RedisTokenRepository<T : Token>(
-    private val redisTemplate: RedisTemplate<String, String>,
+    private val redisTemplate: StringRedisTemplate,
+    private val key: String,
 ) : TokenRepository<T> {
-    companion object {
-        const val BANNED_ACCESS_TOKEN_KEY = "banned_access_token"
-    }
-
     override fun save(token: T) {
-        val fieldKey = "$BANNED_ACCESS_TOKEN_KEY:${token.userId}"
         redisTemplate.opsForValue().set(
-            fieldKey,
+            "$key:${token.userId}",
             token.value,
-            token.expiration / 1000,
+            Duration.ofSeconds(token.expiration / 1000),
         )
     }
 
-    override fun findByUserIdOrNull(userId: Long): String? = redisTemplate.opsForValue().get(userId)
+    override fun findByUserIdOrNull(userId: Long): String? = redisTemplate.opsForValue().get("$key:$userId")
 
     override fun deleteByUserId(userId: Long) {
-        val fieldKey = "$BANNED_ACCESS_TOKEN_KEY:$userId"
-        redisTemplate.delete(fieldKey)
+        redisTemplate.delete("$key:$userId")
     }
 }
