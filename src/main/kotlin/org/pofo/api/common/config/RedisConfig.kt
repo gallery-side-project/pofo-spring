@@ -9,10 +9,10 @@ import org.springframework.data.redis.core.StringRedisTemplate
 
 @Configuration
 class RedisConfig {
-    @Value("\${spring.redis.host}")
+    @Value("\${spring.data.redis.host}")
     lateinit var host: String
 
-    @Value("\${spring.redis.port}")
+    @Value("\${spring.data.redis.port}")
     var port: Int = 6379
 
     @Bean
