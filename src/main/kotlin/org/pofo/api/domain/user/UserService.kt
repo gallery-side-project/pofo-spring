@@ -5,9 +5,8 @@ import org.pofo.api.common.exception.ErrorCode
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
 import org.pofo.api.domain.security.token.BannedAccessToken
-import org.pofo.api.domain.security.token.BannedAccessTokenRepository
 import org.pofo.api.domain.security.token.RefreshToken
-import org.pofo.api.domain.security.token.RefreshTokenRepository
+import org.pofo.api.domain.security.token.TokenRepository
 import org.pofo.api.domain.user.dto.TokenResponse
 import org.pofo.api.domain.user.dto.UserLoginRequest
 import org.pofo.api.domain.user.dto.UserRegisterRequest
@@ -22,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional
 )
 class UserService(
     private val userRepository: UserRepository,
-    private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
-    private val bannedAccessTokenRepository: BannedAccessTokenRepository,
+    private val refreshTokenRepository: TokenRepository<RefreshToken>,
+    private val bannedAccessTokenRepository: TokenRepository<BannedAccessToken>,
 ) {
     @Transactional
     fun createUser(userRegisterRequest: UserRegisterRequest): User {
@@ -87,11 +86,11 @@ class UserService(
                 refreshToken,
             )
 
-        val refreshTokenEntity =
-            refreshTokenRepository.findById(
+        val foundRefreshToken =
+            refreshTokenRepository.findByUserIdOrNull(
                 userId,
             )
-        if (refreshTokenEntity.isEmpty || refreshToken != refreshTokenEntity.get().value) {
+        if (foundRefreshToken == null || foundRefreshToken != refreshToken) {
             throw CustomException(
                 ErrorCode.USER_LOGIN_FAILED,
             )
@@ -103,7 +102,7 @@ class UserService(
             RefreshToken(
                 findUser.id,
                 tokenResponse.refreshToken,
-                JwtService.REFRESH_TOKEN_EXPIRATION / 1000,
+                JwtService.REFRESH_TOKEN_EXPIRATION,
             )
         refreshTokenRepository.save(
             newRefreshTokenEntity,
@@ -139,12 +138,12 @@ class UserService(
             BannedAccessToken(
                 userId,
                 accessToken,
-                JwtService.ACCESS_TOKEN_EXPIRATION / 1000,
+                JwtService.ACCESS_TOKEN_EXPIRATION,
             )
         bannedAccessTokenRepository.save(
             bannedAccessToken,
         )
-        refreshTokenRepository.deleteById(
+        refreshTokenRepository.deleteByUserId(
             userId,
         )
     }

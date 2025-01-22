@@ -1,14 +1,13 @@
 package org.pofo.api.domain.security.token
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.redis.core.RedisHash
-import org.springframework.data.redis.core.TimeToLive
-
-@RedisHash("refresh_token")
 class RefreshToken(
-    @Id
-    val userId: Long,
-    val value: String,
-    @TimeToLive
-    val expiration: Long,
-)
+    userId: Long,
+    value: String,
+    expiration: Long,
+) : Token(userId, value, expiration) {
+    companion object {
+        const val REFRESH_TOKEN_KEY = "refresh_token"
+    }
+
+    override fun getKey(): String = "${REFRESH_TOKEN_KEY}:$userId"
+}

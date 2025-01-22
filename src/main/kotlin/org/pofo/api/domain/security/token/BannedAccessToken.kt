@@ -1,14 +1,13 @@
 package org.pofo.api.domain.security.token
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.redis.core.RedisHash
-import org.springframework.data.redis.core.TimeToLive
-
-@RedisHash("banned_access_token")
 class BannedAccessToken(
-    @Id
-    val userId: Long,
-    val value: String,
-    @TimeToLive
-    val expiration: Long,
-)
+    userId: Long,
+    value: String,
+    expiration: Long,
+) : Token(userId, value, expiration) {
+    companion object {
+        const val BANNED_ACCESS_TOKEN_KEY = "banned_access_token"
+    }
+
+    override fun getKey(): String = "${BANNED_ACCESS_TOKEN_KEY}:$userId"
+}

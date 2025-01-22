@@ -9,7 +9,8 @@ import org.pofo.api.common.fixture.UserFixture
 import org.pofo.api.common.util.Version
 import org.pofo.api.domain.security.jwt.JwtService
 import org.pofo.api.domain.security.jwt.JwtTokenData
-import org.pofo.api.domain.security.token.BannedAccessTokenRepository
+import org.pofo.api.domain.security.token.BannedAccessToken
+import org.pofo.api.domain.security.token.TokenRepository
 import org.pofo.api.domain.user.dto.UserLoginRequest
 import org.pofo.api.domain.user.dto.UserRegisterRequest
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional
 internal class UserControllerTest(
     @Autowired private val mockMvc: MockMvc,
     @Autowired private val userService: UserService,
-    @Autowired private val bannedAccessTokenRepository: BannedAccessTokenRepository,
+    @Autowired private val bannedAccessTokenRepository: TokenRepository<BannedAccessToken>,
     @Autowired private val jwtService: JwtService,
 ) : DescribeSpec({
         val objectMapper = jacksonObjectMapper()
@@ -176,10 +177,10 @@ internal class UserControllerTest(
                         }
                     }
 
-                val bannedAccessTokenOptional =
-                    bannedAccessTokenRepository.findById(savedUser.id)
-                bannedAccessTokenOptional.isPresent shouldBe true
-                bannedAccessTokenOptional.get().value shouldBe accessToken
+                val bannedAccessToken =
+                    bannedAccessTokenRepository.findByUserIdOrNull(savedUser.id)
+                bannedAccessToken.shouldNotBeNull()
+                bannedAccessToken shouldBe accessToken
             }
         }
 
