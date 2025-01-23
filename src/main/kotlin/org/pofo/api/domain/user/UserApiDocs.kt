@@ -156,5 +156,5 @@ interface UserApiDocs {
         @Parameter(hidden = true) request: HttpServletRequest,
         @Parameter(hidden = true) response: HttpServletResponse,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
-    ): ApiResponse<Unit>
+    ): ApiResponse<*>
 }

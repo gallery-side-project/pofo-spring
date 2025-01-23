@@ -34,7 +34,7 @@ class JwtAuthenticationFilter(
 
             val bannedAccessToken = bannedAccessTokenTokenRepository.findByUserIdOrNull(jwtTokenData.userId)
 
-            if (bannedAccessToken != null) {
+            if (bannedAccessToken != null && bannedAccessToken == accessToken) {
                 log.debug { "Banned access token detected: $bannedAccessToken" }
                 return filterChain.doFilter(request, response)
             }

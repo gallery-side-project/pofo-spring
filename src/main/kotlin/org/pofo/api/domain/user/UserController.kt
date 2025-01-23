@@ -96,15 +96,21 @@ class UserController(
         request: HttpServletRequest,
         response: HttpServletResponse,
         @AuthenticationPrincipal principalDetails: PrincipalDetails,
-    ): ApiResponse<Unit> {
+    ): ApiResponse<*> {
         val accessToken = getAccessToken(request)
+
+        if (accessToken.isNullOrBlank()) {
+            response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
+            return ApiResponse.failure(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+
         userService.logout(principalDetails.jwtTokenData.userId, accessToken)
         val deletingRefreshTokenCookie = cookieUtil.createDeletingCookie(REFRESH_COOKIE_NAME)
 
         response.setHeader(HttpHeaders.SET_COOKIE, deletingRefreshTokenCookie.toString())
-        return ApiResponse.success(Unit)
+        return ApiResponse.success(null)
     }
 
-    private fun getAccessToken(request: HttpServletRequest): String =
-        request.getHeader(HttpHeaders.AUTHORIZATION)!!.removePrefix("Bearer ")
+    private fun getAccessToken(request: HttpServletRequest): String? =
+        request.getHeader(HttpHeaders.AUTHORIZATION)?.removePrefix("Bearer ")
 }
